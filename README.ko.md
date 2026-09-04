@@ -13,11 +13,11 @@ Unity Addressables 레이아웃이에요.
 
 - **Runtime** — `PathManager` / PathMeta, `AddressableAssetManager`, `AddressableLabels`, `ResourcesManager` (이름 로드, 라벨 preload, 동기 hit-only, 이중 경로, 도메인 API 없는 Spawn/Despawn)
 - **Editor** (선택 마일스톤) — Path Settings 갱신, Edit Mode `*ForEditor` 로드
-- **Demo** (선택) — 부트 preload, place 라벨 입장/퇴장, 이중 스캔 Lookup 놀이터 (출시 카탈로그 아님)
+- **Demo** (선택) — 부트 preload, place 라벨 입장/퇴장, Spawn/Despawn, 이중 스캔 Lookup 놀이터 (출시 카탈로그 아님)
 
 게임에 넣을 패키지는 **`Assets/AddressableLayout`**만 복사해요. `Assets/Demo`는 참고용이에요.
 
-**마일스톤 A–C + F (이 repo):** Runtime은 `project/unity-addressable/Assets/AddressableLayout`에 있어요 (`ResourcesManager`·PathManager 이중 스캔·Addressables). Unity에서 **Tools → Addressable Layout → Demo → Register Boot Sample** (boot + place + Resources/충돌 샘플 + PathMeta 갱신) 후 Play 하세요. PathMeta만: **Tools → Addressable Layout → Refresh Paths**.
+**마일스톤 A–D + F (이 repo):** Runtime은 `project/unity-addressable/Assets/AddressableLayout`에 있어요 (`ResourcesManager`·PathManager 이중 스캔·Addressables·Spawn/Despawn). Unity에서 **Tools → Addressable Layout → Demo → Register Boot Sample** (boot + spawn 프리팹 + place + Resources/충돌 샘플 + PathMeta 갱신) 후 Play 하세요. PathMeta만: **Tools → Addressable Layout → Refresh Paths**.
 
 ## 설치
 

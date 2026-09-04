@@ -6,7 +6,7 @@ using UnityEngine;
 namespace AddressableLayout.Demo
 {
     /// <summary>
-    /// A: boot 라벨 · B: PathMeta · C: sync hit-only + place enter/leave · F: dual-scan Lookup.
+    /// A: boot 라벨 · B: PathMeta · C: sync hit-only + place · D: Spawn/Despawn · F: dual-scan Lookup.
     /// </summary>
     public sealed class DemoAddressableHost : MonoBehaviour
     {
@@ -14,6 +14,7 @@ namespace AddressableLayout.Demo
         private const string BootAddress = "Assets/Addressables/Scriptable/Demo/DemoBootSample.asset";
         private const string PlaceAAddress = "Assets/Addressables/Scriptable/Demo/DemoPlaceASample.asset";
         private const string PlaceBFileName = "DemoPlaceBSample.asset";
+        private const string SpawnPrefabName = "DemoSpawnSample";
 
         private const string ResourcesOnlyFileName = "DemoResourcesOnly.asset";
         private const string ResourcesOnlyLeaf = "Demo/DemoResourcesOnly";
@@ -115,10 +116,40 @@ namespace AddressableLayout.Demo
                 $"[DemoAddressableHost] Sync hit after preload OK markerId={syncHit.MarkerId} " +
                 "(milestone C preload).");
 
+            await RunMilestoneDAsync();
+
             await RunPlaceEnterLeaveAsync();
 
             ResourcesManager.ReleaseAll();
             Debug.Log("[DemoAddressableHost] ReleaseAll done (milestone A/C).");
+        }
+
+        private static async Task RunMilestoneDAsync()
+        {
+            IList<GameObject> bootPrefabs =
+                await ResourcesManager.LoadResourcesByLabelAsync<GameObject>(AddressableLabels.Boot);
+            if (bootPrefabs == null || bootPrefabs.Count == 0)
+            {
+                Debug.LogError(
+                    "[DemoAddressableHost] No GameObject under label 'boot'. " +
+                    "Unity: Tools → Addressable Layout → Demo → Register Boot Sample.");
+                return;
+            }
+
+            GameObject spawned = ResourcesManager.SpawnPrefab(SpawnPrefabName);
+            if (spawned == null)
+            {
+                Debug.LogError(
+                    $"[DemoAddressableHost] SpawnPrefab('{SpawnPrefabName}') failed after boot preload.");
+                return;
+            }
+
+            Debug.Log(
+                $"[DemoAddressableHost] SpawnPrefab OK name={SpawnPrefabName} " +
+                $"(milestone D).");
+
+            ResourcesManager.Despawn(spawned);
+            Debug.Log("[DemoAddressableHost] Despawn OK (milestone D).");
         }
 
         private static async Task RunPlaceEnterLeaveAsync()

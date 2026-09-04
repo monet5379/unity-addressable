@@ -2,13 +2,13 @@
 
 Build order for **Addressable Layout**. Contract truth stays in the root [README](../README.md) (Invariants). This file is only **what to implement next** — not a Treasure-style Plan tree.
 
-**Done (package goal):** **C + F**, with **D** recommended. **E** optional.
+**Done (package goal):** **C + F + D**. **E** optional.
 
 Class target (Treasure/Core-shaped): `AddressableAssetManager` · `AddressableLabels` · `PathManager` · `ResourcesManager` (+ Editor pieces in E).
 
 ```text
 A → B → C → F → D → (E)
-         └─────────── Done = C+F (+D)   ← F done; D next
+         └─────────── Done = C+F+D   ← D done; E optional next
 ```
 
 | ID | Name | Status |
@@ -17,7 +17,7 @@ A → B → C → F → D → (E)
 | B | Path lookup + PathMeta | done |
 | C | Preload + sync hit-only facade | done |
 | F | Resources ↔ Addressables dual scan | done |
-| D | Spawn / Despawn facade | pending |
+| D | Spawn / Despawn facade | done |
 | E | Editor Path Settings + `*ForEditor` | pending |
 
 ---
@@ -144,8 +144,14 @@ A → B → C → F → D → (E)
 
 **Exit**
 
-- [ ] Demo spawns and despawns a named prefab after preload
-- [ ] Out of scope still excludes typed game facades
+- [x] Demo spawns and despawns a named prefab after preload
+- [x] Out of scope still excludes typed game facades
+
+**Verify (Unity)**
+
+1. **Tools → Addressable Layout → Demo → Register Boot Sample** (boot SO + spawn prefab + place + F fixtures)
+2. Enter Play — Console: after C preload, SpawnPrefab / Despawn `(milestone D)` before place enter/leave
+3. README Out of scope still excludes typed `Spawn*` domain APIs
 
 ---
 

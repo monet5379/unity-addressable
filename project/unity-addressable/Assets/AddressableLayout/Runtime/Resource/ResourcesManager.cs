@@ -9,6 +9,7 @@ namespace AddressableLayout.Resource
     /// PathManager + AddressableAssetManager Play facade.
     /// Addressables 경로: 동기 LoadResource = 캐시 hit만.
     /// Resources leaf: Resources.Load (이관 중 이중 경로).
+    /// SpawnPrefab / Despawn: 이름 → Path → Instantiate / Destroy.
     /// </summary>
     public static class ResourcesManager
     {
@@ -114,5 +115,53 @@ namespace AddressableLayout.Resource
         }
 
         public static void LeavePlace(string placeLabel) => ReleaseLabel(placeLabel);
+
+        /// <summary>
+        /// 프리팹 이름 → PathMeta → sync Load → Instantiate.
+        /// Addressables 경로는 캐시 hit 전제 (miss면 null).
+        /// </summary>
+        public static GameObject SpawnPrefab(string prefabName, Transform parent = null)
+        {
+            if (string.IsNullOrEmpty(prefabName))
+            {
+                Debug.LogWarning("[AddressableLayout] SpawnPrefab: prefab name is empty.");
+                return null;
+            }
+
+            string path = PathManager.FindPrefabPath(prefabName);
+            if (string.IsNullOrEmpty(path))
+            {
+                Debug.LogWarning(
+                    $"[AddressableLayout] SpawnPrefab: PathMeta miss for '{prefabName}'. " +
+                    "Run Tools → Addressable Layout → Refresh Paths.");
+                return null;
+            }
+
+            GameObject prefab = LoadResource<GameObject>(path);
+            if (prefab == null)
+            {
+                Debug.LogWarning(
+                    $"[AddressableLayout] SpawnPrefab: sync miss for '{prefabName}' path={path}. " +
+                    "Preload by label (Addressables) or ensure Resources leaf exists.");
+                return null;
+            }
+
+            return parent != null
+                ? UnityEngine.Object.Instantiate(prefab, parent)
+                : UnityEngine.Object.Instantiate(prefab);
+        }
+
+        /// <summary>
+        /// SpawnPrefab으로 만든 인스턴스 Destroy (풀링 없음).
+        /// </summary>
+        public static void Despawn(GameObject instance)
+        {
+            if (instance == null)
+            {
+                return;
+            }
+
+            UnityEngine.Object.Destroy(instance);
+        }
     }
 }

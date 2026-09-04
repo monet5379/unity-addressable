@@ -8,11 +8,11 @@ A Unity Addressables layout: **filename → path lookup**, **type + place labels
 
 - **Runtime** — `PathManager` / PathMeta, `AddressableAssetManager`, `AddressableLabels`, `ResourcesManager` (load by name, label preload, sync cache-hit only; dual path; Spawn/Despawn without domain APIs)
 - **Editor** (optional milestone) — Path Settings refresh, Edit Mode `*ForEditor` loads
-- **Demo** (optional) — boot preload, place-label enter/leave, dual-scan Lookup playground (not a shipping catalog)
+- **Demo** (optional) — boot preload, place-label enter/leave, Spawn/Despawn, dual-scan Lookup playground (not a shipping catalog)
 
 Copy only **`Assets/AddressableLayout`** into a game. `Assets/Demo` is reference-only.
 
-**Milestones A–C + F (in repo):** Runtime is under `project/unity-addressable/Assets/AddressableLayout` (`ResourcesManager` + PathManager dual scan + Addressables). After opening that Unity project, run **Tools → Addressable Layout → Demo → Register Boot Sample** (boot + place + Resources/collision samples + PathMeta), then Play. Refresh alone: **Tools → Addressable Layout → Refresh Paths**.
+**Milestones A–D + F (in repo):** Runtime is under `project/unity-addressable/Assets/AddressableLayout` (`ResourcesManager` + PathManager dual scan + Addressables + Spawn/Despawn). After opening that Unity project, run **Tools → Addressable Layout → Demo → Register Boot Sample** (boot + spawn prefab + place + Resources/collision samples + PathMeta), then Play. Refresh alone: **Tools → Addressable Layout → Refresh Paths**.
 
 ## Install
 

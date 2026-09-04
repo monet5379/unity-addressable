@@ -7,14 +7,16 @@ using UnityEngine;
 namespace AddressableLayout.Demo
 {
     /// <summary>
-    /// Demo 샘플 SO + boot/place 라벨 등록 + PathMeta 이중 스캔 (A/B/C/F Exit).
+    /// Demo 샘플 SO/프리팹 + boot/place 라벨 등록 + PathMeta 이중 스캔 (A/B/C/D/F Exit).
     /// </summary>
     public static class DemoAddressableSetup
     {
         private const string SampleFolder = "Assets/Addressables/Scriptable/Demo";
+        private const string PrefabFolder = "Assets/Addressables/Prefabs/Demo";
         private const string BootPath = SampleFolder + "/DemoBootSample.asset";
         private const string PlaceAPath = SampleFolder + "/DemoPlaceASample.asset";
         private const string PlaceBPath = SampleFolder + "/DemoPlaceBSample.asset";
+        private const string SpawnPrefabPath = PrefabFolder + "/DemoSpawnSample.prefab";
         private const string CollisionAddressablesPath = SampleFolder + "/DemoCollisionSample.asset";
 
         private const string ResourcesDemoFolder = "Assets/Resources/Demo";
@@ -27,6 +29,8 @@ namespace AddressableLayout.Demo
             EnsureFolder("Assets/Addressables");
             EnsureFolder("Assets/Addressables/Scriptable");
             EnsureFolder(SampleFolder);
+            EnsureFolder("Assets/Addressables/Prefabs");
+            EnsureFolder(PrefabFolder);
             EnsureFolder("Assets/Resources");
             EnsureFolder(ResourcesDemoFolder);
 
@@ -48,6 +52,7 @@ namespace AddressableLayout.Demo
             RegisterSample(settings, BootPath, "boot-sample", AddressableLabels.Boot, AddressableLabels.Default);
             RegisterSample(settings, PlaceAPath, "place-a", AddressableLabels.DemoAreaA);
             RegisterSample(settings, PlaceBPath, "place-b", AddressableLabels.DemoAreaB);
+            RegisterSpawnPrefab(settings, SpawnPrefabPath, AddressableLabels.Boot);
 
             // F: Addressables 쪽 충돌 파일은 디스크만 (라벨/그룹 없음). Resources-only도 Addressables 미등록.
             EnsureSampleAsset(CollisionAddressablesPath, "collision-addressables");
@@ -61,7 +66,7 @@ namespace AddressableLayout.Demo
             AssetDatabase.Refresh();
 
             Debug.Log(
-                $"[DemoAddressableSetup] Registered boot + place + F dual-scan samples " +
+                $"[DemoAddressableSetup] Registered boot + place + spawn prefab + F dual-scan samples " +
                 $"({AddressableLabels.Boot}, {AddressableLabels.DemoAreaA}, {AddressableLabels.DemoAreaB}). " +
                 $"PathMeta entries={pathCount}. Enter Play to run Demo.");
         }
@@ -83,6 +88,34 @@ namespace AddressableLayout.Demo
             }
 
             EditorUtility.SetDirty(sample);
+        }
+
+        private static void RegisterSpawnPrefab(
+            AddressableAssetSettings settings,
+            string prefabPath,
+            params string[] labels)
+        {
+            EnsureSpawnPrefab(prefabPath);
+
+            string guid = AssetDatabase.AssetPathToGUID(prefabPath);
+            AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, settings.DefaultGroup);
+            entry.SetAddress(prefabPath);
+            for (int i = 0; i < labels.Length; i++)
+            {
+                entry.SetLabel(labels[i], true, true);
+            }
+        }
+
+        private static void EnsureSpawnPrefab(string prefabPath)
+        {
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath) != null)
+            {
+                return;
+            }
+
+            var temp = new GameObject("DemoSpawnSample");
+            PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
+            UnityEngine.Object.DestroyImmediate(temp);
         }
 
         private static DemoBootSample EnsureSampleAsset(string assetPath, string markerId)
