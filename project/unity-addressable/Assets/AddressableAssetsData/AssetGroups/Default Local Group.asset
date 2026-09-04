@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Default Local Group
+  m_GUID: 283814ed9b42a444b83ff804180b5bf7
+  m_SerializeEntries:
+  - m_GUID: ebc296b6d7ea0464a922fe1035c8f0e7
+    m_Address: Assets/Addressables/Scriptable/Demo/DemoBootSample.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - boot
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 239498d3ad87155459d0bc2c132cf428, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: cd6bba900d424e44594e46c8b7599215, type: 2}
+    - {fileID: 11400000, guid: 10be0058c00cf8648a33bcfc6088b68d, type: 2}
