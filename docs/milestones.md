@@ -8,7 +8,7 @@ Class target (Treasure/Core-shaped): `AddressableAssetManager` · `AddressableLa
 
 ```text
 A → B → C → F → D → (E)
-         └─────────── Done = C+F (+D)   ← C implemented; F next
+         └─────────── Done = C+F (+D)   ← F done; D next
 ```
 
 | ID | Name | Status |
@@ -16,7 +16,7 @@ A → B → C → F → D → (E)
 | A | Addressables wrapper + labels | done |
 | B | Path lookup + PathMeta | done |
 | C | Preload + sync hit-only facade | done |
-| F | Resources ↔ Addressables dual scan | pending |
+| F | Resources ↔ Addressables dual scan | done |
 | D | Spawn / Despawn facade | pending |
 | E | Editor Path Settings + `*ForEditor` | pending |
 
@@ -118,8 +118,14 @@ A → B → C → F → D → (E)
 
 **Exit**
 
-- [ ] Lookup resolves Resources-only, Addressables-only, and documents collision rule
-- [ ] README dual-path invariant checked
+- [x] Lookup resolves Resources-only, Addressables-only, and documents collision rule
+- [x] README dual-path invariant checked
+
+**Verify (Unity)**
+
+1. **Tools → Addressable Layout → Demo → Register Boot Sample** (also creates Resources-only + collision fixtures) — or **Refresh Paths**
+2. Enter Play — Console: Resources-only leaf Lookup · collision Resources wins · Addressables-only still `(milestone B)` · then A/C as before
+3. Refresh warning on collision: `Duplicate filename in PathMeta; Resources wins`
 
 ---
 

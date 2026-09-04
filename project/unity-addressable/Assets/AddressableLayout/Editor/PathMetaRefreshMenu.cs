@@ -5,7 +5,7 @@ using UnityEngine;
 namespace AddressableLayout.Editor
 {
     /// <summary>
-    /// Assets/Addressables 스캔 → PathMetaData.json 갱신 (Milestone B).
+    /// Resources + Addressables 이중 스캔 → PathMetaData.json 갱신 (Milestone F).
     /// </summary>
     public static class PathMetaRefreshMenu
     {

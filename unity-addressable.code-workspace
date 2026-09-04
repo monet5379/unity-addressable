@@ -5,21 +5,6 @@
 			"path": "."
 		},
 		{
-			"name": "anthropics-skills-main",
-			"path": "../../Github/anthropics-skills-main"
-		},
-		{
-			"name": "ProjectTreasure",
-			"path": "../../Intem Studio/ProjectTreasure"
-		},
-		{
-			"name": "dragon-is-dead",
-			"path": "../dragon-is-dead"
-		},
-		{
-			"path": "../unity-save-layout"
-		},
-		{
 			"path": "../unity-studio-kit"
 		}
 	],

@@ -7,12 +7,13 @@ using UnityEngine;
 namespace AddressableLayout.Resource
 {
     /// <summary>
-    /// 파일명 → Addressables 주소 Lookup. PathMeta는 Resources/Data/PathMetaData.json.
-    /// B: Addressables만 스캔. Resources 이중 스캔은 F.
+    /// 파일명 → Addressables 주소 / Resources.Load leaf Lookup.
+    /// PathMeta는 Resources/Data/PathMetaData.json. F: Resources 우선 이중 스캔.
     /// </summary>
     public static class PathManager
     {
         public const string AddressableFolderName = "Addressables";
+        public const string ResourcesFolderName = "Resources";
         public const string TargetPath = "Resources/Data/PathMetaData.json";
 
         public static readonly HashSet<string> IgnoreExtensionSet = new()
@@ -97,17 +98,29 @@ namespace AddressableLayout.Resource
         }
 
         /// <summary>
-        /// Assets/Addressables 스캔 후 PathMetaData.json 갱신. 중복 파일명은 경고하고 첫 path만 유지.
+        /// Resources 먼저, 이어서 Addressables 스캔 후 PathMetaData.json 갱신.
+        /// 동일 파일명: Resources 우선. 트리 내부 중복은 첫 path 유지.
         /// </summary>
         public static int UpdatePathMetadata()
         {
             _database.Clear();
 
+            string resourcesRoot = Path.Combine(Application.dataPath, ResourcesFolderName);
+            if (Directory.Exists(resourcesRoot))
+            {
+                string[] resourcesFilePaths =
+                    Directory.GetFiles(resourcesRoot, "*.*", SearchOption.AllDirectories);
+                foreach (string filePath in resourcesFilePaths)
+                {
+                    AddResourcesPath(filePath, resourcesRoot);
+                }
+            }
+
             string addressableRoot = Path.Combine(Application.dataPath, AddressableFolderName);
             if (!Directory.Exists(addressableRoot))
             {
                 Debug.LogWarning(
-                    $"[AddressableLayout] Missing folder: Assets/{AddressableFolderName}. PathMeta will be empty.");
+                    $"[AddressableLayout] Missing folder: Assets/{AddressableFolderName}.");
             }
             else
             {
@@ -152,6 +165,37 @@ namespace AddressableLayout.Resource
             return Lookup($"{cleanName}{normalizedExtension}") ?? string.Empty;
         }
 
+        private static void AddResourcesPath(string filePath, string resourcesRoot)
+        {
+            if (CheckIgnore(filePath) || IsPathMetaDataFile(filePath))
+            {
+                return;
+            }
+
+            string fileName = Path.GetFileName(filePath);
+            if (fileName.StartsWith("."))
+            {
+                return;
+            }
+
+            if (_database.ContainsKey(fileName))
+            {
+                Debug.LogWarning(
+                    $"[AddressableLayout] Duplicate filename in PathMeta; keeping first path. name={fileName}");
+                return;
+            }
+
+            string normalizedRoot = ToUnixPath(resourcesRoot);
+            string normalizedFilePath = ToUnixPath(filePath);
+            string relative = normalizedFilePath[normalizedRoot.Length..].TrimStart('/');
+            string extension = Path.GetExtension(relative);
+            string leafPath = string.IsNullOrEmpty(extension)
+                ? relative
+                : relative[..^extension.Length];
+
+            _database.Add(fileName, leafPath);
+        }
+
         private static void AddAddressablePath(string filePath)
         {
             if (CheckIgnore(filePath))
@@ -167,9 +211,19 @@ namespace AddressableLayout.Resource
 
             if (_database.ContainsKey(fileName))
             {
-                // ponytail: 첫 path 유지. F에서 Resources 우선으로 확장.
-                Debug.LogWarning(
-                    $"[AddressableLayout] Duplicate filename in PathMeta; keeping first path. name={fileName}");
+                // ponytail: Resources를 먼저 넣었으므로 기존 키 = Resources wins.
+                string existing = _database[fileName];
+                if (!IsAddressablePath(existing))
+                {
+                    Debug.LogWarning(
+                        $"[AddressableLayout] Duplicate filename in PathMeta; Resources wins. name={fileName}");
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        $"[AddressableLayout] Duplicate filename in PathMeta; keeping first path. name={fileName}");
+                }
+
                 return;
             }
 
@@ -177,6 +231,12 @@ namespace AddressableLayout.Resource
             string normalizedFilePath = ToUnixPath(filePath);
             string addressablePath = $"Assets{normalizedFilePath[assetsRoot.Length..]}";
             _database.Add(fileName, addressablePath);
+        }
+
+        private static bool IsPathMetaDataFile(string filePath)
+        {
+            return ToUnixPath(filePath)
+                .EndsWith("/Resources/Data/PathMetaData.json", StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool CheckIgnore(string filePath)

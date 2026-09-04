@@ -7,7 +7,7 @@ using UnityEngine;
 namespace AddressableLayout.Demo
 {
     /// <summary>
-    /// Demo 샘플 SO + boot/place 라벨 등록 + PathMeta 갱신 (A/B/C Exit).
+    /// Demo 샘플 SO + boot/place 라벨 등록 + PathMeta 이중 스캔 (A/B/C/F Exit).
     /// </summary>
     public static class DemoAddressableSetup
     {
@@ -15,6 +15,11 @@ namespace AddressableLayout.Demo
         private const string BootPath = SampleFolder + "/DemoBootSample.asset";
         private const string PlaceAPath = SampleFolder + "/DemoPlaceASample.asset";
         private const string PlaceBPath = SampleFolder + "/DemoPlaceBSample.asset";
+        private const string CollisionAddressablesPath = SampleFolder + "/DemoCollisionSample.asset";
+
+        private const string ResourcesDemoFolder = "Assets/Resources/Demo";
+        private const string ResourcesOnlyPath = ResourcesDemoFolder + "/DemoResourcesOnly.asset";
+        private const string CollisionResourcesPath = ResourcesDemoFolder + "/DemoCollisionSample.asset";
 
         [MenuItem("Tools/Addressable Layout/Demo/Register Boot Sample")]
         public static void RegisterBootSample()
@@ -22,6 +27,8 @@ namespace AddressableLayout.Demo
             EnsureFolder("Assets/Addressables");
             EnsureFolder("Assets/Addressables/Scriptable");
             EnsureFolder(SampleFolder);
+            EnsureFolder("Assets/Resources");
+            EnsureFolder(ResourcesDemoFolder);
 
             AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
             if (settings == null)
@@ -42,6 +49,11 @@ namespace AddressableLayout.Demo
             RegisterSample(settings, PlaceAPath, "place-a", AddressableLabels.DemoAreaA);
             RegisterSample(settings, PlaceBPath, "place-b", AddressableLabels.DemoAreaB);
 
+            // F: Addressables 쪽 충돌 파일은 디스크만 (라벨/그룹 없음). Resources-only도 Addressables 미등록.
+            EnsureSampleAsset(CollisionAddressablesPath, "collision-addressables");
+            EnsureSampleAsset(ResourcesOnlyPath, "resources-only");
+            EnsureSampleAsset(CollisionResourcesPath, "collision-resources");
+
             EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
 
@@ -49,7 +61,7 @@ namespace AddressableLayout.Demo
             AssetDatabase.Refresh();
 
             Debug.Log(
-                $"[DemoAddressableSetup] Registered boot + place samples " +
+                $"[DemoAddressableSetup] Registered boot + place + F dual-scan samples " +
                 $"({AddressableLabels.Boot}, {AddressableLabels.DemoAreaA}, {AddressableLabels.DemoAreaB}). " +
                 $"PathMeta entries={pathCount}. Enter Play to run Demo.");
         }
@@ -59,6 +71,21 @@ namespace AddressableLayout.Demo
             string assetPath,
             string markerId,
             params string[] labels)
+        {
+            DemoBootSample sample = EnsureSampleAsset(assetPath, markerId);
+
+            string guid = AssetDatabase.AssetPathToGUID(assetPath);
+            AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, settings.DefaultGroup);
+            entry.SetAddress(assetPath);
+            for (int i = 0; i < labels.Length; i++)
+            {
+                entry.SetLabel(labels[i], true, true);
+            }
+
+            EditorUtility.SetDirty(sample);
+        }
+
+        private static DemoBootSample EnsureSampleAsset(string assetPath, string markerId)
         {
             DemoBootSample sample = AssetDatabase.LoadAssetAtPath<DemoBootSample>(assetPath);
             if (sample == null)
@@ -71,14 +98,7 @@ namespace AddressableLayout.Demo
             so.FindProperty("markerId").stringValue = markerId;
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(sample);
-
-            string guid = AssetDatabase.AssetPathToGUID(assetPath);
-            AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, settings.DefaultGroup);
-            entry.SetAddress(assetPath);
-            for (int i = 0; i < labels.Length; i++)
-            {
-                entry.SetLabel(labels[i], true, true);
-            }
+            return sample;
         }
 
         private static int IndexOfFastModeBuilder(AddressableAssetSettings settings)

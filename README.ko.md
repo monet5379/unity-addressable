@@ -13,11 +13,11 @@ Unity Addressables 레이아웃이에요.
 
 - **Runtime** — `PathManager` / PathMeta, `AddressableAssetManager`, `AddressableLabels`, `ResourcesManager` (이름 로드, 라벨 preload, 동기 hit-only, 이중 경로, 도메인 API 없는 Spawn/Despawn)
 - **Editor** (선택 마일스톤) — Path Settings 갱신, Edit Mode `*ForEditor` 로드
-- **Demo** (선택) — 부트 preload, place 라벨 입장/퇴장, 로드·스폰 놀이터 (출시 카탈로그 아님)
+- **Demo** (선택) — 부트 preload, place 라벨 입장/퇴장, 이중 스캔 Lookup 놀이터 (출시 카탈로그 아님)
 
 게임에 넣을 패키지는 **`Assets/AddressableLayout`**만 복사해요. `Assets/Demo`는 참고용이에요.
 
-**마일스톤 A–C (이 repo):** Runtime은 `project/unity-addressable/Assets/AddressableLayout`에 있어요 (`ResourcesManager`·PathManager·Addressables). Unity에서 **Tools → Addressable Layout → Demo → Register Boot Sample** (boot + place 샘플 + PathMeta 갱신) 후 Play 하세요. PathMeta만: **Tools → Addressable Layout → Refresh Paths**.
+**마일스톤 A–C + F (이 repo):** Runtime은 `project/unity-addressable/Assets/AddressableLayout`에 있어요 (`ResourcesManager`·PathManager 이중 스캔·Addressables). Unity에서 **Tools → Addressable Layout → Demo → Register Boot Sample** (boot + place + Resources/충돌 샘플 + PathMeta 갱신) 후 Play 하세요. PathMeta만: **Tools → Addressable Layout → Refresh Paths**.
 
 ## 설치
 
@@ -44,15 +44,26 @@ Dragon류 타이틀의 **Resources → Addressables** 이관 기준이 될 표�
 
 ## 불변조건
 
-- **파일명은 전역 키** — PathMeta는 중복 시 경고(`Duplicate filename in PathMeta; keeping first path`), 첫 path만 등록.
+- **파일명은 전역 키** — PathMeta는 중복 시 경고(같은 트리: `Duplicate filename in PathMeta; keeping first path`; Resources↔Addressables 충돌: `Resources wins`). Resources를 먼저 스캔하므로 Resources 경로가 유지돼요.
 - `Assets/Addressables/`**만** — 단수 `Addressable/` 콘텐츠 루트 금지.
 - **종류 라벨 ≠ 지역 라벨** — 부트/UI/공유는 type, 지역 전용은 place(타이틀 Area id. `area1`/`area2` 금지).
-- **동기** `Load`**(Play) = 캐시 hit만** — miss는 null. 라벨 preload 또는 `LoadAsync`. miss를 동기 Addressables 조회로 막지 않음.
+- **동기** `Load`**(Play) — Addressables 경로 = 캐시 hit만** — miss는 null. 라벨 preload 또는 `LoadAsync`. miss를 동기 Addressables 조회로 막지 않음. **Resources leaf**(`Assets/` 접두 없음)는 이관 중 `Resources.Load`를 써요.
 - **Lookup 전** `PathManager.Load()` — 부트: PathMeta → 라벨 preload → 게임플레이 로드/스폰.
 - **폴더 OK / 라벨 없음** — Edit/`*ForEditor`는 성공할 수 있으나, 라벨 미할당이면 Play 라벨 로드는 실패할 수 있음.
-- **이중 스캔 시 Resources·Addressables 동일 파일명 금지** — Resources 우선.
+- **이중 스캔 시 Resources·Addressables 동일 파일명 금지** — Resources 우선 (`Duplicate filename in PathMeta; Resources wins`).
 - **Spawn 파사드 ≠ 도메인 파사드** — 패키지 Spawn은 프리팹 이름; 스테이지/캐릭터/UI 라우팅은 타이틀.
 - **Demo ≠ 출시 카탈로그** — 샘플 라벨·에셋은 놀이터만.
+
+### 이중 스캔 경로 형태
+
+
+| 출처 | PathMeta 값 | `IsAddressablePath` |
+| --- | --- | --- |
+| `Assets/Addressables/...` | `Assets/...` 주소 | `true` |
+| `Assets/Resources/...` | Resources.Load leaf(확장자 없음), 예: `Demo/Foo` | `false` |
+
+
+**한 파일 이관:** `Assets/Resources/` → `Assets/Addressables/`로 옮기고 Resources 쪽을 지운 뒤 **Refresh Paths**하면 Lookup이 `Assets/...`가 돼요. 일괄 마이그레이터는 이 패키지에 없어요.
 
 ## 이 패키지가 아닌 것
 
@@ -62,6 +73,7 @@ Dragon류 타이틀의 **Resources → Addressables** 이관 기준이 될 표�
 - 라벨 입장/퇴장을 넘는 씬 **Release/Preload** 정책 전체
 - **LeanPool 필수** (호스트가 풀링 가능; 패키지 기본은 Instantiate/Destroy일 수 있음)
 - Remote CDN 운영·콘텐츠 업데이트 UX·암호화
+- Resources → Addressables **자동 일괄 마이그레이터**
 - `.meta` 수동 편집
 
 ## 라벨 (종류 + 지역)
@@ -96,7 +108,7 @@ Assets/Resources/                 # 이중 경로 이관 중 선택
 ```text
 Assets/AddressableLayout/
   Runtime/
-  Editor/                         # Refresh Paths (B); Path Settings UI는 E
+  Editor/                         # Refresh Paths (B/F); Path Settings UI는 E
 Assets/Demo/                      # 놀이터만 — 출시 복사 금지
 Assets/Resources/Data/
   PathMetaData.json               # Refresh Paths로 생성

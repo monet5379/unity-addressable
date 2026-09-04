@@ -7,7 +7,8 @@ namespace AddressableLayout.Resource
 {
     /// <summary>
     /// PathManager + AddressableAssetManager Play facade.
-    /// 동기 LoadResource = 캐시 hit만. miss는 null → 라벨 preload 또는 LoadResourceAsync.
+    /// Addressables 경로: 동기 LoadResource = 캐시 hit만.
+    /// Resources leaf: Resources.Load (이관 중 이중 경로).
     /// </summary>
     public static class ResourcesManager
     {
@@ -21,7 +22,7 @@ namespace AddressableLayout.Resource
         }
 
         /// <summary>
-        /// Play 동기 로드: 캐시 hit만. Addressables sync fetch 하지 않음.
+        /// Play 동기 로드. Addressables = 캐시 hit만. Resources leaf = Resources.Load.
         /// </summary>
         public static T LoadResource<T>(string pathOrAddress) where T : UnityEngine.Object
         {
@@ -31,11 +32,16 @@ namespace AddressableLayout.Resource
                 return null;
             }
 
+            if (!PathManager.IsAddressablePath(pathOrAddress))
+            {
+                return UnityEngine.Resources.Load<T>(pathOrAddress);
+            }
+
             return Addressables.TryGetCached<T>(pathOrAddress);
         }
 
         /// <summary>
-        /// 파일명으로 PathMeta Lookup 후 캐시 hit만 반환.
+        /// 파일명으로 PathMeta Lookup 후 로드.
         /// </summary>
         public static T LoadResourceByName<T>(string fileNameWithExtension) where T : UnityEngine.Object
         {
@@ -54,6 +60,11 @@ namespace AddressableLayout.Resource
             {
                 Debug.LogWarning("[AddressableLayout] Resource path is empty.");
                 return null;
+            }
+
+            if (!PathManager.IsAddressablePath(pathOrAddress))
+            {
+                return await Task.FromResult(UnityEngine.Resources.Load<T>(pathOrAddress));
             }
 
             try

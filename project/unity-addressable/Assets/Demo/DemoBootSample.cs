@@ -3,7 +3,7 @@ using UnityEngine;
 namespace AddressableLayout.Demo
 {
     /// <summary>
-    /// Milestone A–C 샘플. boot / DemoAreaA / DemoAreaB 라벨로 등록한다.
+    /// Milestone A–F 샘플. boot / DemoAreaA / DemoAreaB 라벨 또는 Resources 이중 경로용.
     /// </summary>
     [CreateAssetMenu(
         fileName = "DemoBootSample",

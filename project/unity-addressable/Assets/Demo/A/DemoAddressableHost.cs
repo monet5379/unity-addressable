@@ -6,7 +6,7 @@ using UnityEngine;
 namespace AddressableLayout.Demo
 {
     /// <summary>
-    /// A: boot 라벨 · B: PathMeta · C: sync hit-only + place enter/leave.
+    /// A: boot 라벨 · B: PathMeta · C: sync hit-only + place enter/leave · F: dual-scan Lookup.
     /// </summary>
     public sealed class DemoAddressableHost : MonoBehaviour
     {
@@ -14,6 +14,11 @@ namespace AddressableLayout.Demo
         private const string BootAddress = "Assets/Addressables/Scriptable/Demo/DemoBootSample.asset";
         private const string PlaceAAddress = "Assets/Addressables/Scriptable/Demo/DemoPlaceASample.asset";
         private const string PlaceBFileName = "DemoPlaceBSample.asset";
+
+        private const string ResourcesOnlyFileName = "DemoResourcesOnly.asset";
+        private const string ResourcesOnlyLeaf = "Demo/DemoResourcesOnly";
+        private const string CollisionFileName = "DemoCollisionSample.asset";
+        private const string CollisionResourcesLeaf = "Demo/DemoCollisionSample";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BootstrapPlayground()
@@ -31,16 +36,30 @@ namespace AddressableLayout.Demo
         private async void Start()
         {
             RunMilestoneB();
+            RunMilestoneF();
             await RunMilestoneAAndCAsync();
         }
 
         private static void RunMilestoneB()
         {
             PathManager.Load();
-            AssertPathRoundTrip(BootFileName, BootAddress);
+            AssertPathRoundTrip(BootFileName, BootAddress, expectAddressable: true);
             Debug.Log(
                 $"[DemoAddressableHost] PathMeta round-trip OK: '{BootFileName}' → '{BootAddress}' " +
                 "(milestone B).");
+        }
+
+        private static void RunMilestoneF()
+        {
+            AssertPathRoundTrip(ResourcesOnlyFileName, ResourcesOnlyLeaf, expectAddressable: false);
+            Debug.Log(
+                $"[DemoAddressableHost] Resources-only Lookup OK: '{ResourcesOnlyFileName}' → '{ResourcesOnlyLeaf}' " +
+                "(milestone F).");
+
+            AssertPathRoundTrip(CollisionFileName, CollisionResourcesLeaf, expectAddressable: false);
+            Debug.Log(
+                $"[DemoAddressableHost] Collision Lookup Resources wins: '{CollisionFileName}' → '{CollisionResourcesLeaf}' " +
+                "(milestone F).");
         }
 
         private static async Task RunMilestoneAAndCAsync()
@@ -158,7 +177,10 @@ namespace AddressableLayout.Demo
             ResourcesManager.LeavePlace(AddressableLabels.DemoAreaB);
         }
 
-        private static void AssertPathRoundTrip(string fileName, string expectedAddress)
+        private static void AssertPathRoundTrip(
+            string fileName,
+            string expectedPath,
+            bool expectAddressable)
         {
             string lookedUp = PathManager.Lookup(fileName);
             if (lookedUp == null)
@@ -171,12 +193,14 @@ namespace AddressableLayout.Demo
             }
 
             Debug.Assert(
-                lookedUp == expectedAddress,
-                $"PathMeta round-trip expected '{expectedAddress}', got '{lookedUp}'.");
+                lookedUp == expectedPath,
+                $"PathMeta round-trip expected '{expectedPath}', got '{lookedUp}'.");
 
             Debug.Assert(
-                PathManager.IsAddressablePath(lookedUp),
-                "Lookup result must be an Addressables Assets/ path.");
+                PathManager.IsAddressablePath(lookedUp) == expectAddressable,
+                expectAddressable
+                    ? "Lookup result must be an Addressables Assets/ path."
+                    : "Lookup result must be a Resources.Load leaf (not Assets/).");
         }
     }
 }
