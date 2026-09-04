@@ -1,86 +1,89 @@
 # Addressable Layout
 
-**English** | [한국어](README.ko.md)
+Unity Addressables 레이아웃이에요.
 
-A Unity Addressables layout: **filename → path lookup**, **type + place labels**, load/cache with **label preload** and **sync hit-only**, optional **Resources ↔ Addressables dual scan**, and a thin spawn facade. Class shape follows a Treasure/Core-style Resource layer so a Resources-based title (e.g. Dragon) can migrate without rewriting typed game facades.
+**파일명 → 경로 Lookup**, **종류(type) + 지역(place) 라벨**, **라벨 preload**와 **동기 로드 = 캐시 hit만**,
+선택적 **Resources ↔ Addressables 이중 스캔**, 얇은 Spawn 파사드를 둬요.
 
-**Includes** (target Done — see [milestones](docs/milestones.md))
+클래스 골격은 Treasure/Core식 Resource 층을 따라, Resources 기반 타이틀(예: Dragon)이 typed 게임 파사드를 다시 쓰지 않고 이관할 수 있게 해요.
 
-- **Runtime** — `PathManager` / PathMeta, `AddressableAssetManager`, `AddressableLabels`, `ResourcesManager` (load by name, label preload, sync cache-hit only; dual path; Spawn/Despawn without domain APIs)
-- **Editor** (optional milestone) — Path Settings refresh, Edit Mode `*ForEditor` loads
-- **Demo** (optional) — boot preload, place-label enter/leave, Spawn/Despawn, dual-scan Lookup playground (not a shipping catalog)
+**포함** (목표 Done — [마일스톤](docs/milestones.md) 참고)
 
-Copy only **`Assets/AddressableLayout`** into a game. `Assets/Demo` is reference-only.
+- **Runtime** — `PathManager` / PathMeta, `AddressableAssetManager`, `AddressableLabels`, `ResourcesManager` (`LoadResource` / `LoadResourceAsync` / `LoadResourcesByLabelAsync`, 동기 hit-only, 이중 경로, `SpawnPrefab` / `Despawn`)
+- **Editor** (선택 마일스톤) — Path Settings 갱신, Edit Mode `*ForEditor` 로드
+- **Demo** (선택) — 부트 preload, place 라벨 입장/퇴장, `SpawnPrefab` / `Despawn`, 이중 스캔 Lookup 놀이터 (출시 카탈로그 아님)
 
-**Milestones A–D + F (in repo):** Runtime is under `project/unity-addressable/Assets/AddressableLayout` (`ResourcesManager` + PathManager dual scan + Addressables + Spawn/Despawn). After opening that Unity project, run **Tools → Addressable Layout → Demo → Register Boot Sample** (boot + spawn prefab + place + Resources/collision samples + PathMeta), then Play. Refresh alone: **Tools → Addressable Layout → Refresh Paths**.
+게임에 넣을 패키지는 **`Assets/AddressableLayout`**만 복사해요. `Assets/Demo`는 참고용이에요.
 
-## Install
+**마일스톤 A–D + F (이 repo):** Runtime은 `project/unity-addressable/Assets/AddressableLayout`에 있어요 (`ResourcesManager`·PathManager 이중 스캔·Addressables·`SpawnPrefab` / `Despawn`). Unity에서 **Tools → Addressable Layout → Demo → Register Boot Sample** (boot + spawn 프리팹 + place + Resources/충돌 샘플 + PathMeta 갱신) 후 Play 하세요. PathMeta만: **Tools → Addressable Layout → Refresh Paths**.
 
-Copy `unity-addressable/.../Assets/AddressableLayout` into your project `Assets/` (keep Runtime/Editor asmdefs if present).
+## 설치
 
-Requires the **Addressables** package. This repo’s Unity project may live under `project/unity-addressable/` during development; the install unit is still **`Assets/AddressableLayout`**. **Demo is not part of the install.**
+`unity-addressable/.../Assets/AddressableLayout`를 프로젝트 `Assets/`로 통째 복사해요 (Runtime/Editor asmdef가 있으면 유지).
 
-## Done (package goal)
+**Addressables** 패키지가 필요해요. 개발 중 Unity 프로젝트는 `project/unity-addressable/` 아래에 둘 수 있어요. 설치 단위는 여전히 **`Assets/AddressableLayout`**이에요. **Demo는 설치 대상이 아니에요.**
 
-Enough surface to baseline a **Resources → Addressables** migration for a Dragon-like title, with Treasure/Core-like types:
+## Done (패키지 목표)
 
-| Piece | Role |
-|-------|------|
-| `AddressableAssetManager` | Addressables load · Dictionary cache · release |
-| `AddressableLabels` | Type labels (`boot`, `JSON`, `Scriptable`, …) + place labels (area names) |
-| `PathManager` | Filename → address / Resources-relative path; PathMeta refresh |
-| `ResourcesManager` | `Load` / `LoadAsync` / label preload · sync = cache hit only · Spawn/Despawn |
+Dragon류 타이틀의 **Resources → Addressables** 이관 기준이 될 표면과, Treasure/Core에 가까운 타입:
 
-**Not in package:** typed game facades (`SpawnStage`, `SpawnMonster`, popup routing), Json/SO parse Facades, LeanPool (optional host), sheet sync.
+| 조각 | 역할 |
+| --- | --- |
+| `AddressableAssetManager` | Addressables 로드 · Dictionary 캐시 · 릴리즈 |
+| `AddressableLabels` | 종류 라벨(`boot`, `JSON`, `Scriptable`, …) + 지역 라벨(Area 이름) |
+| `PathManager` | 파일명 → 주소 / Resources 상대경로 · PathMeta 갱신 |
+| `ResourcesManager` | `LoadResource` / `LoadResourceAsync` / `LoadResourcesByLabelAsync` · 동기 = 캐시 hit만 · `SpawnPrefab` / `Despawn` |
 
-Progress: [docs/milestones.md](docs/milestones.md).
+**패키지에 없음:** typed 게임 파사드(`SpawnStage`, `SpawnMonster`, 팝업 라우팅), Json/SO 파싱 Facade, LeanPool(호스트 선택), 시트 Sync.
 
-## Invariants
+진행: [docs/milestones.md](docs/milestones.md).
 
-- **Filename is a global key** — PathMeta warns on duplicates (`Duplicate filename in PathMeta; keeping first path` within one tree; `Resources wins` when Addressables collides with Resources); first registered path wins (Resources scanned first).
-- **`Assets/Addressables/` only** — do not use a singular `Addressable/` content root.
-- **Type label ≠ place label** — boot/UI/shared use type labels; area-scoped content uses place labels matching title area ids (not `area1`/`area2`).
-- **Sync `Load` (Play) for Addressables paths = cache hit only** — miss returns null. Preload by label or use `LoadAsync`. Do not block the main thread with sync Addressables fetch on miss. **Resources leaf** paths (no `Assets/` prefix) use `Resources.Load` during dual-path migration.
-- **`PathManager.Load()` before Lookup** — boot order: PathMeta → label preload → gameplay load/spawn.
-- **Folder OK / label missing** — Edit/`*ForEditor` may succeed while Play label load fails if the asset is not labeled.
-- **Resources and Addressables must not share the same filename** when dual scan is on — Resources wins (`Duplicate filename in PathMeta; Resources wins`).
-- **Spawn facade ≠ domain facade** — package Spawn takes a prefab name; stage/character/UI routing stays title-owned.
-- **Demo ≠ shipping catalog** — sample labels and assets are playground only.
+## 불변조건
 
-### Dual-scan path shapes
+- **파일명은 전역 키** — PathMeta는 중복 시 경고(같은 트리: `Duplicate filename in PathMeta; keeping first path`; Resources↔Addressables 충돌: `Resources wins`). Resources를 먼저 스캔하므로 Resources 경로가 유지돼요.
+- **`Assets/Addressables/`만** — 단수 `Addressable/` 콘텐츠 루트 금지.
+- **종류 라벨 ≠ 지역 라벨** — 부트/UI/공유는 type, 지역 전용은 place(타이틀 Area id. `area1`/`area2` 금지).
+- **동기 `LoadResource` (Play) — Addressables 경로 = 캐시 hit만** — miss는 null. 라벨 preload 또는 `LoadResourceAsync`. miss를 동기 Addressables 조회로 막지 않아요. **Resources leaf**(`Assets/` 접두 없음)는 이관 중 `Resources.Load`를 써요.
+- **Lookup 전 `PathManager.Load()`** — 부트: PathMeta → 라벨 preload → 게임플레이 로드/스폰.
+- **폴더 OK / 라벨 없음** — Edit/`*ForEditor`는 성공할 수 있으나, 라벨 미할당이면 Play 라벨 로드는 실패할 수 있어요.
+- **이중 스캔 시 Resources·Addressables 동일 파일명 금지** — Resources 우선 (`Duplicate filename in PathMeta; Resources wins`).
+- **Spawn 파사드 ≠ 도메인 파사드** — 패키지 `SpawnPrefab`은 프리팹 이름; 스테이지/캐릭터/UI 라우팅은 타이틀.
+- **Demo ≠ 출시 카탈로그** — 샘플 라벨·에셋은 놀이터만.
 
-| Source | PathMeta value | `IsAddressablePath` |
-|--------|----------------|---------------------|
-| `Assets/Addressables/...` | `Assets/...` address | `true` |
-| `Assets/Resources/...` | Resources.Load leaf (no extension), e.g. `Demo/Foo` | `false` |
+### 이중 스캔 경로 형태
 
-**One-file migrate:** move the asset from `Assets/Resources/` to `Assets/Addressables/`, delete the Resources copy, then **Refresh Paths** — Lookup becomes an `Assets/...` address. No bulk migrator in this package.
+| 출처 | PathMeta 값 | `IsAddressablePath` |
+| --- | --- | --- |
+| `Assets/Addressables/...` | `Assets/...` 주소 | `true` |
+| `Assets/Resources/...` | Resources.Load leaf(확장자 없음), 예: `Demo/Foo` | `false` |
 
-## Out of scope
+**한 파일 이관:** `Assets/Resources/` → `Assets/Addressables/`로 옮기고 Resources 쪽을 지운 뒤 **Refresh Paths**하면 Lookup이 `Assets/...`가 돼요. 일괄 마이그레이터는 이 패키지에 없어요.
 
-- Gameplay, combat, stages, or typed `Spawn*` domain APIs
-- Json/SO **parse · Find\* Facades** (balance / Scriptable registries)
-- Google Sheets → JSON pipeline
-- Scene transition **Release/Preload** policy beyond label enter/leave helpers
-- Required **LeanPool** (host may pool; package default may Instantiate/Destroy)
-- Remote CDN ops, content update UX, encryption
-- Automatic bulk Resources → Addressables migrator
-- `.meta` hand-editing
+## 이 패키지가 아닌 것
 
-## Labels (type + place)
+- 게임플레이·전투·스테이지·typed `Spawn*` 도메인 API
+- Json/SO **파싱 · Find Facade**
+- Google Sheets → JSON 파이프라인
+- 라벨 입장/퇴장을 넘는 씬 **Release/Preload** 정책 전체
+- **LeanPool 필수** (호스트가 풀링 가능; 패키지 기본은 Instantiate/Destroy일 수 있음)
+- Remote CDN 운영·콘텐츠 업데이트 UX·암호화
+- Resources → Addressables **자동 일괄 마이그레이터**
+- `.meta` 수동 편집
 
-| Axis | Examples | When to load |
-|------|----------|--------------|
-| **Type** | `boot`, `JSON`, `Scriptable`, `ui`, `player` | App boot / pipeline |
-| **Place** | `GallatinForest`, `Dawn`, … (title `AreaNames`) | Area enter; release on leave |
+## 라벨 (종류 + 지역)
 
-Shared enemies/VFX: prefer a shared type label (e.g. `enemy_shared` or `boot`), not a single place label only.
+| 축 | 예 | 로드 시점 |
+| --- | --- | --- |
+| **종류** | `boot`, `JSON`, `Scriptable`, `ui`, `player` | 앱 부트 / 파이프라인 |
+| **지역** | `GallatinForest`, `Dawn`, … (타이틀 `AreaNames`) | Area 입장; 퇴장 시 릴리즈 |
 
-Groups (Local/Remote packing) are independent of labels. Use groups for download size; use labels for runtime filters.
+공유 적/VFX: place 하나만 달지 말고 공유 type 라벨(`enemy_shared` 또는 `boot`)을 기본으로 해요.
 
-## Layout (content)
+그룹(Local/Remote 패킹)과 라벨은 별개예요. 용량은 그룹, 런타임 필터는 라벨.
 
-Recommended title content root:
+## 레이아웃 (콘텐츠)
+
+권장 타이틀 콘텐츠 루트:
 
 ```text
 Assets/Addressables/
@@ -88,29 +91,27 @@ Assets/Addressables/
   Scriptable/
   Prefabs/
   ...
-Assets/Resources/                 # optional during dual-path migration
-  Data/PathMetaData.json          # or package-agreed PathMeta location
+Assets/Resources/                 # 이중 경로 이관 중 선택
+  Data/PathMetaData.json          # 또는 패키지가 정한 PathMeta 위치
 ```
 
-Package code:
+패키지 코드:
 
 ```text
 Assets/AddressableLayout/
   Runtime/
-  Editor/                         # Refresh Paths (B/F); Path Settings UI later (E)
-Assets/Demo/                      # playground only — do not copy to ship
+  Editor/                         # Refresh Paths (B/F); Path Settings UI는 E
+Assets/Demo/                      # 놀이터만 — 출시 복사 금지
 Assets/Resources/Data/
-  PathMetaData.json               # generated by Refresh Paths
+  PathMetaData.json               # Refresh Paths로 생성
 ```
 
-## Related
+## 관련
 
-- [Milestones](docs/milestones.md) — build order A → Done
-- [unity-studio-kit](https://github.com/monet5379/unity-studio-kit) — personal profile (README + Invariants)
-- Sibling portfolio: [unity-save-layout](https://github.com/monet5379/unity-save-layout)
+- [마일스톤](docs/milestones.md) — 제작 순서 A → Done
+- [unity-studio-kit](https://github.com/monet5379/unity-studio-kit) — personal 프로필 (README + 불변조건)
+- 형제 포트폴리오: [unity-save-layout](https://github.com/monet5379/unity-save-layout)
 
 ## License
 
 [MIT](LICENSE)
-
-English prose may be AI-assisted. If wording conflicts, prefer the [Korean README](README.ko.md) or the code.
