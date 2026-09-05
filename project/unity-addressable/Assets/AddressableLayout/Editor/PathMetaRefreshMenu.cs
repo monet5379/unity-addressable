@@ -1,19 +1,17 @@
-using AddressableLayout.Resource;
 using UnityEditor;
 using UnityEngine;
 
 namespace AddressableLayout.Editor
 {
     /// <summary>
-    /// Resources + Addressables 이중 스캔 → PathMetaData.json 갱신 (Milestone F).
+    /// Tools → Refresh Paths (B/F). 로직은 PathMetaRefresh와 Path Settings가 공유.
     /// </summary>
     public static class PathMetaRefreshMenu
     {
         [MenuItem("Tools/Addressable Layout/Refresh Paths", priority = 10)]
         public static void RefreshPaths()
         {
-            int count = PathManager.UpdatePathMetadata();
-            AssetDatabase.Refresh();
+            int count = PathMetaRefresh.Refresh();
             Debug.Log($"[AddressableLayout] Refresh Paths done. entries={count}");
         }
     }

@@ -2,7 +2,10 @@
     "name": "AddressableLayout.Editor",
     "rootNamespace": "AddressableLayout",
     "references": [
-        "AddressableLayout.Runtime"
+        "AddressableLayout.Runtime",
+        "Unity.Addressables",
+        "Unity.Addressables.Editor",
+        "Unity.ResourceManager"
     ],
     "includePlatforms": [
         "Editor"

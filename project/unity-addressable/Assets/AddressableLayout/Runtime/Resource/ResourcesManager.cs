@@ -10,6 +10,7 @@ namespace AddressableLayout.Resource
     /// Addressables 경로: 동기 LoadResource = 캐시 hit만.
     /// Resources leaf: Resources.Load (이관 중 이중 경로).
     /// SpawnPrefab / Despawn: 이름 → Path → Instantiate / Destroy.
+    /// Edit Mode: <c>ResourcesManagerForEditor</c> (*ForEditor, Play 캐시 미사용).
     /// </summary>
     public static class ResourcesManager
     {
