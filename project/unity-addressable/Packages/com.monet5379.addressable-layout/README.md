@@ -15,7 +15,7 @@
 2. 아래 URL 입력 (태그는 릴리스 버전에 맞게 변경):
 
 ```text
-https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.1.1
+https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.2.0
 ```
 
 ### 로컬 임베디드
@@ -56,16 +56,19 @@ Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F �
 | `PathManager` | 파일명 → 경로 · PathMeta 갱신 |
 | `AddressableAssetManager` | Addressables 로드 · owner-set 캐시 · Direct/라벨 handle |
 | `AddressableLabels` | 종류 / 지역 라벨 상수 |
-| `ResourcesManager` | `LoadResource` / async / 라벨 preload · `SpawnPrefab` / `Despawn` |
+| `IPrefabInstanceProvider` | `SpawnPrefab` / `Despawn` 인스턴스 생성·반환 (풀링 등 — 호스트 구현) |
+| `ResourcesManager` | `LoadResource` / async / 라벨 preload · `SpawnPrefab` / `Despawn` · `SetInstanceProvider` |
 | `ResourcesManagerForEditor` (Editor) | Edit Mode 전용 로드 |
 
 **Play 동기 `LoadResource`:** Addressables 경로는 **캐시 hit만** (miss → null). Preload 또는 `LoadResourceAsync`를 사용한다.
+
+**`SpawnPrefab` / `Despawn`:** prefab asset 로드까지는 패키지, **인스턴스**는 `IPrefabInstanceProvider` (미등록 시 Instantiate/Destroy). provider는 **첫 `SpawnPrefab` 전** 등록. Play마다 `RuntimeInitializeOnLoadMethod` 등록 권장. `Release` / `ReleaseLabel` / `ReleaseAll` 전에 해당 prefab으로 만든 인스턴스(풀 비활성 포함)는 호스트가 정리 — 패키지는 풀을 모른다.
 
 ## Tests
 
 | Test Runner 탭 | asmdef | 테스트 | 전제 |
 | --- | --- | --- | --- |
-| **Edit Mode** | `AddressableLayout.EditorTests` | `CacheOwnershipTests` | 없음 |
+| **Edit Mode** | `AddressableLayout.EditorTests` | `CacheOwnershipTests` · `PrefabInstanceProviderTests` | 없음 |
 | **Play Mode** | `AddressableLayout.PlayModeTests` | `DemoPlayModeTests` | Demo import · **부트 샘플 등록** |
 
 ## 레포 문서

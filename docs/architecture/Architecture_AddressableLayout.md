@@ -29,7 +29,7 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 ### 제외 범위 (Out of Scope)
 
 - typed 게임 파사드, Json/SO 파싱 Facade, Sheets Sync, Remote CDN 운영 전체
-- 씬 전환·Release/Preload 정책 전체, LeanPool 필수화, 일괄 마이그레이터
+- 씬 전환·Release/Preload 정책 전체, 풀링 provider 강제, 일괄 마이그레이터
 - 상세: [루트 README — 이 패키지가 아닌 것](../../README.md)
 
 ## 주요 타입과 관계 (Key Types & Relationships)
@@ -49,7 +49,8 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 | `AddressableAssetManager` | Addressables | 비동기 로드 · owner-set 캐시 · Direct/라벨 handle 분리 · PrimaryKey in-flight Task 공유 |
 | `CacheOwnership` | Addressables (internal) | PrimaryKey·alias 조회 · owner별 수명 — handle은 `AddressableAssetManager`가 소유 |
 | `AddressableLabels` | 계약 | 종류(`boot`, `JSON`, …) · Demo place 상수 |
-| `ResourcesManager` | Play 파사드 | Path 분기 · sync hit-only · Spawn/Despawn · place enter/leave |
+| `IPrefabInstanceProvider` | Play (호스트) | `SpawnPrefab` / `Despawn` 인스턴스 생성·반환 — 기본 Instantiate/Destroy |
+| `ResourcesManager` | Play 파사드 | Path 분기 · sync hit-only · Spawn/Despawn (provider 경유) · place enter/leave |
 | `ResourcesManagerForEditor` | Edit 파사드 | AssetDatabase / settings 라벨 — **Play 캐시 미사용** |
 | `StringKeyedMap` | 직렬화 | JsonUtility용 filename→path 맵 |
 
@@ -101,7 +102,7 @@ flowchart TB
 | `LoadResourceAsync` | Addressables 로드 + 캐시 (동일 PrimaryKey 동시 요청은 진행 중 Task 공유) | `Resources.Load` (Task로 반환) |
 | `LoadResourcesByLabelAsync` | 라벨 일괄 + 캐시 | (해당 없음) |
 | `LoadResourceByName` | Lookup 후 위 규칙 | 동일 |
-| `SpawnPrefab` | preload 후 sync hit 전제 | leaf면 즉시 Load 가능 |
+| `SpawnPrefab` | preload 후 sync hit → provider Spawn | leaf면 즉시 Load 가능 |
 
 `EnterPlaceAsync` / `LeavePlace`는 place 라벨 preload / `ReleaseLabel` 래퍼이다.
 

@@ -9,14 +9,22 @@ namespace AddressableLayout.Resource
     /// PathManager + AddressableAssetManager Play facade.
     /// Addressables 경로: 동기 LoadResource = 캐시 hit만.
     /// Resources leaf: Resources.Load (이관 중 이중 경로).
-    /// SpawnPrefab / Despawn: 이름 → Path → Instantiate / Destroy.
+    /// SpawnPrefab / Despawn: 이름 → Path → provider (기본 Instantiate / Destroy).
     /// Edit Mode: <c>ResourcesManagerForEditor</c> (*ForEditor, Play 캐시 미사용).
     /// </summary>
     public static class ResourcesManager
     {
         private static readonly AddressableAssetManager Addressables = new();
 
+        private static IPrefabInstanceProvider _instanceProvider = InstantiateProvider.Instance;
+
         public static AddressableAssetManager AssetManager => Addressables;
+
+        /// <summary>첫 <see cref="SpawnPrefab"/> 전에 1회. null이면 기본(Instantiate/Destroy)으로 복귀.</summary>
+        public static void SetInstanceProvider(IPrefabInstanceProvider provider)
+        {
+            _instanceProvider = provider ?? InstantiateProvider.Instance;
+        }
 
         public static bool IsResourceLoaded(string pathOrAddress)
         {
@@ -118,7 +126,7 @@ namespace AddressableLayout.Resource
         public static void LeavePlace(string placeLabel) => ReleaseLabel(placeLabel);
 
         /// <summary>
-        /// 프리팹 이름 → PathMeta → sync Load → Instantiate.
+        /// 프리팹 이름 → PathMeta → sync Load → <see cref="IPrefabInstanceProvider.Spawn"/>.
         /// Addressables 경로는 캐시 hit 전제 (miss면 null).
         /// </summary>
         public static GameObject SpawnPrefab(string prefabName, Transform parent = null)
@@ -147,13 +155,11 @@ namespace AddressableLayout.Resource
                 return null;
             }
 
-            return parent != null
-                ? UnityEngine.Object.Instantiate(prefab, parent)
-                : UnityEngine.Object.Instantiate(prefab);
+            return _instanceProvider.Spawn(prefab, parent);
         }
 
         /// <summary>
-        /// SpawnPrefab으로 만든 인스턴스 Destroy (풀링 없음).
+        /// <see cref="SpawnPrefab"/>으로 만든 인스턴스를 provider에 반환 (기본 Destroy).
         /// </summary>
         public static void Despawn(GameObject instance)
         {
@@ -162,7 +168,19 @@ namespace AddressableLayout.Resource
                 return;
             }
 
-            UnityEngine.Object.Destroy(instance);
+            _instanceProvider.Despawn(instance);
+        }
+
+        private sealed class InstantiateProvider : IPrefabInstanceProvider
+        {
+            internal static readonly InstantiateProvider Instance = new();
+
+            public GameObject Spawn(GameObject prefab, Transform parent) =>
+                parent != null
+                    ? UnityEngine.Object.Instantiate(prefab, parent)
+                    : UnityEngine.Object.Instantiate(prefab);
+
+            public void Despawn(GameObject instance) => UnityEngine.Object.Destroy(instance);
         }
     }
 }

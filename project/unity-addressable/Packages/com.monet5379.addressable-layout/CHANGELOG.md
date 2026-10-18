@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-18
+
+### Added
+
+- **Runtime:** `IPrefabInstanceProvider` · `ResourcesManager.SetInstanceProvider` — `SpawnPrefab` / `Despawn` 인스턴스 생성·반환 seam (기본 Instantiate/Destroy)
+- **Tests:** `PrefabInstanceProviderTests` (Edit Mode)
+
+### Changed
+
+- **Docs:** README 불변조건 — provider 등록·인스턴스 수명 vs Addressables 캐시 · LeanPool은 호스트 `IPrefabInstanceProvider` 구현
+
 ## [0.1.1] - 2026-10-18
 
 ### Added

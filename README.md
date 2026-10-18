@@ -9,7 +9,7 @@ Unity Addressables용 **Resource 층** UPM 패키지(`com.monet5379.addressable-
 **Package Manager → Install package from git URL:**
 
 ```text
-https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.1.1
+https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.2.0
 ```
 
 1. **`Assets/Addressables/`** 폴더를 만든다. (단수 `Addressable/` 금지)
@@ -25,7 +25,7 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 Git·CI·Addressables **콘텐츠 빌드** 없이, 위 Test Runner 절차와 같은 순서를 batchmode로 한 번에 돌린다.
 
-1. Edit Mode — `AddressableLayout.EditorTests` (`CacheOwnershipTests`)
+1. Edit Mode — `AddressableLayout.EditorTests` (`CacheOwnershipTests` · `PrefabInstanceProviderTests`)
 2. Demo 준비 — `AddressableLayoutVerify.PrepareDemo` (`RegisterBootSample`, Fast Mode)
 3. Play Mode — `AddressableLayout.PlayModeTests` (`DemoPlayModeTests`)
 
@@ -52,6 +52,7 @@ Demo Sample이 `Assets/Samples/...`에 없으면 2단계가 실패한다 (소비
 - **폴더 OK / 라벨 없음** — path `*ForEditor`는 될 수 있으나 라벨 미할당이면 라벨 로드는 실패 또는 빈 목록.
 - **이중 스캔 시 Resources·Addressables 동일 파일명 금지** — 이관 후 Resources 쪽 삭제 + Refresh.
 - **Spawn 파사드 ≠ 도메인 파사드** — `SpawnPrefab(프리팹 이름)`만; 스테이지/몬스터/UI 라우팅은 타이틀.
+- **`SpawnPrefab` / `Despawn` provider** — `IPrefabInstanceProvider`로 인스턴스 생성·반환 교체 (기본 Instantiate/Destroy). **첫 `SpawnPrefab` 전** 등록; 살아 있는 인스턴스가 있을 때 provider 교체는 미정의. **`Despawn`은 `SpawnPrefab`으로 만든 인스턴스만.** `Release` / `ReleaseLabel`(`LeavePlace`) / `ReleaseAll` 전에 해당 prefab 인스턴스(풀 비활성 포함)는 호스트가 정리.
 - **Demo ≠ 출시 카탈로그** — Sample만 놀이터.
 - **Addressables 그룹 ≠ 라벨** — 패킹(용량)은 그룹, 런타임 필터는 라벨.
 
@@ -62,7 +63,7 @@ PathMeta path 형태·이관 절차·API 표면: [Architecture_Lookup](docs/arch
 - 게임플레이·전투·스테이지·typed `Spawn*` 도메인 API
 - Json/SO **파싱 · Find Facade** · Google Sheets → JSON
 - 씬 **Release/Preload** 정책 전체 · Remote CDN·콘텐츠 업데이트 UX·암호화
-- **LeanPool 필수** (호스트 선택) · Resources → Addressables **자동 일괄 마이그레이터**
+- **풀링 필수화** — `IPrefabInstanceProvider`로 호스트가 구현 (예: LeanPool) · Resources → Addressables **자동 일괄 마이그레이터**
 - `.meta` 수동 편집
 
 ## 문서
