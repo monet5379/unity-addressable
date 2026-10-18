@@ -28,7 +28,7 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 1. **`Assets/Addressables/`** 폴더를 만든다. (단수 `Addressable/` 사용 금지)
 2. (선택) 이관 중이면 **`Assets/Resources/`** 도 사용할 수 있다.
-3. **Tools → Addressable Layout → Refresh Paths** (또는 **Path Settings**에서 Refresh)를 실행한다.
+3. **Tools → Addressable Layout → 레이아웃 도구** → **갱신**을 실행한다.
 4. **`Assets/Resources/Data/PathMetaData.json`** 이 생성·갱신되었는지 확인한다.
 
 런타임 Lookup 전에 **`PathManager.Load()`** 로 PathMeta를 로드하는 흐름을 부트에 넣는다.
@@ -37,31 +37,36 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 | 메뉴 | 설명 |
 | --- | --- |
-| **Tools → Addressable Layout → Refresh Paths** | Resources + Addressables 이중 스캔 → PathMeta JSON 갱신 |
-| **Tools → Addressable Layout → Path Settings** | Refresh + 엔트리 수 확인 |
-| **Tools → Addressable Layout → Smoke ForEditor (Edit Mode)** | Edit Mode 로드 스모크 (Play 캐시 미사용) |
+| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신 · ForEditor 스모크 · Demo 부트 등록 |
 
 ## Demo 샘플 (선택)
 
 Package Manager에서 **Addressable Layout → Samples → Demo → Import** 후:
 
-1. **Tools → Addressable Layout → Demo → Register Boot Sample** — 샘플 에셋·라벨 등록
-2. **Refresh Paths** 다시 실행
-3. Play로 부트·place 라벨 동작 확인
+1. **Tools → Addressable Layout → 레이아웃 도구** → **부트 샘플 등록** (PathMeta 갱신 포함)
+2. 필요 시 **갱신**만 다시 실행
+3. **Window → General → Test Runner → Play Mode** — `DemoPlayModeTests` 실행 (또는 Play로 `DemoAddressableHost` 수동 확인)
 
-Demo는 출시 카탈로그가 아닌 **놀이터**이다.
+Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F 로직은 `DemoPlayModeVerification`에 있다.
 
 ## Runtime API (요약)
 
 | 타입 | 역할 |
 | --- | --- |
 | `PathManager` | 파일명 → 경로 · PathMeta 갱신 |
-| `AddressableAssetManager` | Addressables 로드 · 캐시 |
+| `AddressableAssetManager` | Addressables 로드 · owner-set 캐시 · Direct/라벨 handle |
 | `AddressableLabels` | 종류 / 지역 라벨 상수 |
 | `ResourcesManager` | `LoadResource` / async / 라벨 preload · `SpawnPrefab` / `Despawn` |
 | `ResourcesManagerForEditor` (Editor) | Edit Mode 전용 로드 |
 
 **Play 동기 `LoadResource`:** Addressables 경로는 **캐시 hit만** (miss → null). Preload 또는 `LoadResourceAsync`를 사용한다.
+
+## Tests
+
+| Test Runner 탭 | asmdef | 테스트 | 전제 |
+| --- | --- | --- | --- |
+| **Edit Mode** | `AddressableLayout.EditorTests` | `CacheOwnershipTests` | 없음 |
+| **Play Mode** | `AddressableLayout.PlayModeTests` | `DemoPlayModeTests` | Demo import · **부트 샘플 등록** |
 
 ## 레포 문서
 

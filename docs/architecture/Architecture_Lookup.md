@@ -55,7 +55,7 @@ LoadResourceByName / SpawnPrefab
 ### 에디터 흐름 (Editor Flow)
 
 ```text
-Tools → Refresh Paths / Path Settings
+Tools → 레이아웃 도구 → 갱신
   → PathMetaRefresh.Refresh()
   → PathManager.UpdatePathMetadata()
   → AssetDatabase.Refresh()
@@ -86,8 +86,8 @@ Tools → Refresh Paths / Path Settings
 
 | 상황 | 동작 |
 | --- | --- |
-| 같은 트리 안 동일 파일명 | 첫 path 유지 · `Duplicate filename in PathMeta; keeping first path` |
-| Resources vs Addressables 동일 파일명 | **Resources wins** · Addressables 무시 |
+| 같은 트리 안 동일 파일명 | 첫 path 유지 · `PathMeta 파일명 중복; 첫 path 유지` |
+| Resources vs Addressables 동일 파일명 | **Resources wins** · `PathMeta 파일명 중복; Resources 우선` |
 
 **제외** — `.meta`, `.shader`, `.cginc`, `.text`; `PathMetaData.json`은 Resources 스캔 제외.
 
@@ -101,19 +101,19 @@ Tools → Refresh Paths / Path Settings
 
 폴더에만 있고 Addressable·라벨이 없으면 path Lookup은 될 수 있으나 **라벨 preload는 실패**할 수 있다.
 
-**파일 단위 이관** (자동 마이그레이터 없음): Resources → Addressables 이동 → Resources 삭제 → Addressable 등록 유지 → **Refresh Paths** → gameplay 파일명 키는 동일, preload·라벨만 재확인.
+**파일 단위 이관** (자동 마이그레이터 없음): Resources → Addressables 이동 → Resources 삭제 → Addressable 등록 유지 → **레이아웃 도구** → 갱신 → gameplay 파일명 키는 동일, preload·라벨만 재확인.
 
 ## 변경 가이드 (Change Guidelines)
 
 | 변경 | 경로 |
 | --- | --- |
 | 스캔·중복·ignore | `PathManager.cs` |
-| Refresh 메뉴 | `PathMetaRefresh.cs`, `PathSettingsWindow.cs` |
+| PathMeta 갱신 | `PathMetaRefresh.cs`, `AddressableLayoutToolWindow.cs` |
 | JSON 형식 | `StringKeyedMap.cs` |
 
 - [ ] `Assets/Addressables/` (복수)만 스캔 — 단수 `Addressable/` 금지
 - [ ] README 불변조건 동기화
-- [ ] Refresh Paths 후 Lookup spot-check
+- [ ] 레이아웃 도구 갱신 후 Lookup spot-check
 
 ## 관련 문서 (See also)
 

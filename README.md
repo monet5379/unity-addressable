@@ -13,9 +13,9 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 ```
 
 1. **`Assets/Addressables/`** 폴더를 만든다. (단수 `Addressable/` 금지)
-2. **Tools → Addressable Layout → Refresh Paths** — `Assets/Resources/Data/PathMetaData.json` 생성
-3. (선택) Demo — Package Manager **Samples** import → **Tools → Addressable Layout → Demo → Register Boot Sample** → Play
-4. (선택) Edit Mode — **Smoke ForEditor (Edit Mode)**
+2. **Tools → Addressable Layout → 레이아웃 도구** → **갱신** — `Assets/Resources/Data/PathMetaData.json` 생성
+3. (선택) Demo — Samples import → **레이아웃 도구** → **부트 샘플 등록** → Test Runner **Play Mode** `DemoPlayModeTests`
+4. (선택) Edit Mode — **ForEditor 스모크** · Edit Mode `CacheOwnershipTests`
 
 `com.unity.addressables`는 패키지 의존성으로 설치된다. PM 설치·요구 사항은 [패키지 README](project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md).
 
@@ -27,6 +27,7 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 - **`Assets/Addressables/`만** — 단수 `Addressable/` 콘텐츠 루트 금지.
 - **종류 라벨 ≠ 지역 라벨** — 부트/UI/공유는 type; 지역 전용은 place (타이틀 Area id. `area1`/`area2` 금지). 공유 적/VFX는 place만 달지 말고 type(`boot`, `enemy_shared` 등)을 기본으로 한다.
 - **동기 `LoadResource` (Play) — Addressables path = 캐시 hit만** — miss는 null. preload 또는 `LoadResourceAsync`. **Resources leaf**는 이관 중 `Resources.Load`.
+- **Play 캐시 소유권** — `LoadResourceAsync` = Direct owner, 라벨 preload = 해당 라벨 owner, 동기 `LoadResource` = 빌림(소유 없음). PrimaryKey·alias는 **마지막 owner 해제 시에만** 캐시에서 제거; `Release` / `ReleaseLabel`은 멱등.
 - **Edit `*ForEditor` ≠ Play sync** — Edit API는 Play `AddressableAssetManager` 캐시를 채우지 않는다.
 - **Lookup 전 `PathManager.Load()`** — PathMeta → (선택) 라벨 preload → gameplay.
 - **폴더 OK / 라벨 없음** — path `*ForEditor`는 될 수 있으나 라벨 미할당이면 라벨 로드는 실패 또는 빈 목록.

@@ -23,7 +23,7 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 ### 포함 범위 (In Scope)
 
 - `PathManager` / PathMeta Lookup · `AddressableAssetManager` 캐시 · `ResourcesManager` Play 파사드
-- Editor: Path Settings · Refresh Paths · `ResourcesManagerForEditor`
+- Editor: 레이아웃 도구 창 · `ResourcesManagerForEditor`
 - Sample `Demo` — Play/Edit 검증 놀이터 (출시 복사 대상 아님)
 
 ### 제외 범위 (Out of Scope)
@@ -39,13 +39,15 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 | 트리 | asmdef | 역할 |
 | --- | --- | --- |
 | `Packages/.../Runtime/` | `AddressableLayout.Runtime` | Play: Lookup · Addressables 캐시 · `ResourcesManager` |
-| `Packages/.../Editor/` | `AddressableLayout.Editor` | PathMeta 갱신 · Path Settings · `*ForEditor` |
+| `Packages/.../Editor/` | `AddressableLayout.Editor` | PathMeta 갱신 · 레이아웃 도구 창 · `*ForEditor` |
 | `Samples~/Demo/` | Demo asmdef | Demo 검증 — **출시 복사 대상 아님** |
+| `Tests/Editor/` · `Tests/PlayMode/` | EditorTests · PlayModeTests | `CacheOwnershipTests` · `DemoPlayModeTests` |
 
 | 타입 | 레이어 | 책임 |
 | --- | --- | --- |
 | `PathManager` | Lookup | `PathMetaData.json` 로드 · 파일명 → path · `IsAddressablePath` · (Editor) 디스크 스캔 갱신 |
-| `AddressableAssetManager` | Addressables | 비동기 로드 · Dictionary 캐시(PrimaryKey + alias) · 라벨 단위 릴리즈 |
+| `AddressableAssetManager` | Addressables | 비동기 로드 · owner-set 캐시 · Direct/라벨 handle 분리 · PrimaryKey in-flight Task 공유 |
+| `CacheOwnership` | Addressables (internal) | PrimaryKey·alias 조회 · owner별 수명 — handle은 `AddressableAssetManager`가 소유 |
 | `AddressableLabels` | 계약 | 종류(`boot`, `JSON`, …) · Demo place 상수 |
 | `ResourcesManager` | Play 파사드 | Path 분기 · sync hit-only · Spawn/Despawn · place enter/leave |
 | `ResourcesManagerForEditor` | Edit 파사드 | AssetDatabase / settings 라벨 — **Play 캐시 미사용** |
@@ -67,7 +69,7 @@ flowchart TB
 
     subgraph edit [Edit Mode]
         RME[ResourcesManagerForEditor]
-        Refresh[PathMetaRefresh / Path Settings]
+        Refresh[PathMetaRefresh / 레이아웃 도구 창]
         RME --> PM
         RME --> ADB[AssetDatabase]
         Refresh --> PM
@@ -77,12 +79,26 @@ flowchart TB
 - **PathManager**는 Play에서 JSON만 읽는다. 디스크 스캔(`UpdatePathMetadata`)은 Editor 메뉴·윈도우가 호출한다.
 - **AddressableAssetManager**는 `ResourcesManager`의 private static 인스턴스 하나로 묶인다.
 
+**Play 캐시·핸들 (AddressableAssetManager 내부)**
+
+| 맵 | 키 | 용도 |
+| --- | --- | --- |
+| `_cache` (`CacheOwnership`) | PrimaryKey · alias → PrimaryKey · owner → PrimaryKey 집합 | 객체·소유자 집계; 마지막 owner 제거 시 evict |
+| `_directHandles` | PrimaryKey | `LoadResourceAsync` Direct owner용 `Addressables.Release` handle |
+| `_labelHandles` | `(label, Type)` | `LoadResourcesByLabelAsync` — 동일 라벨·타입 조합 in-flight·완료 handle 공유 |
+| `_loadingTasks` | PrimaryKey | `LoadResourceAsync` in-flight — 같은 PrimaryKey 재진입 시 기존 `Task` await |
+| `_generation` | (스칼라) | `ReleaseAll` 이후 완료된 stale 로드가 캐시에 재진입하지 않도록 |
+
+**소유 규칙:** `LoadResourceAsync`는 Direct owner, `LoadResourcesByLabelAsync`는 라벨 문자열 owner, 동기 `LoadResource`는 캐시 hit만(소유 없음). 캐시 hit이어도 Direct owner가 없으면 async 경로로 Direct handle을 확보한다. `Release(key)`는 Direct owner만 제거하고 `_directHandles`를 해제한다. `ReleaseLabel`은 해당 라벨의 `_labelHandles`만 해제하고 `_cache.ReleaseOwner(label)` — 개별 Direct handle은 건드리지 않는다. 두 라벨이 같은 PrimaryKey를 공유하면 owner가 남는 동안 sync hit은 유지된다.
+
+`LoadResourceAsync`는 location resolve 후 Direct owner hit이면 즉시 반환하고, 아니면 `_loadingTasks` Task를 공유한다. 완료·실패 후 해당 PrimaryKey 항목을 제거한다. 요청 주소·InternalId alias는 await 이후 `AddAlias`로 등록한다. `LoadResourcesByLabelAsync`는 resolve한 locations 순서로 `LoadAssetsAsync`하고 `(label, typeof(T))` handle을 재사용한다.
+
 **Play API 표면 (대표)**
 
 | 메서드 | Addressables path (`Assets/...`) | Resources leaf |
 | --- | --- | --- |
 | `LoadResource` | 캐시 hit만 → miss면 `null` | `Resources.Load` |
-| `LoadResourceAsync` | Addressables 로드 + 캐시 | `Resources.Load` (Task로 반환) |
+| `LoadResourceAsync` | Addressables 로드 + 캐시 (동일 PrimaryKey 동시 요청은 진행 중 Task 공유) | `Resources.Load` (Task로 반환) |
 | `LoadResourcesByLabelAsync` | 라벨 일괄 + 캐시 | (해당 없음) |
 | `LoadResourceByName` | Lookup 후 위 규칙 | 동일 |
 | `SpawnPrefab` | preload 후 sync hit 전제 | leaf면 즉시 Load 가능 |
@@ -101,7 +117,7 @@ flowchart TB
 
 ### 에디터 흐름 (Editor Flow)
 
-1. **Refresh Paths** / Path Settings — PathMeta JSON 갱신 ([Architecture_Lookup](Architecture_Lookup.md))
+1. **레이아웃 도구** → 갱신 — PathMeta JSON ([Architecture_Lookup](Architecture_Lookup.md))
 2. Edit Mode 툴 — `ResourcesManagerForEditor` ([Architecture_RuntimeEditor](Architecture_RuntimeEditor.md))
 
 ## 불변조건과 주의점 (Invariants & Gotchas)
@@ -110,6 +126,8 @@ flowchart TB
 
 - 파일명 전역 키 · `Assets/Addressables/` 단일 콘텐츠 루트 · 종류 라벨 ≠ place 라벨
 - Play Addressables 경로: **동기 `LoadResource` = 캐시 hit만** — miss는 null
+- **동일 PrimaryKey `LoadResourceAsync` 동시 호출** — in-flight Task 공유; Direct handle은 PrimaryKey당 하나
+- **라벨 preload와 Direct가 같은 PrimaryKey 공유** — owner-set; 한쪽만 `Release`/`ReleaseLabel`해도 다른 owner가 남으면 sync hit 유지
 - Edit `*ForEditor`는 Play 캐시를 채우지 않는다
 - Demo Sample ≠ 출시 카탈로그
 
@@ -121,11 +139,11 @@ flowchart TB
 | --- | --- |
 | Play 로드·캐시 규칙 | `ResourcesManager`, `AddressableAssetManager` |
 | Lookup·스캔 | `PathManager`, `PathMetaRefresh` |
-| Edit 스모크·메뉴 | `ForEditorSmokeMenu`, `PathSettingsWindow` |
+| Edit 스모크·창 | `ForEditorSmoke`, `AddressableLayoutToolWindow` |
 | 계약 문구 | [루트 README](../../README.md) 불변조건 먼저 |
 
 - [ ] README 불변조건과 동기화
-- [ ] Demo Sample / Smoke ForEditor로 회귀 확인
+- [ ] DemoPlayModeTests / ForEditor 스모크 / CacheOwnershipTests
 
 ## 관련 문서 (See also)
 

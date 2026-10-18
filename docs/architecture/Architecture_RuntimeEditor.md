@@ -13,8 +13,8 @@
 ### 포함 범위 (In Scope)
 
 - `ResourcesManager` (Play) vs `ResourcesManagerForEditor` (Edit)
-- `AddressableAssetManager` 캐시 키·alias · 릴리즈 API
-- Editor: Refresh Paths · Path Settings · **Smoke ForEditor (Edit Mode)**
+- `AddressableAssetManager` · `CacheOwnership` — owner-set 캐시·alias · Direct/라벨 handle · 릴리즈 API
+- Editor: **레이아웃 도구** 창 (PathMeta · ForEditor 스모크 · Demo 등록)
 
 ### 제외 범위 (Out of Scope)
 
@@ -31,7 +31,7 @@
 | 라벨 로드 | `LoadResourcesByLabelAsync` → **Play 캐시 채움** | `LoadResourcesByLabelForEditor` → settings 엔트리 + AssetDatabase |
 | Play 캐시 | static `AddressableAssetManager` | **채우지 않음** |
 
-**Play 캐시** — 키는 주로 `IResourceLocation.PrimaryKey`; PathMeta `Assets/...` 주소는 **alias**로 동일 객체를 가리킨다. `Release` / `ReleaseLabel` / `ReleaseAll`은 handle과 dictionary를 함께 정리한다.
+**Play 캐시** — 객체·소유자는 `CacheOwnership`(PrimaryKey + alias + owner-set). Addressables handle은 `AddressableAssetManager`가 `_directHandles`(Direct owner)와 `_labelHandles`(`(label, typeof(T))`)로 분리한다. `LoadResourceAsync`는 PrimaryKey별 `_loadingTasks`로 in-flight load를 합치고, Direct handle은 PrimaryKey당 하나만 유지한다. `LoadResourcesByLabelAsync`는 동일 `(label, Type)` handle을 재사용한다. `Release`는 Direct owner와 `_directHandles`만, `ReleaseLabel`은 해당 라벨의 `_labelHandles`와 owner만 제거한다(공유 PrimaryKey는 다른 owner가 남으면 sync hit 유지). `ReleaseAll`은 handle 전부 해제·캐시 비우기·`_generation` 증가로 stale async 완료가 캐시에 재진입하지 않게 한다. 상세 맵 표는 [Architecture_AddressableLayout](Architecture_AddressableLayout.md)를 본다.
 
 **asmdef** — 게임은 `AddressableLayout.Runtime`만 참조. 커스텀 Editor 툴은 `AddressableLayout.Editor` + `ResourcesManagerForEditor`.
 
@@ -41,7 +41,7 @@
 
 ### 런타임 흐름 (Runtime Flow)
 
-1. 라벨 preload (`LoadResourcesByLabelAsync`) — locations로 캐시·라벨→키 갱신
+1. 라벨 preload (`LoadResourcesByLabelAsync`) — locations 순서로 캐시·alias·라벨 owner 등록
 2. `LoadResource` / `SpawnPrefab` — Addressables path는 `TryGetCached`만 (miss → null)
 3. Resources leaf — `Resources.Load` sync
 
@@ -63,9 +63,7 @@ pathOrAddress
 
 | 진입점 | 동작 |
 | --- | --- |
-| **Tools → Addressable Layout → Refresh Paths** | `PathMetaRefresh.Refresh()` |
-| **Path Settings** | Refresh + 엔트리 수 |
-| **Smoke ForEditor (Edit Mode)** | `*ForEditor` 스모크 |
+| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta · ForEditor 스모크 · Demo 등록 |
 
 `UpdatePathMetadata()`는 Editor 디스크 스캔이다. Player 빌드는 packaged JSON만 `Load()`한다.
 
@@ -82,7 +80,7 @@ pathOrAddress
 | Lookup JSON 갱신 | Editor Refresh (Play에서 하지 않음) |
 | Play sync hit 검증 | Play Mode + preload 후 `LoadResource` |
 
-**Verify** — Play: Sample Demo `DemoAddressableHost` (**Register Boot Sample**). Edit: **Smoke ForEditor (Edit Mode)**.
+**Verify** — Play: Test Runner **Play Mode** `DemoPlayModeTests` (`DemoPlayModeVerification`). Edit: **ForEditor 스모크** · `CacheOwnershipTests`.
 
 ## 변경 가이드 (Change Guidelines)
 
@@ -90,11 +88,11 @@ pathOrAddress
 | --- | --- |
 | Play 캐시·alias | `AddressableAssetManager.cs` |
 | Play 파사드 | `ResourcesManager.cs` |
-| Edit 파사드·스모크 | `ResourcesManagerForEditor.cs`, `ForEditorSmokeMenu.cs` |
-| Path Settings UI | `PathSettingsWindow.cs` |
+| Edit 파사드·스모크 | `ResourcesManagerForEditor.cs`, `ForEditorSmoke.cs`, `AddressableLayoutToolWindow.cs` |
+| 레이아웃 도구 UI | `AddressableLayoutToolWindow.cs` |
 
 - [ ] README “Edit ≠ Play sync” 유지
-- [ ] Smoke ForEditor · Demo Play
+- [ ] ForEditor 스모크 · `DemoPlayModeTests` · `CacheOwnershipTests`
 
 ## 관련 문서 (See also)
 
