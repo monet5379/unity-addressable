@@ -15,6 +15,24 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 283814ed9b42a444b83ff804180b5bf7
   m_SerializeEntries:
+  - m_GUID: 16f553e14654d7141b5a7286ca21dff4
+    m_Address: Assets/Addressables/Scriptable/Demo/DemoPlaceASample.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DemoAreaA
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4c1800b4e86b85246bbe402a5127d360
+    m_Address: Assets/Addressables/Scriptable/Demo/DemoPlaceBSample.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DemoAreaB
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7833961c55fd51744abe97b9c3e9ac9f
+    m_Address: Assets/Addressables/Prefabs/Demo/DemoSpawnSample.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - boot
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ebc296b6d7ea0464a922fe1035c8f0e7
     m_Address: Assets/Addressables/Scriptable/Demo/DemoBootSample.asset
     m_ReadOnly: 0

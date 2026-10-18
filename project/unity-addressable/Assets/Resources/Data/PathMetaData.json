@@ -1,1 +1,1 @@
-﻿{"keys":["DemoBootSample.asset"],"values":["Assets/Addressables/Scriptable/Demo/DemoBootSample.asset"]}
+﻿{"keys":["DemoCollisionSample.asset","DemoResourcesOnly.asset","DemoSpawnSample.prefab","DemoBootSample.asset","DemoPlaceASample.asset","DemoPlaceBSample.asset"],"values":["Demo/DemoCollisionSample","Demo/DemoResourcesOnly","Assets/Addressables/Prefabs/Demo/DemoSpawnSample.prefab","Assets/Addressables/Scriptable/Demo/DemoBootSample.asset","Assets/Addressables/Scriptable/Demo/DemoPlaceASample.asset","Assets/Addressables/Scriptable/Demo/DemoPlaceBSample.asset"]}

@@ -101,6 +101,8 @@ MonoBehaviour:
     m_LabelNames:
     - default
     - boot
+    - DemoAreaA
+    - DemoAreaB
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: b0b829a4013fcae489440efae21bd61a, type: 2}
