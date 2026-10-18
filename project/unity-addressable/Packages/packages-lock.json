@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.monet5379.addressable-layout": {
+      "version": "file:com.monet5379.addressable-layout",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.addressables": "2.8.1"
+      }
+    },
     "com.unity.2d.animation": {
       "version": "13.0.4",
       "depth": 0,

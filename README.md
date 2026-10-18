@@ -1,11 +1,11 @@
 # Addressable Layout
 
-Unity Addressables 레이아웃이에요.
+Unity Addressables 레이아웃이다.
 
 **파일명 → 경로 Lookup**, **종류(type) + 지역(place) 라벨**, **라벨 preload**와 **동기 로드 = 캐시 hit만**,
-선택적 **Resources ↔ Addressables 이중 스캔**, 얇은 Spawn 파사드를 둬요.
+선택적 **Resources ↔ Addressables 이중 스캔**, 얇은 Spawn 파사드를 둔다.
 
-클래스 골격은 Treasure/Core식 Resource 층을 따라, Resources 기반 타이틀(예: Dragon)이 typed 게임 파사드를 다시 쓰지 않고 이관할 수 있게 해요.
+클래스 골격은 Treasure/Core식 Resource 층을 따라, Resources 기반 타이틀(예: Dragon)이 typed 게임 파사드를 다시 쓰지 않고 이관할 수 있게 한다.
 
 **포함** (목표 Done — [마일스톤](docs/milestones.md) 참고)
 
@@ -13,15 +13,21 @@ Unity Addressables 레이아웃이에요.
 - **Editor** — Path Settings 윈도우 · Refresh Paths, Edit Mode `ResourcesManagerForEditor` (`LoadResourceForEditor` / `LoadResourcesByLabelForEditor`, Play 캐시 미사용)
 - **Demo** (선택) — 부트 preload, place 라벨 입장/퇴장, `SpawnPrefab` / `Despawn`, 이중 스캔 Lookup 놀이터 (출시 카탈로그 아님)
 
-게임에 넣을 패키지는 **`Assets/AddressableLayout`**만 복사해요. `Assets/Demo`는 참고용이에요.
+게임에 넣을 단위는 UPM 패키지 **`com.monet5379.addressable-layout`**이다. Demo는 Package Manager **Samples**로 선택 import한다.
 
-**마일스톤 A–D + F + E (이 repo):** Runtime·Editor는 `project/unity-addressable/Assets/AddressableLayout`에 있어요. Unity에서 **Tools → Addressable Layout → Demo → Register Boot Sample** 후 Play 하세요. PathMeta: **Path Settings** 또는 **Refresh Paths**. Edit Mode 스모크: **Smoke ForEditor (Edit Mode)**.
+**마일스톤 A–D + F + E (이 repo):** Runtime·Editor는 `project/unity-addressable/Packages/com.monet5379.addressable-layout`에 있다. Sample **Demo** import 후 **Tools → Addressable Layout → Demo → Register Boot Sample** → Play. PathMeta: **Path Settings** 또는 **Refresh Paths**. Edit Mode 스모크: **Smoke ForEditor (Edit Mode)**.
 
 ## 설치
 
-`unity-addressable/.../Assets/AddressableLayout`를 프로젝트 `Assets/`로 통째 복사해요 (Runtime/Editor asmdef가 있으면 유지).
+**Package Manager → Install package from git URL:**
 
-**Addressables** 패키지가 필요해요. 개발 중 Unity 프로젝트는 `project/unity-addressable/` 아래에 둘 수 있어요. 설치 단위는 여전히 **`Assets/AddressableLayout`**이에요. **Demo는 설치 대상이 아니에요.**
+```text
+https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.1.0
+```
+
+설치 후 **`Assets/Addressables/`** 를 만들고 **Tools → Addressable Layout → Refresh Paths**를 한 번 실행한다 (`Assets/Resources/Data/PathMetaData.json` 생성).
+
+**Addressables**는 패키지 의존성으로 설치된다. 상세는 패키지 [README](project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md) 참고.
 
 ## Done (패키지 목표)
 
@@ -42,13 +48,13 @@ Dragon류 타이틀의 **Resources → Addressables** 이관 기준이 될 표�
 
 ## 불변조건
 
-- **파일명은 전역 키** — PathMeta는 중복 시 경고(같은 트리: `Duplicate filename in PathMeta; keeping first path`; Resources↔Addressables 충돌: `Resources wins`). Resources를 먼저 스캔하므로 Resources 경로가 유지돼요.
+- **파일명은 전역 키** — PathMeta는 중복 시 경고(같은 트리: `Duplicate filename in PathMeta; keeping first path`; Resources↔Addressables 충돌: `Resources wins`). Resources를 먼저 스캔하므로 Resources 경로가 유지된다.
 - **`Assets/Addressables/`만** — 단수 `Addressable/` 콘텐츠 루트 금지.
 - **종류 라벨 ≠ 지역 라벨** — 부트/UI/공유는 type, 지역 전용은 place(타이틀 Area id. `area1`/`area2` 금지).
-- **동기 `LoadResource` (Play) — Addressables 경로 = 캐시 hit만** — miss는 null. 라벨 preload 또는 `LoadResourceAsync`. miss를 동기 Addressables 조회로 막지 않아요. **Resources leaf**(`Assets/` 접두 없음)는 이관 중 `Resources.Load`를 써요.
-- **Edit `*ForEditor` ≠ Play sync** — `LoadResourceForEditor` / `LoadResourcesByLabelForEditor`는 AssetDatabase(및 Addressable settings 라벨)만 봐요. `AddressableAssetManager` Play 캐시를 채우지 않아요.
+- **동기 `LoadResource` (Play) — Addressables 경로 = 캐시 hit만** — miss는 null. 라벨 preload 또는 `LoadResourceAsync`. miss를 동기 Addressables 조회로 막지 않는다. **Resources leaf**(`Assets/` 접두 없음)는 이관 중 `Resources.Load`를 쓴다.
+- **Edit `*ForEditor` ≠ Play sync** — `LoadResourceForEditor` / `LoadResourcesByLabelForEditor`는 AssetDatabase(및 Addressable settings 라벨)만 본다. `AddressableAssetManager` Play 캐시를 채우지 않는다.
 - **Lookup 전 `PathManager.Load()`** — 부트: PathMeta → 라벨 preload → 게임플레이 로드/스폰.
-- **폴더 OK / 라벨 없음** — 경로 `*ForEditor`는 성공할 수 있으나, 라벨 미할당이면 Edit 라벨 로드·Play 라벨 로드 모두 실패(또는 빈 목록)할 수 있어요.
+- **폴더 OK / 라벨 없음** — 경로 `*ForEditor`는 성공할 수 있으나, 라벨 미할당이면 Edit 라벨 로드·Play 라벨 로드 모두 실패(또는 빈 목록)할 수 있다.
 - **이중 스캔 시 Resources·Addressables 동일 파일명 금지** — Resources 우선 (`Duplicate filename in PathMeta; Resources wins`).
 - **Spawn 파사드 ≠ 도메인 파사드** — 패키지 `SpawnPrefab`은 프리팹 이름; 스테이지/캐릭터/UI 라우팅은 타이틀.
 - **Demo ≠ 출시 카탈로그** — 샘플 라벨·에셋은 놀이터만.
@@ -60,7 +66,7 @@ Dragon류 타이틀의 **Resources → Addressables** 이관 기준이 될 표�
 | `Assets/Addressables/...` | `Assets/...` 주소 | `true` |
 | `Assets/Resources/...` | Resources.Load leaf(확장자 없음), 예: `Demo/Foo` | `false` |
 
-**한 파일 이관:** `Assets/Resources/` → `Assets/Addressables/`로 옮기고 Resources 쪽을 지운 뒤 **Path Settings / Refresh Paths**하면 Lookup이 `Assets/...`가 돼요. 일괄 마이그레이터는 이 패키지에 없어요.
+**한 파일 이관:** `Assets/Resources/` → `Assets/Addressables/`로 옮기고 Resources 쪽을 지운 뒤 **Path Settings / Refresh Paths**하면 Lookup이 `Assets/...`가 된다. 일괄 마이그레이터는 이 패키지에 없다.
 
 ## 이 패키지가 아닌 것
 
@@ -80,9 +86,9 @@ Dragon류 타이틀의 **Resources → Addressables** 이관 기준이 될 표�
 | **종류** | `boot`, `JSON`, `Scriptable`, `ui`, `player` | 앱 부트 / 파이프라인 |
 | **지역** | `GallatinForest`, `Dawn`, … (타이틀 `AreaNames`) | Area 입장; 퇴장 시 릴리즈 |
 
-공유 적/VFX: place 하나만 달지 말고 공유 type 라벨(`enemy_shared` 또는 `boot`)을 기본으로 해요.
+공유 적/VFX: place 하나만 달지 말고 공유 type 라벨(`enemy_shared` 또는 `boot`)을 기본으로 한다.
 
-그룹(Local/Remote 패킹)과 라벨은 별개예요. 용량은 그룹, 런타임 필터는 라벨.
+그룹(Local/Remote 패킹)과 라벨은 별개다. 용량은 그룹, 런타임 필터는 라벨.
 
 ## 레이아웃 (콘텐츠)
 
@@ -98,19 +104,20 @@ Assets/Resources/                 # 이중 경로 이관 중 선택
   Data/PathMetaData.json          # 또는 패키지가 정한 PathMeta 위치
 ```
 
-패키지 코드:
+패키지 (UPM):
 
 ```text
-Assets/AddressableLayout/
+Packages/com.monet5379.addressable-layout/
   Runtime/
   Editor/                         # Path Settings · Refresh Paths · *ForEditor
-Assets/Demo/                      # 놀이터만 — 출시 복사 금지
+  Samples~/Demo/                  # PM Samples — Import 후 Register Boot Sample
 Assets/Resources/Data/
-  PathMetaData.json               # Path Settings / Refresh Paths로 생성
+  PathMetaData.json               # 호스트 프로젝트 — Refresh Paths로 생성
 ```
 
 ## 관련
 
+- [아키텍처](docs/architecture/README.md) — 구조 · 부트 · Lookup · Runtime/Editor
 - [마일스톤](docs/milestones.md) — 제작 순서 A → Done (이력·Verify)
 - [unity-studio-kit](https://github.com/monet5379/unity-studio-kit) — personal 프로필 (README + 불변조건)
 - 형제 포트폴리오: [unity-save-layout](https://github.com/monet5379/unity-save-layout)

@@ -1,8 +1,8 @@
 # 마일스톤
 
-**Addressable Layout** 제작 순서예요. 계약(불변조건) 정본은 루트 [README](../README.md)에 두고, 이 파일은 **다음에 무엇을 만들지**만 적어요. Treasure식 Plan 트리가 아니에요.
+**Addressable Layout** 제작 순서이다. 계약(불변조건) 정본은 루트 [README](../README.md)에 두고, 이 파일은 **다음에 무엇을 만들지**만 적는다. Treasure식 Plan 트리가 아니다.
 
-**Done (패키지 목표):** **C + F + D**. **E**는 선택(Editor 편의) — 이 repo에서는 완료예요.
+**Done (패키지 목표):** **C + F + D**. **E**는 선택(Editor 편의) — 이 repo에서는 완료이다.
 
 클래스 목표 (Treasure/Core형): `AddressableAssetManager` · `AddressableLabels` · `PathManager` · `ResourcesManager` (+ Editor Path Settings / `*ForEditor`).
 
@@ -81,7 +81,7 @@ A → B → C → F → D → (E)
 - B
 - `ResourcesManager` 로드 API — `LoadResource` / `LoadResourceAsync` / `LoadResourcesByLabelAsync`
 - 부트 순서: `PathManager.Load` → 종류(및 선택 place) 라벨 preload → 동기 로드
-- 불변조건: Play 동기 로드 = **캐시 hit만**
+- 불변조건: Play 동기 로드 = **캐시 hit-only**
 - Demo: `boot` preload + **place** 라벨 입장/퇴장 (샘플 지역 둘)
 
 **Out**
@@ -184,6 +184,6 @@ A → B → C → F → D → (E)
 
 ## Done 이후
 
-- README 불변조건을 SSOT로 유지하고, 위 상태표 행을 맞춰 두세요
-- repo가 **game** 프로필로 바뀌기 전에는 Architecture / Plan 트리를 추가하지 마세요
-- 타이틀 typed 파사드·밸런스 Facade는 게임 repo에 두세요
+- README 불변조건을 SSOT로 유지하고, 위 상태표 행을 맞춘다
+- repo가 **game** 프로필로 바뀌기 전에는 Architecture / Plan 트리를 추가하지 않는다
+- 타이틀 typed 파사드·밸런스 Facade는 게임 repo에 둔다

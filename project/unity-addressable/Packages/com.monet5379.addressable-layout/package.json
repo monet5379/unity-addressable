@@ -1,0 +1,21 @@
+{
+  "name": "com.monet5379.addressable-layout",
+  "version": "0.1.0",
+  "displayName": "Addressable Layout",
+  "description": "파일명 기반 Addressables/Resources 경로 조회 및 로드",
+  "unity": "6000.3",
+  "dependencies": {
+    "com.unity.addressables": "2.8.1"
+  },
+  "samples": [
+    {
+      "displayName": "Demo",
+      "description": "부트 샘플",
+      "path": "Samples~/Demo"
+    }
+  ],
+  "author": {
+    "name": "monet5379",
+    "email": "monet5379@gmail.com"
+  }
+}
