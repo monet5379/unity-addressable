@@ -110,3 +110,6 @@ ServerData/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# scripts/verify.ps1 (repo root)
+logs/verify/

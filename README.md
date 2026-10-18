@@ -19,7 +19,26 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 `com.unity.addressables`는 패키지 의존성으로 설치된다. PM 설치·요구 사항은 [패키지 README](project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md).
 
-**이 repo 개발:** `project/unity-addressable/Packages/com.monet5379.addressable-layout`
+**이 repo 개발:** Unity 프로젝트는 `project/unity-addressable`, 패키지 소스는 `project/unity-addressable/Packages/com.monet5379.addressable-layout`이다.
+
+### 로컬 검증 (verify)
+
+Git·CI·Addressables **콘텐츠 빌드** 없이, 위 Test Runner 절차와 같은 순서를 batchmode로 한 번에 돌린다.
+
+1. Edit Mode — `AddressableLayout.EditorTests` (`CacheOwnershipTests`)
+2. Demo 준비 — `AddressableLayoutVerify.PrepareDemo` (`RegisterBootSample`, Fast Mode)
+3. Play Mode — `AddressableLayout.PlayModeTests` (`DemoPlayModeTests`)
+
+저장소 **루트**에서:
+
+```powershell
+.\scripts\verify.ps1
+```
+
+- Unity 경로: `ProjectSettings/ProjectVersion.txt` 버전의 Hub Editor. 다른 경로면 `UNITY_EXE` 환경 변수.
+- 로그·테스트 결과: `logs/verify/` (gitignore). 단계 실패 시 중단.
+
+Demo Sample이 `Assets/Samples/...`에 없으면 2단계가 실패한다 (소비자 프로젝트와 동일 전제).
 
 ## 불변조건
 
