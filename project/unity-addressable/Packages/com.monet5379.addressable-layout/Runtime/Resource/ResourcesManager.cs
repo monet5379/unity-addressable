@@ -30,7 +30,7 @@ namespace AddressableLayout.Resource
         {
             if (string.IsNullOrEmpty(pathOrAddress))
             {
-                Debug.LogWarning("[AddressableLayout] Resource path is empty.");
+                Debug.LogWarning("[AddressableLayout] 리소스 경로가 비어 있습니다.");
                 return null;
             }
 
@@ -60,7 +60,7 @@ namespace AddressableLayout.Resource
         {
             if (string.IsNullOrEmpty(pathOrAddress))
             {
-                Debug.LogWarning("[AddressableLayout] Resource path is empty.");
+                Debug.LogWarning("[AddressableLayout] 리소스 경로가 비어 있습니다.");
                 return null;
             }
 
@@ -76,7 +76,7 @@ namespace AddressableLayout.Resource
             catch (Exception ex)
             {
                 Debug.LogWarning(
-                    $"[AddressableLayout] LoadResourceAsync failed. path={pathOrAddress}, {ex.Message}");
+                    $"[AddressableLayout] LoadResourceAsync 실패. path={pathOrAddress}, {ex.Message}");
                 return null;
             }
         }
@@ -96,7 +96,7 @@ namespace AddressableLayout.Resource
             catch (Exception ex)
             {
                 Debug.LogError(
-                    $"[AddressableLayout] Label load failed: {label}, {ex.Message}");
+                    $"[AddressableLayout] 라벨 로드 실패: {label}, {ex.Message}");
                 return Array.Empty<T>();
             }
         }
@@ -125,7 +125,7 @@ namespace AddressableLayout.Resource
         {
             if (string.IsNullOrEmpty(prefabName))
             {
-                Debug.LogWarning("[AddressableLayout] SpawnPrefab: prefab name is empty.");
+                Debug.LogWarning("[AddressableLayout] SpawnPrefab: 프리팹 이름이 비어 있습니다.");
                 return null;
             }
 
@@ -133,8 +133,8 @@ namespace AddressableLayout.Resource
             if (string.IsNullOrEmpty(path))
             {
                 Debug.LogWarning(
-                    $"[AddressableLayout] SpawnPrefab: PathMeta miss for '{prefabName}'. " +
-                    "Run Tools → Addressable Layout → Refresh Paths.");
+                    $"[AddressableLayout] SpawnPrefab: PathMeta 조회 실패 '{prefabName}'. " +
+                    "Tools → Addressable Layout → 레이아웃 도구에서 갱신 실행.");
                 return null;
             }
 
@@ -142,8 +142,8 @@ namespace AddressableLayout.Resource
             if (prefab == null)
             {
                 Debug.LogWarning(
-                    $"[AddressableLayout] SpawnPrefab: sync miss for '{prefabName}' path={path}. " +
-                    "Preload by label (Addressables) or ensure Resources leaf exists.");
+                    $"[AddressableLayout] SpawnPrefab: 동기 miss '{prefabName}' path={path}. " +
+                    "라벨 preload(Addressables) 또는 Resources leaf 존재 여부를 확인하세요.");
                 return null;
             }
 

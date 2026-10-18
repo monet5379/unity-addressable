@@ -9,41 +9,39 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 namespace AddressableLayout.Resource
 {
     /// <summary>
-    /// Addressables 로드·Dictionary 캐시·릴리즈. 캐시 키는 PrimaryKey(대개 GUID).
+    /// Addressables 로드·캐시 소유권·릴리즈. 캐시 키는 PrimaryKey(대개 GUID).
     /// </summary>
     public sealed class AddressableAssetManager
     {
-        // ponytail: PrimaryKey + 요청 키·InternalId alias. sync hit-only는 이 맵만 본다.
-        private readonly Dictionary<string, object> _resourcesCache = new();
-        private readonly Dictionary<string, AsyncOperationHandle> _asyncOperationHandles = new();
-        private readonly Dictionary<string, List<string>> _labelToCacheKeys = new();
+        private readonly CacheOwnership _cache = new();
+        private readonly Dictionary<string, AsyncOperationHandle> _directHandles = new();
+        // ponytail: O(n) 스캔으로 label별 handle 해제. 라벨·타입 조합 수는 적다는 전제.
+        private readonly Dictionary<LabelTypeKey, AsyncOperationHandle> _labelHandles = new();
+        // ponytail: PrimaryKey 단위 in-flight 공유. 로드 중 ReleaseAll 시 완료 후 재캐시하지 않는다.
+        private readonly Dictionary<string, Task<UnityEngine.Object>> _loadingTasks = new();
+        private int _generation;
 
         public T TryGetCached<T>(string key) where T : UnityEngine.Object
         {
             if (string.IsNullOrEmpty(key))
             {
-                Debug.LogWarning("[AddressableLayout] Resource key is empty.");
+                Debug.LogWarning("[AddressableLayout] 리소스 키가 비어 있습니다.");
                 return null;
             }
 
-            if (_resourcesCache.TryGetValue(key, out object cached) && cached is T typed)
-            {
-                return typed;
-            }
-
-            return null;
+            return _cache.TryGet(key, out T typed) ? typed : null;
         }
 
         public bool IsResourceLoaded(string key)
         {
-            return !string.IsNullOrEmpty(key) && _resourcesCache.ContainsKey(key);
+            return !string.IsNullOrEmpty(key) && _cache.Contains(key);
         }
 
         public async Task<T> LoadResourceAsync<T>(string assetGuidOrKey) where T : UnityEngine.Object
         {
             if (string.IsNullOrEmpty(assetGuidOrKey))
             {
-                Debug.LogWarning("[AddressableLayout] Resource key is empty.");
+                Debug.LogWarning("[AddressableLayout] 리소스 키가 비어 있습니다.");
                 return null;
             }
 
@@ -55,31 +53,44 @@ namespace AddressableLayout.Resource
                 IList<IResourceLocation> locations = await locationsHandle.Task;
                 if (locations == null || locations.Count == 0)
                 {
-                    Debug.LogWarning($"[AddressableLayout] No Addressable location for: {assetGuidOrKey}");
+                    Debug.LogWarning($"[AddressableLayout] Addressable location 없음: {assetGuidOrKey}");
                     return null;
                 }
 
-                string cacheKey = locations[0].PrimaryKey;
-                if (_resourcesCache.TryGetValue(cacheKey, out object cached) && cached is T hit)
+                string primaryKey = locations[0].PrimaryKey;
+                if (_cache.TryGet<T>(primaryKey, out T hit)
+                    && _cache.HasOwner(primaryKey, CacheOwnership.Direct))
                 {
-                    CacheLookupAlias(assetGuidOrKey, cacheKey, hit);
+                    AddRequestAlias(assetGuidOrKey, primaryKey);
                     return hit;
                 }
 
-                AsyncOperationHandle<T> loadHandle = Addressables.LoadAssetAsync<T>(locations[0]);
-                _asyncOperationHandles[cacheKey] = loadHandle;
-
-                T resource = await loadHandle.Task;
-                if (resource == null)
+                if (!_loadingTasks.TryGetValue(primaryKey, out Task<UnityEngine.Object> loading))
                 {
-                    Debug.LogError($"[AddressableLayout] Addressable load failed: {cacheKey}");
-                    ReleaseHandle(cacheKey);
+                    loading = LoadAndCacheAsync<T>(locations[0], primaryKey);
+                    _loadingTasks[primaryKey] = loading;
+                }
+
+                UnityEngine.Object loaded;
+                try
+                {
+                    loaded = await loading;
+                }
+                finally
+                {
+                    if (_loadingTasks.TryGetValue(primaryKey, out Task<UnityEngine.Object> current)
+                        && current == loading)
+                    {
+                        _loadingTasks.Remove(primaryKey);
+                    }
+                }
+
+                if (loaded is not T resource)
+                {
                     return null;
                 }
 
-                _resourcesCache[cacheKey] = resource;
-                CacheLookupAlias(assetGuidOrKey, cacheKey, resource);
-                CacheLocationAliases(locations[0], cacheKey, resource, null);
+                AddRequestAlias(assetGuidOrKey, primaryKey);
                 return resource;
             }
             catch (Exception ex)
@@ -111,18 +122,24 @@ namespace AddressableLayout.Resource
                     if (locations == null || locations.Count == 0)
                     {
                         Debug.LogWarning(
-                            $"[AddressableLayout] No {typeof(T).Name} locations for label '{label}'.");
+                            $"[AddressableLayout] 라벨 '{label}'에 대한 {typeof(T).Name} location 없음.");
                         return Array.Empty<T>();
                     }
 
-                    AsyncOperationHandle<IList<T>> handle = Addressables.LoadAssetsAsync<T>(label, null);
-                    _asyncOperationHandles[label] = handle;
+                    LabelTypeKey labelKey = new(label, typeof(T));
+                    if (!_labelHandles.TryGetValue(labelKey, out AsyncOperationHandle handle) || !handle.IsValid())
+                    {
+                        AsyncOperationHandle<IList<T>> loadHandle =
+                            Addressables.LoadAssetsAsync<T>(locations, null);
+                        handle = loadHandle;
+                        _labelHandles[labelKey] = handle;
+                    }
 
-                    IList<T> assets = await handle.Task;
+                    IList<T> assets = await handle.Convert<IList<T>>().Task;
                     if (assets == null || assets.Count == 0)
                     {
                         Debug.LogWarning(
-                            $"[AddressableLayout] Label '{label}' loaded empty {typeof(T).Name} list.");
+                            $"[AddressableLayout] 라벨 '{label}' 로드 결과 {typeof(T).Name} 목록이 비었습니다.");
                         return Array.Empty<T>();
                     }
 
@@ -137,8 +154,9 @@ namespace AddressableLayout.Resource
             catch (InvalidKeyException ex)
             {
                 Debug.LogError(
-                    $"[AddressableLayout] Label '{label}' not found for {typeof(T).Name}. {ex.Message}\n" +
-                    "Run Tools → Addressable Layout → Demo → Register Boot Sample, and set Play Mode Script to Use Asset Database.");
+                    $"[AddressableLayout] 라벨 '{label}'을(를) 찾을 수 없습니다 ({typeof(T).Name}). {ex.Message}\n" +
+                    "Unity: Tools → Addressable Layout → 레이아웃 도구 → 부트 샘플 등록, " +
+                    "Addressables Play Mode Script → Use Asset Database (Fast Mode).");
                 return Array.Empty<T>();
             }
             catch (Exception ex)
@@ -150,18 +168,17 @@ namespace AddressableLayout.Resource
 
         public void Release(string key)
         {
-            if (string.IsNullOrEmpty(key))
+            if (string.IsNullOrEmpty(key) || !_cache.TryResolve(key, out string primaryKey))
             {
                 return;
             }
 
-            ReleaseHandle(key);
-            _resourcesCache.Remove(key);
-
-            foreach (KeyValuePair<string, List<string>> pair in _labelToCacheKeys)
+            if (!_cache.Release(primaryKey, CacheOwnership.Direct))
             {
-                pair.Value.Remove(key);
+                return;
             }
+
+            ReleaseDirectHandle(primaryKey);
         }
 
         public void ReleaseLabel(string label)
@@ -171,24 +188,33 @@ namespace AddressableLayout.Resource
                 return;
             }
 
-            if (_labelToCacheKeys.TryGetValue(label, out List<string> keys))
+            var keysToRemove = new List<LabelTypeKey>();
+            foreach (KeyValuePair<LabelTypeKey, AsyncOperationHandle> pair in _labelHandles)
             {
-                for (int i = 0; i < keys.Count; i++)
+                if (!string.Equals(pair.Key.Label, label, StringComparison.Ordinal))
                 {
-                    string cacheKey = keys[i];
-                    ReleaseHandle(cacheKey);
-                    _resourcesCache.Remove(cacheKey);
+                    continue;
                 }
 
-                _labelToCacheKeys.Remove(label);
+                if (pair.Value.IsValid())
+                {
+                    Addressables.Release(pair.Value);
+                }
+
+                keysToRemove.Add(pair.Key);
             }
 
-            ReleaseHandle(label);
+            for (int i = 0; i < keysToRemove.Count; i++)
+            {
+                _labelHandles.Remove(keysToRemove[i]);
+            }
+
+            _cache.ReleaseOwner(label);
         }
 
         public void ReleaseAll()
         {
-            foreach (KeyValuePair<string, AsyncOperationHandle> pair in _asyncOperationHandles)
+            foreach (KeyValuePair<string, AsyncOperationHandle> pair in _directHandles)
             {
                 if (pair.Value.IsValid())
                 {
@@ -196,9 +222,19 @@ namespace AddressableLayout.Resource
                 }
             }
 
-            _asyncOperationHandles.Clear();
-            _resourcesCache.Clear();
-            _labelToCacheKeys.Clear();
+            foreach (KeyValuePair<LabelTypeKey, AsyncOperationHandle> pair in _labelHandles)
+            {
+                if (pair.Value.IsValid())
+                {
+                    Addressables.Release(pair.Value);
+                }
+            }
+
+            _directHandles.Clear();
+            _labelHandles.Clear();
+            _loadingTasks.Clear();
+            _cache.Clear();
+            _generation++;
         }
 
         private void CacheLabelAssets<T>(
@@ -206,37 +242,25 @@ namespace AddressableLayout.Resource
             IList<T> assets,
             IList<IResourceLocation> locations) where T : UnityEngine.Object
         {
-            if (!_labelToCacheKeys.TryGetValue(label, out List<string> keys))
-            {
-                keys = new List<string>();
-                _labelToCacheKeys[label] = keys;
-            }
-
             int count = Mathf.Min(assets.Count, locations.Count);
             for (int i = 0; i < count; i++)
             {
-                string cacheKey = locations[i].PrimaryKey;
+                string primaryKey = locations[i].PrimaryKey;
                 T asset = assets[i];
                 if (asset == null)
                 {
                     continue;
                 }
 
-                if (!_resourcesCache.ContainsKey(cacheKey))
-                {
-                    _resourcesCache[cacheKey] = asset;
-                }
-
-                TrackLabelKey(keys, cacheKey);
-                CacheLocationAliases(locations[i], cacheKey, asset, keys);
+                _cache.Add(primaryKey, asset, label);
+                AddLocationAliasForCache(locations[i], primaryKey);
             }
 
             Debug.Log(
-                $"[AddressableLayout] Label '{label}' cached {assets.Count} {typeof(T).Name} asset(s).");
+                $"[AddressableLayout] 라벨 '{label}' 캐시 완료: {assets.Count}개 {typeof(T).Name} 에셋.");
         }
 
-        // PathMeta 주소와 PrimaryKey(GUID 등)가 어긋나도 sync hit-only 조회가 되게 한다.
-        private void CacheLookupAlias(string requestKey, string primaryKey, object resource)
+        private void AddRequestAlias(string requestKey, string primaryKey)
         {
             if (string.IsNullOrEmpty(requestKey)
                 || string.Equals(requestKey, primaryKey, StringComparison.Ordinal))
@@ -244,16 +268,12 @@ namespace AddressableLayout.Resource
                 return;
             }
 
-            _resourcesCache[requestKey] = resource;
+            _cache.AddAlias(primaryKey, requestKey);
         }
 
-        private void CacheLocationAliases(
-            IResourceLocation location,
-            string primaryKey,
-            object resource,
-            List<string> labelKeys)
+        private void AddLocationAliasForCache(IResourceLocation location, string primaryKey)
         {
-            if (location == null || resource == null)
+            if (location == null)
             {
                 return;
             }
@@ -265,23 +285,46 @@ namespace AddressableLayout.Resource
                 return;
             }
 
-            _resourcesCache[internalId] = resource;
-            TrackLabelKey(labelKeys, internalId);
+            _cache.AddAlias(primaryKey, internalId);
         }
 
-        private static void TrackLabelKey(List<string> keys, string key)
+        private async Task<UnityEngine.Object> LoadAndCacheAsync<T>(IResourceLocation location, string primaryKey)
+            where T : UnityEngine.Object
         {
-            if (keys == null || string.IsNullOrEmpty(key) || keys.Contains(key))
+            int capturedGeneration = _generation;
+            AsyncOperationHandle<T> loadHandle = Addressables.LoadAssetAsync<T>(location);
+
+            T resource = await loadHandle.Task;
+            if (capturedGeneration != _generation)
             {
-                return;
+                if (loadHandle.IsValid())
+                {
+                    Addressables.Release(loadHandle);
+                }
+
+                return null;
             }
 
-            keys.Add(key);
+            if (resource == null)
+            {
+                Debug.LogError($"[AddressableLayout] Addressable 로드 실패: {primaryKey}");
+                if (loadHandle.IsValid())
+                {
+                    Addressables.Release(loadHandle);
+                }
+
+                return null;
+            }
+
+            _directHandles[primaryKey] = loadHandle;
+            _cache.Add(primaryKey, resource, CacheOwnership.Direct);
+            AddLocationAliasForCache(location, primaryKey);
+            return resource;
         }
 
-        private void ReleaseHandle(string key)
+        private void ReleaseDirectHandle(string primaryKey)
         {
-            if (!_asyncOperationHandles.TryGetValue(key, out AsyncOperationHandle handle))
+            if (!_directHandles.TryGetValue(primaryKey, out AsyncOperationHandle handle))
             {
                 return;
             }
@@ -291,7 +334,7 @@ namespace AddressableLayout.Resource
                 Addressables.Release(handle);
             }
 
-            _asyncOperationHandles.Remove(key);
+            _directHandles.Remove(primaryKey);
         }
 
         private static void LogLoadError(string key, string errorMessage)
@@ -300,13 +343,42 @@ namespace AddressableLayout.Resource
                 || errorMessage.IndexOf("settings.json", StringComparison.Ordinal) >= 0)
             {
                 Debug.LogError(
-                    $"[AddressableLayout] Addressable load failed: {key}. " +
-                    "Build Addressables or set Play Mode Script to Use Asset Database. " +
-                    "Tools → Addressable Layout → Demo → Register Boot Sample.");
+                    $"[AddressableLayout] Addressable 로드 실패: {key}. " +
+                    "Addressables 빌드 또는 Play Mode Script를 Use Asset Database로 설정하세요. " +
+                    "Tools → Addressable Layout → 레이아웃 도구 → 부트 샘플 등록.");
                 return;
             }
 
-            Debug.LogError($"[AddressableLayout] Addressable error for '{key}': {errorMessage}");
+            Debug.LogError($"[AddressableLayout] Addressable 오류 ('{key}'): {errorMessage}");
+        }
+
+        private readonly struct LabelTypeKey : IEquatable<LabelTypeKey>
+        {
+            public readonly string Label;
+            public readonly Type AssetType;
+
+            public LabelTypeKey(string label, Type assetType)
+            {
+                Label = label;
+                AssetType = assetType;
+            }
+
+            public bool Equals(LabelTypeKey other)
+            {
+                return string.Equals(Label, other.Label, StringComparison.Ordinal)
+                    && AssetType == other.AssetType;
+            }
+
+            public override bool Equals(object obj) => obj is LabelTypeKey other && Equals(other);
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (StringComparer.Ordinal.GetHashCode(Label ?? string.Empty) * 397)
+                        ^ (AssetType != null ? AssetType.GetHashCode() : 0);
+                }
+            }
         }
     }
 }

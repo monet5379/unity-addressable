@@ -53,8 +53,8 @@ namespace AddressableLayout.Resource
             }
 
             Debug.LogWarning(
-                $"[AddressableLayout] PathMeta miss: '{fileNameWithExtension}'. " +
-                "Run Tools → Addressable Layout → Refresh Paths.");
+                $"[AddressableLayout] PathMeta 조회 실패: '{fileNameWithExtension}'. " +
+                "Tools → Addressable Layout → 레이아웃 도구에서 갱신 실행.");
             return null;
         }
 
@@ -64,8 +64,8 @@ namespace AddressableLayout.Resource
             if (textAsset == null)
             {
                 Debug.LogError(
-                    "[AddressableLayout] PathMetaData.json missing under Resources/Data/. " +
-                    "Run Tools → Addressable Layout → Refresh Paths.");
+                    "[AddressableLayout] Resources/Data/ 아래 PathMetaData.json 없음. " +
+                    "Tools → Addressable Layout → 레이아웃 도구에서 갱신 실행.");
                 _database = new Dictionary<string, string>();
                 return;
             }
@@ -76,12 +76,12 @@ namespace AddressableLayout.Resource
                             ?? new Dictionary<string, string>();
                 if (_database.Count > 0)
                 {
-                    Debug.Log($"[AddressableLayout] PathMeta loaded. entries={_database.Count}");
+                    Debug.Log($"[AddressableLayout] PathMeta 로드 완료. entries={_database.Count}");
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"[AddressableLayout] PathMeta parse failed: {e}");
+                Debug.LogError($"[AddressableLayout] PathMeta 파싱 실패: {e}");
                 _database = new Dictionary<string, string>();
             }
         }
@@ -120,7 +120,7 @@ namespace AddressableLayout.Resource
             if (!Directory.Exists(addressableRoot))
             {
                 Debug.LogWarning(
-                    $"[AddressableLayout] Missing folder: Assets/{AddressableFolderName}.");
+                    $"[AddressableLayout] 폴더 없음: Assets/{AddressableFolderName}.");
             }
             else
             {
@@ -134,7 +134,7 @@ namespace AddressableLayout.Resource
 
             string text = JsonUtility.ToJson(new StringKeyedMap(_database));
             WritePathMetaDataFile(text);
-            Debug.Log($"[AddressableLayout] PathMeta refreshed. entries={_database.Count}");
+            Debug.Log($"[AddressableLayout] PathMeta 갱신 완료. entries={_database.Count}");
             return _database.Count;
         }
 
@@ -181,7 +181,7 @@ namespace AddressableLayout.Resource
             if (_database.ContainsKey(fileName))
             {
                 Debug.LogWarning(
-                    $"[AddressableLayout] Duplicate filename in PathMeta; keeping first path. name={fileName}");
+                    $"[AddressableLayout] PathMeta 파일명 중복; 첫 path 유지. name={fileName}");
                 return;
             }
 
@@ -216,12 +216,12 @@ namespace AddressableLayout.Resource
                 if (!IsAddressablePath(existing))
                 {
                     Debug.LogWarning(
-                        $"[AddressableLayout] Duplicate filename in PathMeta; Resources wins. name={fileName}");
+                        $"[AddressableLayout] PathMeta 파일명 중복; Resources 우선. name={fileName}");
                 }
                 else
                 {
                     Debug.LogWarning(
-                        $"[AddressableLayout] Duplicate filename in PathMeta; keeping first path. name={fileName}");
+                        $"[AddressableLayout] PathMeta 파일명 중복; 첫 path 유지. name={fileName}");
                 }
 
                 return;
