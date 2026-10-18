@@ -1,0 +1,22 @@
+{
+    "name": "AddressableLayout.PlayModeTests",
+    "rootNamespace": "AddressableLayout.Tests.PlayMode",
+    "references": [
+        "AddressableLayout.Runtime",
+        "AddressableLayout.Demo"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}
