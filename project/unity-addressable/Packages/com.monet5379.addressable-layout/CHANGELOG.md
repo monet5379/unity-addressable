@@ -1,6 +1,6 @@
 # Changelog
 
-이 파일은 [Semantic Versioning](https://semver.org/) 형식을 따릅니다.
+이 파일은 [Semantic Versioning](https://semver.org/) 형식을 따른다.
 
 ## [0.1.0] - 2026-10-18
 

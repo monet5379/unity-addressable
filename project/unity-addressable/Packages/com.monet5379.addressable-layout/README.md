@@ -1,6 +1,6 @@
 # Addressable Layout
 
-파일명 기반 **Addressables / Resources** 경로 Lookup, 라벨 preload, Play 모드 **동기 로드 = 캐시 hit만**을 제공하는 UPM 패키지입니다.
+파일명 기반 **Addressables / Resources** 경로 Lookup, 라벨 preload, Play 모드 **동기 로드 = 캐시 hit-only**를 제공하는 UPM 패키지이다.
 
 ## 요구 사항
 
@@ -20,18 +20,18 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 ### 로컬 임베디드
 
-이 레포의 `project/unity-addressable/Packages/com.monet5379.addressable-layout` 폴더를 사용하는 Unity 프로젝트의 `Packages/` 아래에 두면 Package Manager **In Project**에 표시됩니다.
+이 레포의 `project/unity-addressable/Packages/com.monet5379.addressable-layout` 폴더를 Unity 프로젝트 `Packages/` 아래에 두면 Package Manager **In Project**에 표시된다.
 
 ## 프로젝트 초기 설정
 
-패키지는 **게임 콘텐츠 경로를 스캔하지 않습니다.** 호스트 프로젝트에 아래를 준비한 뒤 PathMeta를 한 번 갱신하세요.
+패키지는 **게임 콘텐츠 경로를 스캔하지 않는다.** 호스트 프로젝트에 아래를 준비한 뒤 PathMeta를 한 번 갱신한다.
 
-1. **`Assets/Addressables/`** 폴더를 만듭니다. (단수 `Addressable/` 사용 금지)
-2. (선택) 이관 중이면 **`Assets/Resources/`** 도 사용할 수 있습니다.
-3. **Tools → Addressable Layout → Refresh Paths** (또는 **Path Settings**에서 Refresh)를 실행합니다.
-4. **`Assets/Resources/Data/PathMetaData.json`** 이 생성·갱신되었는지 확인합니다.
+1. **`Assets/Addressables/`** 폴더를 만든다. (단수 `Addressable/` 사용 금지)
+2. (선택) 이관 중이면 **`Assets/Resources/`** 도 사용할 수 있다.
+3. **Tools → Addressable Layout → Refresh Paths** (또는 **Path Settings**에서 Refresh)를 실행한다.
+4. **`Assets/Resources/Data/PathMetaData.json`** 이 생성·갱신되었는지 확인한다.
 
-런타임 Lookup 전에 **`PathManager.Load()`** 로 PathMeta를 로드하는 흐름을 부트에 넣으세요.
+런타임 Lookup 전에 **`PathManager.Load()`** 로 PathMeta를 로드하는 흐름을 부트에 넣는다.
 
 ## Editor 메뉴
 
@@ -49,7 +49,7 @@ Package Manager에서 **Addressable Layout → Samples → Demo → Import** 후
 2. **Refresh Paths** 다시 실행
 3. Play로 부트·place 라벨 동작 확인
 
-Demo는 출시 카탈로그가 아닌 **놀이터**입니다.
+Demo는 출시 카탈로그가 아닌 **놀이터**이다.
 
 ## Runtime API (요약)
 
@@ -61,11 +61,11 @@ Demo는 출시 카탈로그가 아닌 **놀이터**입니다.
 | `ResourcesManager` | `LoadResource` / async / 라벨 preload · `SpawnPrefab` / `Despawn` |
 | `ResourcesManagerForEditor` (Editor) | Edit Mode 전용 로드 |
 
-**Play 동기 `LoadResource`:** Addressables 경로는 **캐시 hit만** (miss → null). Preload 또는 `LoadResourceAsync`를 사용하세요.
+**Play 동기 `LoadResource`:** Addressables 경로는 **캐시 hit만** (miss → null). Preload 또는 `LoadResourceAsync`를 사용한다.
 
 ## 레포 문서
 
-상세 불변조건·아키텍처·마일스톤은 [GitHub 레포 README](https://github.com/monet5379/unity-addressable) 및 `docs/` 를 참고하세요.
+상세 불변조건·Architecture는 [GitHub 레포 README](https://github.com/monet5379/unity-addressable) 및 `docs/` 를 참고한다.
 
 ## License
 
