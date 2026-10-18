@@ -4,22 +4,33 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-18
+
+### Added
+
+- **Runtime:** `CacheOwnership` — owner-set 캐시 · Direct/라벨 handle 분리 · PrimaryKey in-flight `Task` 공유 · `ReleaseAll` generation 가드
+- **Editor:** **레이아웃 도구** 창 — PathMeta · ForEditor 스모크 · Demo **부트 샘플 등록** · batchmode `AddressableLayoutVerify`
+- **Sample:** Demo 마일스톤 검증 `DemoPlayModeVerification` · Test Runner용 지연 부트스트랩
+- **Tests:** `AddressableLayout.EditorTests` / `CacheOwnershipTests` · `AddressableLayout.PlayModeTests` / `DemoPlayModeTests`
+- **Docs:** Architecture · README — Play 캐시 소유권 · 레이아웃 도구 · Test Runner · `scripts/verify.ps1`
+
 ### Changed
 
-- **Runtime:** `AddressableAssetManager` — `CacheOwnership` owner-set 캐시 · Direct/라벨 handle 분리 · PrimaryKey in-flight `Task` 공유 · `ReleaseAll` generation 가드
-- **Editor:** **레이아웃 도구** 창 — PathMeta · ForEditor 스모크 · Demo **부트 샘플 등록** (Path Settings · Refresh Paths 등 단독 Tools 메뉴 제거)
-- **Sample:** Demo 검증을 `DemoPlayModeVerification`으로 분리 · `DemoAddressableHost`는 수동 Play·지연 부트스트랩만
-- **Tests:** `AddressableLayout.EditorTests` / `CacheOwnershipTests` · `AddressableLayout.PlayModeTests` / `DemoPlayModeTests` (Test Runner **PlayMode** 탭)
-- **Docs:** Architecture · README — Play 캐시 소유권 · 레이아웃 도구 · Test Runner 절차
+- **Editor:** Path Settings · Refresh Paths 등 단독 Tools 메뉴 → 레이아웃 도구로 통합
+- **Sample:** `DemoAddressableHost` — 수동 Play·부트스트랩 스케줄만 (검증 로직 분리)
+
+### Notes
+
+- **Git URL pin은 `#v0.1.1`을 권장한다.** `v0.1.0` 태그는 embedded 전환만 포함한 조기 스냅샷이다.
 
 ## [0.1.0] - 2026-10-18
 
 ### Added
 
-- UPM 패키지 `com.monet5379.addressable-layout` 초기 공개
-- **Runtime:** `PathManager`, `AddressableAssetManager`, `AddressableLabels`, `ResourcesManager` (파일명 Lookup, 라벨 로드, 동기 hit-only, `SpawnPrefab` / `Despawn`)
+- UPM embedded 패키지 `com.monet5379.addressable-layout` (조기 태그)
+- **Runtime:** `PathManager`, `AddressableAssetManager`, `AddressableLabels`, `ResourcesManager` 골격
 - **Editor:** Path Settings, Refresh Paths, `ResourcesManagerForEditor`, Edit Mode 스모크 메뉴
-- **Sample:** Demo (`Samples~/Demo`) — 부트·place 라벨·Register Boot Sample 연동
+- **Sample:** `Samples~/Demo` 스켈레톤 (`DemoBootSample`, `DemoAddressableSetup`)
 
 ### Notes
 
