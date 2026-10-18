@@ -74,6 +74,26 @@ function Invoke-UnityStep {
     Write-Host "OK: $StepName" -ForegroundColor Green
 }
 
+# -runTests는 테스트 후 스스로 종료한다. -quit를 함께 주면 테스트 전에 exit 0으로 끝나므로 결과 파일로 실행 여부를 확인한다.
+function Assert-TestResults {
+    param(
+        [Parameter(Mandatory = $true)][string]$StepName,
+        [Parameter(Mandatory = $true)][string]$ResultsFile
+    )
+
+    if (-not (Test-Path -LiteralPath $ResultsFile)) {
+        Write-Host "FAILED: $StepName produced no test results: $ResultsFile" -ForegroundColor Red
+        exit 1
+    }
+
+    $run = ([xml](Get-Content -LiteralPath $ResultsFile -Raw)).'test-run'
+    Write-Host "    Tests: total=$($run.total) passed=$($run.passed) failed=$($run.failed) skipped=$($run.skipped)"
+    if ([int]$run.total -eq 0) {
+        Write-Host "FAILED: $StepName ran 0 tests." -ForegroundColor Red
+        exit 1
+    }
+}
+
 if (-not (Test-Path -LiteralPath $ProjectPath)) {
     Write-Host "Unity project path not found: $ProjectPath" -ForegroundColor Red
     exit 1
@@ -90,9 +110,9 @@ Invoke-UnityStep -StepName 'editmode' -StepArgs @(
     '-runTests',
     '-testPlatform', 'editmode',
     '-assemblyNames', 'AddressableLayout.EditorTests',
-    '-testResults', $editResults,
-    '-quit'
+    '-testResults', $editResults
 )
+Assert-TestResults -StepName 'editmode' -ResultsFile $editResults
 
 Invoke-UnityStep -StepName 'prepare-demo' -StepArgs @(
     '-executeMethod', 'AddressableLayoutVerify.PrepareDemo',
@@ -104,9 +124,9 @@ Invoke-UnityStep -StepName 'playmode' -StepArgs @(
     '-runTests',
     '-testPlatform', 'playmode',
     '-assemblyNames', 'AddressableLayout.PlayModeTests',
-    '-testResults', $playResults,
-    '-quit'
+    '-testResults', $playResults
 )
+Assert-TestResults -StepName 'playmode' -ResultsFile $playResults
 
 Write-Host ""
 Write-Host "Verify finished. Output: $LogsDir" -ForegroundColor Green
