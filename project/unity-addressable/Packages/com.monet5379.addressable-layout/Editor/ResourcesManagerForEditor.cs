@@ -21,7 +21,7 @@ namespace AddressableLayout.Resource
         {
             if (string.IsNullOrEmpty(pathOrAddress))
             {
-                Debug.LogWarning("[AddressableLayout] Resource path is empty (ForEditor).");
+                Debug.LogWarning("[AddressableLayout] 리소스 경로가 비어 있습니다 (ForEditor).");
                 return null;
             }
 
@@ -48,7 +48,7 @@ namespace AddressableLayout.Resource
             if (settings == null)
             {
                 Debug.LogWarning(
-                    "[AddressableLayout] No AddressableAssetSettings (ForEditor label load).");
+                    "[AddressableLayout] AddressableAssetSettings 없음 (ForEditor 라벨 로드).");
                 return Array.Empty<T>();
             }
 

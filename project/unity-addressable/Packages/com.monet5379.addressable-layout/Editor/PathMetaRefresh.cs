@@ -4,7 +4,7 @@ using UnityEditor;
 namespace AddressableLayout.Editor
 {
     /// <summary>
-    /// PathMeta 디스크 스캔 공유 로직 (메뉴 · Path Settings 윈도우).
+    /// PathMeta 디스크 스캔 공유 로직 (레이아웃 도구 창 · Demo 등록).
     /// </summary>
     public static class PathMetaRefresh
     {
