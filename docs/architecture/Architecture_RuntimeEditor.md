@@ -14,7 +14,7 @@
 
 - `ResourcesManager` (Play) vs `ResourcesManagerForEditor` (Edit)
 - `AddressableAssetManager` · `CacheOwnership` — owner-set 캐시·alias · Direct/라벨 handle · 릴리즈 API
-- Editor: **레이아웃 도구** 창 (PathMeta · ForEditor 스모크 · Demo 등록)
+- Editor: **레이아웃 도구** 창 (경로 · 스모크 탭) · Demo **부트 샘플 등록** 메뉴
 
 ### 제외 범위 (Out of Scope)
 
@@ -63,7 +63,8 @@ pathOrAddress
 
 | 진입점 | 동작 |
 | --- | --- |
-| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta · ForEditor 스모크 · Demo 등록 |
+| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신 · ForEditor 스모크 (탭) |
+| **Tools → Addressable Layout → Demo → 부트 샘플 등록** | Demo Sample 등록 |
 
 `UpdatePathMetadata()`는 Editor 디스크 스캔이다. Player 빌드는 packaged JSON만 `Load()`한다.
 

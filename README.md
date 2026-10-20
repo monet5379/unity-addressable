@@ -14,7 +14,7 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 1. **`Assets/Addressables/`** 폴더를 만든다. (단수 `Addressable/` 금지)
 2. **Tools → Addressable Layout → 레이아웃 도구** → **갱신** — `Assets/Resources/Data/PathMetaData.json` 생성
-3. (선택) Demo — Samples import → **레이아웃 도구** → **부트 샘플 등록** → Test Runner **Play Mode** `DemoPlayModeTests`
+3. (선택) Demo — Samples import → **Demo → 부트 샘플 등록** → Test Runner **Play Mode** `DemoPlayModeTests`
 4. (선택) Edit Mode — **ForEditor 스모크** · Edit Mode `CacheOwnershipTests`
 
 `com.unity.addressables`는 패키지 의존성으로 설치된다. PM 설치·요구 사항은 [패키지 README](project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md).
@@ -73,6 +73,7 @@ PathMeta path 형태·이관 절차·API 표면: [Architecture_Lookup](docs/arch
 | [Architecture 허브](docs/architecture/README.md) | BootFlow · Lookup · RuntimeEditor |
 | [unity-studio-kit](https://github.com/monet5379/unity-studio-kit) | personal 프로필 |
 | [unity-save-layout](https://github.com/monet5379/unity-save-layout) | 형제 포트폴리오 |
+| [Addressable 레이아웃 (GitHub Pages)](https://monet5379.github.io/projects/addressable-layout/) | 케이스 스터디 · notes 입구 |
 
 ## License
 

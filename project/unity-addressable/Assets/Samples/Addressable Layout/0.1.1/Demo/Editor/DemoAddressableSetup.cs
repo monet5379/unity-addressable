@@ -23,7 +23,8 @@ namespace AddressableLayout.Demo
         private const string ResourcesOnlyPath = ResourcesDemoFolder + "/DemoResourcesOnly.asset";
         private const string CollisionResourcesPath = ResourcesDemoFolder + "/DemoCollisionSample.asset";
 
-        /// <summary>레이아웃 도구 창에서 호출 (Samples import 시).</summary>
+        /// <summary>Demo Sample import 후 Addressables·PathMeta 등록. batchmode는 AddressableLayoutVerify.PrepareDemo.</summary>
+        [MenuItem("Tools/Addressable Layout/Demo/부트 샘플 등록", priority = 100)]
         public static void RegisterBootSample()
         {
             EnsureFolder("Assets/Addressables");

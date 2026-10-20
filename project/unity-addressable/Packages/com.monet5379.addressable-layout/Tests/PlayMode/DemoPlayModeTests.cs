@@ -48,7 +48,7 @@ namespace AddressableLayout.Tests.PlayMode
             if (PathManager.Lookup("DemoBootSample.asset") == null)
             {
                 Assert.Inconclusive(
-                    "Demo PathMeta missing. 레이아웃 도구 → 부트 샘플 등록 후 재실행.");
+                    "Demo PathMeta missing. Demo → 부트 샘플 등록 후 재실행.");
                 yield break;
             }
 

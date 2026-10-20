@@ -28,7 +28,7 @@ namespace AddressableLayout.Editor
                 byPath != null
                     ? $"[AddressableLayout] ForEditor path OK: {BootSamplePath} → {byPath.name}"
                     : $"[AddressableLayout] ForEditor path miss: {BootSamplePath} " +
-                      "(레이아웃 도구 → 부트 샘플 등록).");
+                      "(Demo → 부트 샘플 등록).");
         }
 
         private static void BootLabelLoad()

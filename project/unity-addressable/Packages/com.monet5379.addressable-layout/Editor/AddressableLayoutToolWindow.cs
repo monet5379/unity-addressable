@@ -1,18 +1,21 @@
 using System;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
 namespace AddressableLayout.Editor
 {
     /// <summary>
-    /// PathMeta 갱신 · ForEditor 스모크 · Demo 등록.
+    /// PathMeta 갱신 · ForEditor 스모크 (탭 UI).
     /// </summary>
     public sealed class AddressableLayoutToolWindow : EditorWindow
     {
-        private const string DemoSetupTypeName =
-            "AddressableLayout.Demo.DemoAddressableSetup, AddressableLayout.Demo.Editor";
+        private enum ToolTab
+        {
+            PathMeta = 0,
+            Smoke = 1,
+        }
 
+        private ToolTab _tab = ToolTab.PathMeta;
         private int _lastEntryCount = -1;
         private string _lastMessage = "디스크를 스캔해 PathMeta를 갱신하려면 아래 갱신을 누르세요.";
 
@@ -24,9 +27,18 @@ namespace AddressableLayout.Editor
 
         private void OnGUI()
         {
-            DrawPathMetaSection();
-            DrawForEditorSmokeSection();
-            DrawDemoSectionIfAvailable();
+            _tab = (ToolTab)GUILayout.Toolbar((int)_tab, new[] { "경로", "스모크" });
+            EditorGUILayout.Space(6);
+
+            switch (_tab)
+            {
+                case ToolTab.PathMeta:
+                    DrawPathMetaSection();
+                    break;
+                case ToolTab.Smoke:
+                    DrawForEditorSmokeSection();
+                    break;
+            }
         }
 
         private void DrawPathMetaSection()
@@ -74,41 +86,8 @@ namespace AddressableLayout.Editor
             Debug.Log($"[AddressableLayout] {_lastMessage}");
         }
 
-        private static void DrawDemoSectionIfAvailable()
-        {
-            Type setupType = Type.GetType(DemoSetupTypeName);
-            if (setupType == null)
-            {
-                return;
-            }
-
-            MethodInfo register = setupType.GetMethod(
-                "RegisterBootSample",
-                BindingFlags.Public | BindingFlags.Static);
-            if (register == null)
-            {
-                return;
-            }
-
-            BeginSectionBox();
-            EditorGUILayout.LabelField("Demo 샘플 등록", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox(
-                "Package Manager에서 Demo Sample을 import한 뒤, boot·place 라벨과 샘플 에셋을 등록합니다.\n" +
-                "완료 시 PathMeta도 갱신됩니다.\n" +
-                "Play Mode 계약 검증은 Test Runner → Play Mode → DemoPlayModeTests를 실행하세요.",
-                MessageType.None);
-
-            if (GUILayout.Button("부트 샘플 등록", GUILayout.Height(28)))
-            {
-                register.Invoke(null, null);
-            }
-
-            EndSectionBox();
-        }
-
         private static void BeginSectionBox()
         {
-            EditorGUILayout.Space(8);
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         }
 

@@ -37,13 +37,14 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 | 메뉴 | 설명 |
 | --- | --- |
-| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신 · ForEditor 스모크 · Demo 부트 등록 |
+| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신(경로 탭) · ForEditor 스모크(스모크 탭) |
+| **Tools → Addressable Layout → Demo → 부트 샘플 등록** | Demo Sample Addressables·PathMeta 등록 |
 
 ## Demo 샘플 (선택)
 
 Package Manager에서 **Addressable Layout → Samples → Demo → Import** 후:
 
-1. **Tools → Addressable Layout → 레이아웃 도구** → **부트 샘플 등록** (PathMeta 갱신 포함)
+1. **Tools → Addressable Layout → Demo → 부트 샘플 등록** (PathMeta 갱신 포함)
 2. 필요 시 **갱신**만 다시 실행
 3. **Window → General → Test Runner → Play Mode** — `DemoPlayModeTests` 실행 (또는 Play로 `DemoAddressableHost` 수동 확인)
 

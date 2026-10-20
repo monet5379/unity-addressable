@@ -155,7 +155,7 @@ namespace AddressableLayout.Resource
             {
                 Debug.LogError(
                     $"[AddressableLayout] 라벨 '{label}'을(를) 찾을 수 없습니다 ({typeof(T).Name}). {ex.Message}\n" +
-                    "Unity: Tools → Addressable Layout → 레이아웃 도구 → 부트 샘플 등록, " +
+                    "Unity: Tools → Addressable Layout → Demo → 부트 샘플 등록, " +
                     "Addressables Play Mode Script → Use Asset Database (Fast Mode).");
                 return Array.Empty<T>();
             }
@@ -345,7 +345,7 @@ namespace AddressableLayout.Resource
                 Debug.LogError(
                     $"[AddressableLayout] Addressable 로드 실패: {key}. " +
                     "Addressables 빌드 또는 Play Mode Script를 Use Asset Database로 설정하세요. " +
-                    "Tools → Addressable Layout → 레이아웃 도구 → 부트 샘플 등록.");
+                    "Tools → Addressable Layout → Demo → 부트 샘플 등록.");
                 return;
             }
 

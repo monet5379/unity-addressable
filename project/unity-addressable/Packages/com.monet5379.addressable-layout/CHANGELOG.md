@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Editor:** 레이아웃 도구 — **경로** / **스모크** 탭. Demo **부트 샘플 등록**은 `Tools → Addressable Layout → Demo` 메뉴로 이동
+
 ## [0.2.0] - 2026-10-18
 
 ### Added
