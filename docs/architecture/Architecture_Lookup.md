@@ -13,7 +13,7 @@
 ### 포함 범위 (In Scope)
 
 - `PathMetaData.json` 위치 · `StringKeyedMap` · `PathManager.Lookup` / 확장자 헬퍼
-- Editor `UpdatePathMetadata` 이중 스캔 · 중복 규칙 · 제외 확장자
+- Editor `PathMetaWriter.Write()` 이중 스캔 · 중복 규칙 · 제외 확장자
 
 ### 제외 범위 (Out of Scope)
 
@@ -27,7 +27,7 @@
 | --- | --- |
 | 디스크 | `Assets/Resources/Data/PathMetaData.json` |
 | Runtime 로드 | `Resources.Load("Data/PathMetaData")` — leaf |
-| 상수 | `PathManager.TargetPath` |
+| 상수 | `PathMetaWriter.TargetPath` |
 | 직렬화 | `StringKeyedMap` → `Dictionary<string,string>` |
 
 | API | 용도 |
@@ -57,7 +57,7 @@ LoadResourceByName / SpawnPrefab
 ```text
 Tools → 레이아웃 도구 → 갱신
   → PathMetaRefresh.Refresh()
-  → PathManager.UpdatePathMetadata()
+  → PathMetaWriter.Write()
   → AssetDatabase.Refresh()
 ```
 
@@ -107,7 +107,7 @@ Tools → 레이아웃 도구 → 갱신
 
 | 변경 | 경로 |
 | --- | --- |
-| 스캔·중복·ignore | `PathManager.cs` |
+| 스캔·중복·ignore | `PathMetaWriter.cs` |
 | PathMeta 갱신 | `PathMetaRefresh.cs`, `AddressableLayoutToolWindow.cs` |
 | JSON 형식 | `StringKeyedMap.cs` |
 

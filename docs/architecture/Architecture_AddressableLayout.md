@@ -45,7 +45,8 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 
 | 타입 | 레이어 | 책임 |
 | --- | --- | --- |
-| `PathManager` | Lookup | `PathMetaData.json` 로드 · 파일명 → path · `IsAddressablePath` · (Editor) 디스크 스캔 갱신 |
+| `PathManager` | Lookup | `PathMetaData.json` 로드 · 파일명 → path · `IsAddressablePath` |
+| `PathMetaWriter` | Editor | Edit Mode 디스크 스캔 · `PathMetaData.json` 쓰기 (Play 중 금지) |
 | `AddressableAssetManager` | Addressables | Play Addressables **공개 파사드** — Direct/라벨 로더·ref-tracker 조합 · acquire/`ReleaseLabel` 오케스트레이션 · `LoadLabel` / `CountLabelLocations` |
 | `DirectAssetLoader` | Addressables (internal) | Direct 경로: location resolve · PrimaryKey in-flight `Task` · `_directHandles` · `ReleaseAll` generation |
 | `LabelAssetLoader` | Addressables (internal) | 라벨 bulk `(label, typeof(T))` handle · in-flight `Task` · label owner로 `CacheOwnership` 적재 · ref 0 evict |
@@ -101,13 +102,15 @@ flowchart TB
     subgraph edit [Edit Mode]
         RME[ResourcesManagerForEditor]
         Refresh[PathMetaRefresh / 레이아웃 도구 창]
+        PMW[PathMetaWriter]
         RME --> PM
         RME --> ADB[AssetDatabase]
-        Refresh --> PM
+        Refresh --> PMW
+        PMW --> PM
     end
 ```
 
-- **PathManager**는 Play에서 JSON만 읽는다. 디스크 스캔(`UpdatePathMetadata`)은 Editor 메뉴·윈도우가 호출한다.
+- **PathManager**는 Play·플레이어에서 packaged JSON만 읽는다. 디스크 스캔·`PathMetaData.json` 쓰기는 Editor **`PathMetaWriter.Write()`** (`PathMetaRefresh` · 레이아웃 도구 · Demo 등록)만 호출하며, **Play 중에는 실행하지 않는다**.
 - **AddressableAssetManager**는 `ResourcesManager`의 private static 인스턴스 하나로 묶인다. 구현은 `Runtime/Resource/Addressable/` 아래 **Contracts / Cache / Loading / LabelGroups**와 루트 파사드로 나뉘며, `Loading/`의 Direct·Label 로더와 `LabelReferenceTracker`가 handle·ref-count를, `Cache/`의 `CacheOwnership`이 owner-set 객체를 담당한다.
 
 **Play 캐시·핸들 (Addressable 모듈)**
@@ -174,7 +177,7 @@ flowchart TB
 | 변경 | 확인 |
 | --- | --- |
 | Play 로드·캐시 규칙 | `ResourcesManager`, `Addressable/AddressableAssetManager`, `Addressable/Loading/*`, `Addressable/Cache/CacheOwnership`, `Addressable/LabelGroups/*` |
-| Lookup·스캔 | `PathManager`, `PathMetaRefresh` |
+| Lookup·스캔 | `PathManager`, `PathMetaWriter`, `PathMetaRefresh` |
 | Edit 레이아웃 도구 | `AddressableLayoutToolWindow` |
 | 계약 문구 | [루트 README](../../README.md) 불변조건 먼저 |
 

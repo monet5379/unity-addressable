@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Tests:** `PathManagerEditTests` — `ParseDatabase` · `CheckLoaded` · `ApplyBuiltDatabase` · `TryLookup` · 반복 `Load` (Edit Mode)
+
+### Changed
+
+- **Editor:** `PathMetaWriter.Write()` — Resources·Addressables 디스크 스캔과 `PathMetaData.json` 쓰기를 Runtime `PathManager`에서 분리. 갱신 직후 `PathManager.ApplyBuiltDatabase`로 메모리 Lookup 동기화. Play 중 쓰기 금지
+
+### Removed
+
+- **Runtime:** `PathManager.UpdatePathMetadata()` — Editor `PathMetaWriter.Write()`로 이동
+
+### Notes
+
+- **Breaking (0.x):** PathMeta 갱신 호출을 `PathManager.UpdatePathMetadata()`에서 `PathMetaWriter.Write()`로 바꾼다 (Editor asmdef 참조).
+
 ## [0.4.0] - 2026-10-28
 
 ### Added

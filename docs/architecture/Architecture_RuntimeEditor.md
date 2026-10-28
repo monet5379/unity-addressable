@@ -66,7 +66,7 @@ pathOrAddress
 | **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신 |
 | **Tools → Addressable Layout → Demo → 부트 샘플 등록** | Demo Sample 등록 |
 
-`UpdatePathMetadata()`는 Editor 디스크 스캔이다. Player 빌드는 packaged JSON만 `Load()`한다.
+`PathMetaWriter.Write()`는 Edit Mode 전용 디스크 스캔·JSON 쓰기이다. **`Application.isPlaying`이면 파일·메모리를 건드리지 않는다.** Player 빌드는 packaged JSON만 `PathManager.Load()`한다.
 
 ## 불변조건과 주의점 (Invariants & Gotchas)
 

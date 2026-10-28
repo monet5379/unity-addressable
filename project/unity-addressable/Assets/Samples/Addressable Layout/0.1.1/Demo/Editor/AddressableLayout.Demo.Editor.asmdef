@@ -3,6 +3,7 @@
     "rootNamespace": "AddressableLayout.Demo",
     "references": [
         "AddressableLayout.Demo",
+        "AddressableLayout.Editor",
         "AddressableLayout.Runtime",
         "Unity.Addressables",
         "Unity.Addressables.Editor",

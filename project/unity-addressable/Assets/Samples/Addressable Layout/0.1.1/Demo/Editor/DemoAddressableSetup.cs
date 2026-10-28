@@ -1,3 +1,4 @@
+using AddressableLayout.Editor;
 using AddressableLayout.Resource;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
@@ -63,7 +64,7 @@ namespace AddressableLayout.Demo
             EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
 
-            int pathCount = PathManager.UpdatePathMetadata();
+            int pathCount = PathMetaWriter.Write();
             AssetDatabase.Refresh();
 
             Debug.Log(

@@ -1,4 +1,3 @@
-using AddressableLayout.Resource;
 using UnityEditor;
 
 namespace AddressableLayout.Editor
@@ -7,7 +6,7 @@ namespace AddressableLayout.Editor
     {
         public static int Refresh()
         {
-            int count = PathManager.UpdatePathMetadata();
+            int count = PathMetaWriter.Write();
             AssetDatabase.Refresh();
             return count;
         }

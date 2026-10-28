@@ -83,7 +83,8 @@ Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F �
 
 | 타입 | 역할 |
 | --- | --- |
-| `PathManager` | 파일명 → 경로 · PathMeta 갱신 |
+| `PathManager` | 파일명 → 경로 Lookup · PathMeta `Load()` |
+| `PathMetaWriter` (Editor) | PathMeta 디스크 스캔 · `PathMetaData.json` 갱신 (Play 중 금지) |
 | `AddressableAssetManager` | Addressables 로드 · owner-set 캐시 · Direct/라벨 handle · label preload/ref-count |
 | `AddressableLabels` | 종류 / Demo place 라벨 상수 (ship place·enemy enum 없음) |
 | `AddressableLabelGroupManager` | load group 적재·release |
@@ -110,10 +111,10 @@ Project Dragon 임베드 Layout 소비 시 맞추는 **공개 API** prose 목록
 
 | Test Runner 탭 | asmdef | 테스트 | 전제 |
 | --- | --- | --- | --- |
-| **Edit Mode** | `AddressableLayout.EditorTests` | `CacheOwnershipTests` · `PrefabInstanceProviderTests` · `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests` | 없음 |
+| **Edit Mode** | `AddressableLayout.EditorTests` | `PathManagerEditTests` · `CacheOwnershipTests` · `PrefabInstanceProviderTests` · `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests` | Demo import 시 `Load_CalledTwice` 등 일부 PathMeta 테스트 활성 |
 | **Play Mode** | `AddressableLayout.PlayModeTests` | `DemoPlayModeTests` · `LabelLoaderPlayModeTests` · `LabelRefCountPlayModeTests` | Demo import · **부트 샘플 등록** |
 
-레포 루트 `scripts/verify.ps1` — PrepareDemo → Edit (**15**) → Play (**6**) 일괄 (2026-10-28 gate green).
+레포 루트 `scripts/verify.ps1` — PrepareDemo → Edit (**25**) → Play (**6**) 일괄 (`PathManagerEditTests` 포함).
 
 ## 레포 문서
 
