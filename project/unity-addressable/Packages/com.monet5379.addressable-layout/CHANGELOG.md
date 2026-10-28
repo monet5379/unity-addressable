@@ -14,6 +14,7 @@
 - **Editor:** `PathMetaWriter.Write()` — Resources·Addressables 디스크 스캔과 `PathMetaData.json` 쓰기를 Runtime `PathManager`에서 분리. 갱신 직후 `PathManager.ApplyBuiltDatabase`로 메모리 Lookup 동기화. Play 중 쓰기 금지
 - **Editor:** `PathMetaWriter.BuildDatabase` — 트리별 Unix 경로 정규화 후 Ordinal 정렬, `TryRegister`로 중복 처리. 경고 `kept={existing}, skipped={path}`
 - **Runtime:** `StringKeyedMap` — `OnBeforeSerialize`에서 키 Ordinal 정렬 (`PathMetaData.json` 결정적 직렬화)
+- **Runtime:** `PathManager.PathMetaResourcesLoadKey` — `Resources.Load`와 Editor `PathMetaWriter.TargetPath`·스캔 제외 경로의 단일 정본
 
 ### Removed
 

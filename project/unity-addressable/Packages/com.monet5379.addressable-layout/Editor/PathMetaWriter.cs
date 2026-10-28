@@ -13,7 +13,8 @@ namespace AddressableLayout.Editor
     {
         public const string AddressableFolderName = "Addressables";
         public const string ResourcesFolderName = "Resources";
-        public const string TargetPath = "Resources/Data/PathMetaData.json";
+        public const string TargetPath =
+            ResourcesFolderName + "/" + PathManager.PathMetaResourcesLoadKey + ".json";
 
         private static readonly HashSet<string> IgnoreExtensionSet = new(System.StringComparer.OrdinalIgnoreCase)
         {
@@ -154,7 +155,7 @@ namespace AddressableLayout.Editor
         private static bool IsPathMetaDataFile(string filePath)
         {
             return ToUnixPath(filePath)
-                .EndsWith("/Resources/Data/PathMetaData.json", System.StringComparison.OrdinalIgnoreCase);
+                .EndsWith("/" + TargetPath, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool ShouldIgnoreFile(string unixFilePath)

@@ -6,7 +6,7 @@ namespace AddressableLayout.Resource
 {
     public static class PathManager
     {
-        private const string RuntimeLoadKey = "Data/PathMetaData";
+        public const string PathMetaResourcesLoadKey = "Data/PathMetaData";
 
         private static Dictionary<string, string> _database = new();
         private static bool _isLoaded;
@@ -59,11 +59,11 @@ namespace AddressableLayout.Resource
 
             _isLoaded = true;
 
-            TextAsset textAsset = UnityEngine.Resources.Load<TextAsset>(RuntimeLoadKey);
+            TextAsset textAsset = UnityEngine.Resources.Load<TextAsset>(PathMetaResourcesLoadKey);
             if (textAsset == null)
             {
                 Debug.LogError(
-                    "[AddressableLayout] Resources/Data/ 아래 PathMetaData.json 없음. " +
+                    $"[AddressableLayout] Resources/{PathMetaResourcesLoadKey}.json 없음. " +
                     "Tools → Addressable Layout → 레이아웃 도구에서 갱신 실행.");
                 _database = new Dictionary<string, string>();
                 return;
