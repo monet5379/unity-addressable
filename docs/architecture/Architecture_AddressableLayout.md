@@ -6,7 +6,7 @@
 
 Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.monet5379.addressable-layout`)로 분리한다. 게임 코드는 파일명·라벨·PathMeta Lookup으로 에셋에 닿고, `SpawnStage`·Json Facade 같은 typed API는 타이틀에 둔다.
 
-**계약(불변조건) 정본**은 [루트 README](../../README.md)이다. 이 문서는 구조·호출 관계만 다룬다. Resource 층 용어·0.3.0 label load group 결정: [CONTEXT.md](../../CONTEXT.md) · [ADR 0001](../adr/0001-label-load-group-cache-ownership.md).
+**계약(불변조건) 정본**은 [루트 README](../../README.md)이다. 이 문서는 구조·호출 관계만 다룬다. Resource 층 용어: [CONTEXT.md](../../CONTEXT.md).
 
 형제 Architecture:
 
@@ -126,7 +126,7 @@ flowchart TB
 | `LabelAssetLoader` | `_generation` | (스칼라) | `ReleaseAll` 이후 stale label bulk 완료 차단 |
 | `LabelReferenceTracker` | ref / asset count | 라벨 문자열 | load·preload **호출마다** acquire(ref++); `CopyLoadedLabels`용 asset count |
 
-**소유 규칙:** `LoadResourceAsync`는 Direct owner, `LoadResourcesByLabelAsync`·label preload는 라벨 문자열 owner, 동기 `LoadResource`는 캐시 hit만(소유 없음). 캐시 hit이어도 Direct owner가 없으면 async 경로로 Direct handle을 확보한다. `Release(key)`는 Direct owner만 제거하고 `DirectAssetLoader`가 `_directHandles`를 해제한다. **`ReleaseLabel` / `ReleaseLabelRef`(obsolete)** 는 `LabelReferenceTracker` ref-count를 1 감소하고, **ref가 0일 때만** `LabelAssetLoader.Evict`로 해당 라벨의 `(label, Type)` handle을 해제하고 `CacheOwnership.ReleaseOwner(label)`한다. ref에 없는 라벨에 대한 `ReleaseLabel`은 no-op(v0.2 즉시 evict와 다름 — preload acquire 경로만 해제 대상). 개별 Direct handle은 `ReleaseLabel`이 건드리지 않는다. 두 라벨이 같은 PrimaryKey를 공유하면 owner가 남는 동안 sync hit은 유지된다.
+**소유 규칙:** `LoadResourceAsync`는 Direct owner, `LoadResourcesByLabelAsync`·label preload는 라벨 문자열 owner, 동기 `LoadResource`는 캐시 hit만(소유 없음). 캐시 hit이어도 Direct owner가 없으면 async 경로로 Direct handle을 확보한다. `Release(key)`는 Direct owner만 제거하고 `DirectAssetLoader`가 `_directHandles`를 해제한다. **`ReleaseLabel`** 은 `LabelReferenceTracker` ref-count를 1 감소하고, **ref가 0일 때만** `LabelAssetLoader.Evict`로 해당 라벨의 `(label, Type)` handle을 해제하고 `CacheOwnership.ReleaseOwner(label)`한다. ref에 없는 라벨에 대한 `ReleaseLabel`은 no-op(v0.2 즉시 evict와 다름 — preload acquire 경로만 해제 대상). 개별 Direct handle은 `ReleaseLabel`이 건드리지 않는다. 두 라벨이 같은 PrimaryKey를 공유하면 owner가 남는 동안 sync hit은 유지된다. **라벨 단위 한계:** ref-count·eviction 키는 **Addressables 라벨 문자열**뿐이다. load group `LoadRequest.Id`는 acquire 집계에만 쓰이며, group id별 PrimaryKey 부분집합만 evict하는 API는 없다.
 
 `DirectAssetLoader.LoadResourceAsync`는 location resolve 후 Direct owner hit이면 즉시 반환하고, 아니면 `_loadingTasks` `Task`를 공유한다. 완료·실패 후 해당 PrimaryKey 항목을 제거한다. 요청 주소·InternalId alias는 await 이후 `CacheOwnership`에 등록한다. 라벨 경로는 `AddressableAssetManager`가 캐시 hit 시 `LabelReferenceTracker.Acquire`만 하고, miss 시 acquire 후 `LabelAssetLoader` bulk load — `(label, typeof(T))` in-flight `Task` 공유, 실패 시 acquire rollback. sync 그룹·`LabelLoadMode.Sync`는 `AddressableAssetManager.RunSynchronously`로 coroutine을 프레임 yield 없이 실행한다( yield 시 중단·로그). async load group은 `AddressableLabelGroupRunner` coroutine으로 돌린다.
 
@@ -188,6 +188,7 @@ flowchart TB
 
 ## 관련 문서 (See also)
 
+- [CONTEXT.md](../../CONTEXT.md)
 - [Architecture_BootFlow](Architecture_BootFlow.md)
 - [Architecture_Lookup](Architecture_Lookup.md)
 - [Architecture_RuntimeEditor](Architecture_RuntimeEditor.md)

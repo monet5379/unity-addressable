@@ -118,7 +118,11 @@ Project Dragon 임베드 Layout 소비 시 맞추는 **공개 API** prose 목록
 
 ## 레포 문서
 
-상세 Architecture·ADR: [GitHub 레포 README](https://github.com/monet5379/unity-addressable) 및 `docs/` .
+| | |
+| --- | --- |
+| [루트 README](https://github.com/monet5379/unity-addressable/blob/main/README.md) | 불변조건 |
+| [CONTEXT.md](https://github.com/monet5379/unity-addressable/blob/main/CONTEXT.md) | 용어 |
+| [docs/architecture/](https://github.com/monet5379/unity-addressable/tree/main/docs/architecture) | BootFlow · Lookup · 캐시·handle |
 
 ## License
 

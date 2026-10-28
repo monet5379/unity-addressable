@@ -1,8 +1,14 @@
 # architecture
 
-Addressable Layout **현재 구조** Architecture 허브이다. 계약(불변조건) 정본은 [루트 README](../../README.md)이고, 코드와 어긋나면 **코드가 이긴다**.
+Addressable Layout **현재 구조** Architecture 허브이다. 코드와 어긋나면 **코드가 이긴다**.
 
-용어·아키텍처 결정: [CONTEXT.md](../../CONTEXT.md) · [ADR 0001 — label load group · ref-count](../adr/0001-label-load-group-cache-ownership.md).
+| 정본 | 문서 |
+| --- | --- |
+| 계약(불변조건) | [루트 README](../../README.md) |
+| 용어 | [CONTEXT.md](../../CONTEXT.md) |
+| 구조·캐시·handle·흐름 | 아래 Architecture |
+
+레포 `docs/`는 **`architecture/`만** 유지한다 (`adr/` · `reference/` · `plan/` · `research/` 제거 — 내용은 README · CONTEXT · Architecture로 통합).
 
 글쓰기·골격: [unity-studio-kit — Documentation (Architecture)](https://github.com/monet5379/unity-studio-kit/blob/main/docs/game/Documentation.md#architecture-작성-규약).
 

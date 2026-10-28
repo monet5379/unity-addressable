@@ -2,7 +2,7 @@
 
 Unity Addressables용 **Resource 층** UPM 패키지(`com.monet5379.addressable-layout`)이다. 파일명 Lookup, 종류·지역 라벨 preload, Play 동기 Addressables **캐시 hit-only**, 선택적 Resources 이중 스캔, 얇은 `SpawnPrefab`을 제공한다. Treasure/Core식 골격으로 Resources 기반 타이틀이 typed 도메인 파사드 없이 Addressables로 이관할 수 있게 한다.
 
-**구조·부트·Lookup·Runtime/Editor** 상세는 [Architecture](docs/architecture/README.md)가 정본이다. 아래 **불변조건**만 README 계약이다.
+**불변조건**은 이 README, **구조·흐름**은 [Architecture](docs/architecture/README.md), **도메인 용어**는 [CONTEXT.md](CONTEXT.md)가 정본이다. `docs/` 아래는 `architecture/`만 둔다.
 
 ## 설치
 
@@ -71,7 +71,10 @@ PathMeta path 형태·이관 절차·API 표면: [Architecture_Lookup](docs/arch
 
 | | |
 | --- | --- |
-| [Architecture 허브](docs/architecture/README.md) | BootFlow · Lookup · RuntimeEditor |
+| [README.md](README.md) | Play·캐시 **불변조건** (계약) |
+| [CONTEXT.md](CONTEXT.md) | PathMeta · 라벨 · load group · owner **용어** |
+| [Architecture 허브](docs/architecture/README.md) | BootFlow · Lookup · RuntimeEditor · AddressableLayout |
+| [패키지 README](project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md) | API · Host parity · Tests |
 | [unity-studio-kit](https://github.com/monet5379/unity-studio-kit) | personal 프로필 |
 | [unity-save-layout](https://github.com/monet5379/unity-save-layout) | 형제 포트폴리오 |
 | [Addressable 레이아웃 (GitHub Pages)](https://monet5379.github.io/projects/addressable-layout/) | 케이스 스터디 · notes 입구 |

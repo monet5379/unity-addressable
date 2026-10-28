@@ -1,6 +1,6 @@
 # Addressable Layout (com.monet5379.addressable-layout)
 
-Unity Addressables용 **Resource 층** UPM 패키지 도메인 어휘다. Play·캐시 **실행 계약** 정본은 [루트 README](README.md)와 [docs/architecture/](docs/architecture/README.md) Architecture다. 이 파일과 `docs/adr/`는 에이전트·호스트 integrator가 같은 말을 쓰기 위한 용어·결정 레이어다. 0.3.0 cut planning은 [GitHub #1](https://github.com/monet5379/unity-addressable/issues/1)–[#6](https://github.com/monet5379/unity-addressable/issues/6).
+Unity Addressables용 **Resource 층** UPM 패키지 도메인 어휘다. Play·캐시 **실행 계약** 정본은 [루트 README](README.md)와 [docs/architecture/](docs/architecture/README.md) Architecture다. 이 파일은 에이전트·호스트 integrator용 **용어** 정본이다(구조·owner·handle 표는 Architecture, 불변조건은 README).
 
 ## Language
 
@@ -50,7 +50,7 @@ _Avoid_: 파일명 키를 PrimaryKey와 동일시
 
 **CacheOwnership**:
 PrimaryKey당 객체 하나와 **owner-set**을 관리하는 내부 캐시. Addressables handle은 `DirectAssetLoader` / `LabelAssetLoader`가 소유하고, `AddressableAssetManager`는 두 로더와 `LabelReferenceTracker`를 조합한다.
-_Avoid_: `_resourcesCache` 단일 맵, Dragon fork의 `_labelToCacheKeys` 병행 모델(0.3.0에서 통합 — [ADR 0001](docs/adr/0001-label-load-group-cache-ownership.md))
+_Avoid_: `_resourcesCache` 단일 맵, PrimaryKey 목록을 라벨 옆에 **별도 맵**으로 또 유지하기(`CacheOwnership` owner-set과 이중 진실 — 현재는 `LabelReferenceTracker` + `LabelAssetLoader` + `CacheOwnership`만)
 
 **Direct owner**:
 `CacheOwnership.Direct` 상수 owner. `LoadResourceAsync`가 PrimaryKey에 붙이는 소유권. `Release(key)`는 Direct owner와 `_directHandles`만 건드린다.

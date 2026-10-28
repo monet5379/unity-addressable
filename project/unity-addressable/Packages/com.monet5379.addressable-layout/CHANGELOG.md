@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Removed
+
+- **Docs:** `docs/adr/` · `docs/reference/` · `docs/plan/` · `docs/research/` — 실행·구조 정본은 루트 [README](https://github.com/monet5379/unity-addressable/blob/main/README.md) · [CONTEXT.md](https://github.com/monet5379/unity-addressable/blob/main/CONTEXT.md) · [docs/architecture/](https://github.com/monet5379/unity-addressable/tree/main/docs/architecture)만 유지
+
 ## [0.5.0] - 2026-10-28
 
 ### Added
