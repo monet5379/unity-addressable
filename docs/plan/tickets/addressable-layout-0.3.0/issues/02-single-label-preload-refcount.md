@@ -12,4 +12,4 @@
 - [x] preload 전 sync load는 miss(null) (hit-only 불변) —同上 · Demo Milestone A
 - [x] 같은 라벨 2회 acquire 후 1회 release 시 캐시 유지, ref 0에서만 evict — Play `TwoAcquires_OneRelease_StillHitsCache` · `SyncPreloadWhileAsyncInflight_OneAcquirePerCall`
 - [x] `CacheOwnershipTests`(및 필요 시 추가 Edit 테스트) green — `scripts/verify.ps1` Edit 10/10 (`CacheOwnershipTests` + `AddressableAssetManagerRefCountTests`)
-- [ ] Demo PlayMode 테스트는 아직 필수 통과 아님(04에서 verify) — 회귀용 `RunAllMilestones`는 verify Play 4/4에 포함·green(2026-10-28 CLI)
+- [x] Demo PlayMode — [04](04-verify-demo-regression.md) 회귀 게이트 · `RunAllMilestones_WhenDemoRegistered_Succeeds` (2026-10-28 Editor · verify Play 6/6)
