@@ -6,10 +6,6 @@ using UnityEngine;
 
 namespace AddressableLayout.Resource
 {
-    /// <summary>
-    /// 파일명 → Addressables 주소 / Resources.Load leaf Lookup.
-    /// PathMeta는 Resources/Data/PathMetaData.json. F: Resources 우선 이중 스캔.
-    /// </summary>
     public static class PathManager
     {
         public const string AddressableFolderName = "Addressables";
@@ -97,10 +93,6 @@ namespace AddressableLayout.Resource
                    && path.StartsWith("Assets/", StringComparison.Ordinal);
         }
 
-        /// <summary>
-        /// Resources 먼저, 이어서 Addressables 스캔 후 PathMetaData.json 갱신.
-        /// 동일 파일명: Resources 우선. 트리 내부 중복은 첫 path 유지.
-        /// </summary>
         public static int UpdatePathMetadata()
         {
             _database.Clear();
@@ -211,7 +203,6 @@ namespace AddressableLayout.Resource
 
             if (_database.ContainsKey(fileName))
             {
-                // ponytail: Resources를 먼저 넣었으므로 기존 키 = Resources wins.
                 string existing = _database[fileName];
                 if (!IsAddressablePath(existing))
                 {

@@ -37,7 +37,7 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 | 메뉴 | 설명 |
 | --- | --- |
-| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신(경로 탭) · ForEditor 스모크(스모크 탭) |
+| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신 |
 | **Tools → Addressable Layout → Demo → 부트 샘플 등록** | Demo Sample Addressables·PathMeta 등록 |
 
 ## Demo 샘플 (선택)

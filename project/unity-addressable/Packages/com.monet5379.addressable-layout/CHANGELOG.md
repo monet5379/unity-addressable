@@ -8,6 +8,10 @@
 
 - **Editor:** 레이아웃 도구 — **경로** / **스모크** 탭. Demo **부트 샘플 등록**은 `Tools → Addressable Layout → Demo` 메뉴로 이동
 
+### Removed
+
+- **Editor:** 레이아웃 도구 **스모크** 탭 · `ForEditorSmoke` (Edit 검증은 `CacheOwnershipTests` 등 테스트로 대체)
+
 ## [0.2.0] - 2026-10-18
 
 ### Added

@@ -14,7 +14,7 @@
 
 - `ResourcesManager` (Play) vs `ResourcesManagerForEditor` (Edit)
 - `AddressableAssetManager` · `CacheOwnership` — owner-set 캐시·alias · Direct/라벨 handle · 릴리즈 API
-- Editor: **레이아웃 도구** 창 (경로 · 스모크 탭) · Demo **부트 샘플 등록** 메뉴
+- Editor: **레이아웃 도구** 창 (PathMeta 갱신) · Demo **부트 샘플 등록** 메뉴
 
 ### 제외 범위 (Out of Scope)
 
@@ -63,7 +63,7 @@ pathOrAddress
 
 | 진입점 | 동작 |
 | --- | --- |
-| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신 · ForEditor 스모크 (탭) |
+| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신 |
 | **Tools → Addressable Layout → Demo → 부트 샘플 등록** | Demo Sample 등록 |
 
 `UpdatePathMetadata()`는 Editor 디스크 스캔이다. Player 빌드는 packaged JSON만 `Load()`한다.
@@ -71,7 +71,7 @@ pathOrAddress
 ## 불변조건과 주의점 (Invariants & Gotchas)
 
 - **Edit `*ForEditor` ≠ Play sync** — Edit 성공이 preload 없는 Play sync hit를 보장하지 않는다
-- Edit Mode 스모크 후 Play를 바로 돌려도 preload 상태가 Edit API로 오염되지 않아야 한다
+- Edit `*ForEditor` 호출은 Play Addressables 캐시를 채우지 않는다
 - Play Addressables sync miss는 의도 — [Architecture_BootFlow](Architecture_BootFlow.md) preload 참고
 
 | 작업 | API |
@@ -81,7 +81,7 @@ pathOrAddress
 | Lookup JSON 갱신 | Editor Refresh (Play에서 하지 않음) |
 | Play sync hit 검증 | Play Mode + preload 후 `LoadResource` |
 
-**Verify** — Play: Test Runner **Play Mode** `DemoPlayModeTests` (`DemoPlayModeVerification`). Edit: **ForEditor 스모크** · `CacheOwnershipTests`.
+**Verify** — Play: Test Runner **Play Mode** `DemoPlayModeTests` (`DemoPlayModeVerification`). Edit: `CacheOwnershipTests`.
 
 ## 변경 가이드 (Change Guidelines)
 
@@ -89,11 +89,11 @@ pathOrAddress
 | --- | --- |
 | Play 캐시·alias | `AddressableAssetManager.cs` |
 | Play 파사드 | `ResourcesManager.cs` |
-| Edit 파사드·스모크 | `ResourcesManagerForEditor.cs`, `ForEditorSmoke.cs`, `AddressableLayoutToolWindow.cs` |
+| Edit 파사드 | `ResourcesManagerForEditor.cs`, `AddressableLayoutToolWindow.cs` |
 | 레이아웃 도구 UI | `AddressableLayoutToolWindow.cs` |
 
 - [ ] README “Edit ≠ Play sync” 유지
-- [ ] ForEditor 스모크 · `DemoPlayModeTests` · `CacheOwnershipTests`
+- [ ] `DemoPlayModeTests` · `CacheOwnershipTests`
 
 ## 관련 문서 (See also)
 

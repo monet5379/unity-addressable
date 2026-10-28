@@ -6,9 +6,6 @@ using UnityEngine;
 
 namespace AddressableLayout.Demo
 {
-    /// <summary>
-    /// Demo 샘플 SO/프리팹 + boot/place 라벨 등록 + PathMeta 이중 스캔 (A/B/C/D/F Exit).
-    /// </summary>
     public static class DemoAddressableSetup
     {
         private const string SampleFolder = "Assets/Addressables/Scriptable/Demo";
@@ -23,7 +20,6 @@ namespace AddressableLayout.Demo
         private const string ResourcesOnlyPath = ResourcesDemoFolder + "/DemoResourcesOnly.asset";
         private const string CollisionResourcesPath = ResourcesDemoFolder + "/DemoCollisionSample.asset";
 
-        /// <summary>Demo Sample import 후 Addressables·PathMeta 등록. batchmode는 AddressableLayoutVerify.PrepareDemo.</summary>
         [MenuItem("Tools/Addressable Layout/Demo/부트 샘플 등록", priority = 100)]
         public static void RegisterBootSample()
         {
@@ -55,7 +51,6 @@ namespace AddressableLayout.Demo
             RegisterSample(settings, PlaceBPath, "place-b", AddressableLabels.DemoAreaB);
             RegisterSpawnPrefab(settings, SpawnPrefabPath, AddressableLabels.Boot);
 
-            // F: Addressables 쪽 충돌 파일은 디스크만 (라벨/그룹 없음). Resources-only도 Addressables 미등록.
             EnsureSampleAsset(CollisionAddressablesPath, "collision-addressables");
             EnsureSampleAsset(ResourcesOnlyPath, "resources-only");
             EnsureSampleAsset(CollisionResourcesPath, "collision-resources");

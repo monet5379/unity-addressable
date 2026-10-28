@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace AddressableLayout.Resource
 {
-    /// <summary>
-    /// PrimaryKey·alias 조회와 owner별 캐시 수명. Addressables handle은 다루지 않는다.
-    /// </summary>
-    // ponytail: PrimaryKey당 Object 하나. 같은 주소를 서로 다른 T로 로드하면 마지막 Add의 타입/인스턴스만 유지된다.
     internal sealed class CacheOwnership
     {
         public const string Direct = "\0direct";

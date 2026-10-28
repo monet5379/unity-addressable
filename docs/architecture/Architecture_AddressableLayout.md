@@ -87,12 +87,14 @@ flowchart TB
 | `_cache` (`CacheOwnership`) | PrimaryKey · alias → PrimaryKey · owner → PrimaryKey 집합 | 객체·소유자 집계; 마지막 owner 제거 시 evict |
 | `_directHandles` | PrimaryKey | `LoadResourceAsync` Direct owner용 `Addressables.Release` handle |
 | `_labelHandles` | `(label, Type)` | `LoadResourcesByLabelAsync` — 동일 라벨·타입 조합 in-flight·완료 handle 공유 |
+| `_labelRefCounts` / `_labelAssetCounts` | 라벨 문자열 | load·preload **호출마다** acquire(ref++). `CopyLoadedLabels`용 asset count |
+| `_labelInflightLoads` | `(label, Type)` | 라벨 bulk 로드 in-flight `Task` — sync·async·`PreloadLabel*`가 동일 Task 공유 |
 | `_loadingTasks` | PrimaryKey | `LoadResourceAsync` in-flight — 같은 PrimaryKey 재진입 시 기존 `Task` await |
 | `_generation` | (스칼라) | `ReleaseAll` 이후 완료된 stale 로드가 캐시에 재진입하지 않도록 |
 
-**소유 규칙:** `LoadResourceAsync`는 Direct owner, `LoadResourcesByLabelAsync`는 라벨 문자열 owner, 동기 `LoadResource`는 캐시 hit만(소유 없음). 캐시 hit이어도 Direct owner가 없으면 async 경로로 Direct handle을 확보한다. `Release(key)`는 Direct owner만 제거하고 `_directHandles`를 해제한다. `ReleaseLabel`은 해당 라벨의 `_labelHandles`만 해제하고 `_cache.ReleaseOwner(label)` — 개별 Direct handle은 건드리지 않는다. 두 라벨이 같은 PrimaryKey를 공유하면 owner가 남는 동안 sync hit은 유지된다.
+**소유 규칙:** `LoadResourceAsync`는 Direct owner, `LoadResourcesByLabelAsync`·label preload는 라벨 문자열 owner, 동기 `LoadResource`는 캐시 hit만(소유 없음). 캐시 hit이어도 Direct owner가 없으면 async 경로로 Direct handle을 확보한다. `Release(key)`는 Direct owner만 제거하고 `_directHandles`를 해제한다. **`ReleaseLabel` / `ReleaseLabelRef`(obsolete)** 는 label ref-count를 1 감소하고, **ref가 0일 때만** 해당 라벨의 `_labelHandles`(타입별)를 해제하고 `_cache.ReleaseOwner(label)`한다. ref에 없는 라벨에 대한 `ReleaseLabel`은 no-op(v0.2 즉시 evict와 다름 — preload acquire 경로만 해제 대상). 개별 Direct handle은 `ReleaseLabel`이 건드리지 않는다. 두 라벨이 같은 PrimaryKey를 공유하면 owner가 남는 동안 sync hit은 유지된다.
 
-`LoadResourceAsync`는 location resolve 후 Direct owner hit이면 즉시 반환하고, 아니면 `_loadingTasks` Task를 공유한다. 완료·실패 후 해당 PrimaryKey 항목을 제거한다. 요청 주소·InternalId alias는 await 이후 `AddAlias`로 등록한다. `LoadResourcesByLabelAsync`는 resolve한 locations 순서로 `LoadAssetsAsync`하고 `(label, typeof(T))` handle을 재사용한다.
+`LoadResourceAsync`는 location resolve 후 Direct owner hit이면 즉시 반환하고, 아니면 `_loadingTasks` Task를 공유한다. 완료·실패 후 해당 PrimaryKey 항목을 제거한다. 요청 주소·InternalId alias는 await 이후 `AddAlias`로 등록한다. `LoadResourcesByLabelAsync`·`PreloadLabelSync`·`PreloadLabelAsync`는 `(label, typeof(T))` in-flight `Task`를 공유하고, **호출마다** ref-count acquire(캐시 hit 재진입 포함) 후 bulk `LoadAssetsAsync` handle을 재사용한다. 실패 시 해당 호출분 acquire만 rollback한다.
 
 **Play API 표면 (대표)**
 
@@ -140,11 +142,11 @@ flowchart TB
 | --- | --- |
 | Play 로드·캐시 규칙 | `ResourcesManager`, `AddressableAssetManager` |
 | Lookup·스캔 | `PathManager`, `PathMetaRefresh` |
-| Edit 스모크·창 | `ForEditorSmoke`, `AddressableLayoutToolWindow` |
+| Edit 레이아웃 도구 | `AddressableLayoutToolWindow` |
 | 계약 문구 | [루트 README](../../README.md) 불변조건 먼저 |
 
 - [ ] README 불변조건과 동기화
-- [ ] DemoPlayModeTests / ForEditor 스모크 / CacheOwnershipTests
+- [ ] DemoPlayModeTests / CacheOwnershipTests
 
 ## 관련 문서 (See also)
 

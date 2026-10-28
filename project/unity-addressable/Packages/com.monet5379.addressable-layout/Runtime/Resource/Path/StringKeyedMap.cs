@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace AddressableLayout.Resource
 {
-    /// <summary>
-    /// JsonUtility용 string→string 맵 (keys/values 병렬 배열).
-    /// </summary>
     [System.Serializable]
     public sealed class StringKeyedMap : ISerializationCallbackReceiver
     {

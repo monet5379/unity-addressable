@@ -26,7 +26,7 @@ namespace AddressableLayout.Tests.PlayMode
     }
 
     /// <summary>
-    /// Demo milestones A–F. Test Runner <b>PlayMode</b> 탭 · Demo Sample import 및 부트 샘플 등록 필요.
+    /// Demo milestones A–F. Test Runner <b>PlayMode</b> tab.
     /// </summary>
     [PrebuildSetup(typeof(DemoPlayModeTestsPrebuild))]
     [PostBuildCleanup(typeof(DemoPlayModeTestsPostbuild))]

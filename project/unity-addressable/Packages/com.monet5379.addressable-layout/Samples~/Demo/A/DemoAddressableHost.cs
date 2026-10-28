@@ -4,14 +4,8 @@ using UnityEngine;
 
 namespace AddressableLayout.Demo
 {
-    /// <summary>
-    /// Play 시 milestones A–F 검증 (수동 Play용). 자동 테스트는 <see cref="DemoPlayModeVerification"/>.
-    /// </summary>
     public sealed class DemoAddressableHost : MonoBehaviour
     {
-        /// <summary>
-        /// Play Mode 테스트 PrebuildSetup이 AfterSceneLoad보다 늦게 실행되므로, 부트스트랩을 지연한다.
-        /// </summary>
         private const int BootstrapFrameDelay = 3;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]

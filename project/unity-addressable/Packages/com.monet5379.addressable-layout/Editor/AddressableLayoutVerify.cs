@@ -3,10 +3,6 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Batchmode 검증 진입점 (<c>-executeMethod AddressableLayoutVerify.PrepareDemo</c>).
-/// Demo Editor asmdef에 직접 참조하지 않고 리플렉션으로 <see cref="RegisterBootSample"/> 호출.
-/// </summary>
 public static class AddressableLayoutVerify
 {
     private const string DemoSetupTypeName =

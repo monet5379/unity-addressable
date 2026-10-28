@@ -88,7 +88,7 @@ sequenceDiagram
 - `EnterPlaceAsync` 완료 전 place 에셋 sync load → null
 - 라벨 preload 실패 시: Addressable Groups 라벨 · Play Mode Script(Fast Mode) · Demo **부트 샘플 등록**
 
-Play 확인: Demo import → **Demo → 부트 샘플 등록** → Test Runner **Play Mode** `DemoPlayModeTests`. Edit: 레이아웃 도구 **스모크** 탭 ([Architecture_RuntimeEditor](Architecture_RuntimeEditor.md)).
+Play 확인: Demo import → **Demo → 부트 샘플 등록** → Test Runner **Play Mode** `DemoPlayModeTests`. Edit: `CacheOwnershipTests` ([Architecture_RuntimeEditor](Architecture_RuntimeEditor.md)).
 
 ## 변경 가이드 (Change Guidelines)
 
@@ -99,7 +99,7 @@ Play 확인: Demo import → **Demo → 부트 샘플 등록** → Test Runner *
 | 캐시·alias | `AddressableAssetManager.cs` |
 
 - [ ] README 불변조건과 일치
-- [ ] DemoPlayModeTests · ForEditor 스모크
+- [ ] DemoPlayModeTests
 
 ## 관련 문서 (See also)
 

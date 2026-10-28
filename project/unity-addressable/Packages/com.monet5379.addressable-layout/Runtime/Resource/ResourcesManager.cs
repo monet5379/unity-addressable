@@ -7,10 +7,6 @@ namespace AddressableLayout.Resource
 {
     /// <summary>
     /// PathManager + AddressableAssetManager Play facade.
-    /// Addressables 경로: 동기 LoadResource = 캐시 hit만.
-    /// Resources leaf: Resources.Load (이관 중 이중 경로).
-    /// SpawnPrefab / Despawn: 이름 → Path → provider (기본 Instantiate / Destroy).
-    /// Edit Mode: <c>ResourcesManagerForEditor</c> (*ForEditor, Play 캐시 미사용).
     /// </summary>
     public static class ResourcesManager
     {
@@ -20,7 +16,6 @@ namespace AddressableLayout.Resource
 
         public static AddressableAssetManager AssetManager => Addressables;
 
-        /// <summary>첫 <see cref="SpawnPrefab"/> 전에 1회. null이면 기본(Instantiate/Destroy)으로 복귀.</summary>
         public static void SetInstanceProvider(IPrefabInstanceProvider provider)
         {
             _instanceProvider = provider ?? InstantiateProvider.Instance;
@@ -31,9 +26,6 @@ namespace AddressableLayout.Resource
             return Addressables.IsResourceLoaded(pathOrAddress);
         }
 
-        /// <summary>
-        /// Play 동기 로드. Addressables = 캐시 hit만. Resources leaf = Resources.Load.
-        /// </summary>
         public static T LoadResource<T>(string pathOrAddress) where T : UnityEngine.Object
         {
             if (string.IsNullOrEmpty(pathOrAddress))
@@ -50,9 +42,6 @@ namespace AddressableLayout.Resource
             return Addressables.TryGetCached<T>(pathOrAddress);
         }
 
-        /// <summary>
-        /// 파일명으로 PathMeta Lookup 후 로드.
-        /// </summary>
         public static T LoadResourceByName<T>(string fileNameWithExtension) where T : UnityEngine.Object
         {
             string path = PathManager.Lookup(fileNameWithExtension);
@@ -113,11 +102,35 @@ namespace AddressableLayout.Resource
 
         public static void ReleaseLabel(string label) => Addressables.ReleaseLabel(label);
 
+        [Obsolete("Use ReleaseLabel instead. ReleaseLabelRef will be removed in a future release.")]
+        public static bool ReleaseLabelRef(string label) => Addressables.ReleaseLabelRef(label);
+
         public static void ReleaseAll() => Addressables.ReleaseAll();
 
-        /// <summary>
-        /// 지역(place) 라벨 preload. 퇴장은 LeavePlace.
-        /// </summary>
+        public static void PreloadTypeLabels(params string[] labels)
+        {
+            PreloadTypeLabels(labels, failOnEmptyInDev: false);
+        }
+
+        public static void PreloadTypeLabels(string[] labels, bool failOnEmptyInDev)
+        {
+            if (labels == null || labels.Length == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < labels.Length; i++)
+            {
+                string label = labels[i];
+                if (string.IsNullOrEmpty(label))
+                {
+                    continue;
+                }
+
+                Addressables.PreloadLabelSync<UnityEngine.Object>(label, failOnEmptyInDev);
+            }
+        }
+
         public static Task<IList<T>> EnterPlaceAsync<T>(string placeLabel) where T : UnityEngine.Object
         {
             return LoadResourcesByLabelAsync<T>(placeLabel);
@@ -125,10 +138,6 @@ namespace AddressableLayout.Resource
 
         public static void LeavePlace(string placeLabel) => ReleaseLabel(placeLabel);
 
-        /// <summary>
-        /// 프리팹 이름 → PathMeta → sync Load → <see cref="IPrefabInstanceProvider.Spawn"/>.
-        /// Addressables 경로는 캐시 hit 전제 (miss면 null).
-        /// </summary>
         public static GameObject SpawnPrefab(string prefabName, Transform parent = null)
         {
             if (string.IsNullOrEmpty(prefabName))
@@ -158,9 +167,6 @@ namespace AddressableLayout.Resource
             return _instanceProvider.Spawn(prefab, parent);
         }
 
-        /// <summary>
-        /// <see cref="SpawnPrefab"/>으로 만든 인스턴스를 provider에 반환 (기본 Destroy).
-        /// </summary>
         public static void Despawn(GameObject instance)
         {
             if (instance == null)

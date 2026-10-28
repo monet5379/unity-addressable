@@ -7,7 +7,7 @@ using UnityEngine;
 namespace AddressableLayout.Demo
 {
     /// <summary>
-    /// Demo milestones A–F (Play Mode). 실패 시 <see cref="InvalidOperationException"/>.
+    /// Demo milestones A–F (Play Mode).
     /// </summary>
     public static class DemoPlayModeVerification
     {
@@ -22,7 +22,6 @@ namespace AddressableLayout.Demo
         private const string CollisionFileName = "DemoCollisionSample.asset";
         private const string CollisionResourcesLeaf = "Demo/DemoCollisionSample";
 
-        /// <summary>Play Mode 테스트 중 <see cref="DemoAddressableHost"/> 자동 부트스트랩 억제.</summary>
         public static bool DisableAutoBootstrap { get; set; }
 
         public static async Task RunAllAsync()

@@ -8,16 +8,13 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 
 namespace AddressableLayout.Resource
 {
-    /// <summary>
-    /// Addressables 로드·캐시 소유권·릴리즈. 캐시 키는 PrimaryKey(대개 GUID).
-    /// </summary>
-    public sealed class AddressableAssetManager
+    public sealed partial class AddressableAssetManager
     {
         private readonly CacheOwnership _cache = new();
         private readonly Dictionary<string, AsyncOperationHandle> _directHandles = new();
-        // ponytail: O(n) 스캔으로 label별 handle 해제. 라벨·타입 조합 수는 적다는 전제.
         private readonly Dictionary<LabelTypeKey, AsyncOperationHandle> _labelHandles = new();
-        // ponytail: PrimaryKey 단위 in-flight 공유. 로드 중 ReleaseAll 시 완료 후 재캐시하지 않는다.
+        private readonly Dictionary<string, int> _labelRefCounts = new();
+        private readonly Dictionary<string, int> _labelAssetCounts = new();
         private readonly Dictionary<string, Task<UnityEngine.Object>> _loadingTasks = new();
         private int _generation;
 
@@ -104,66 +101,9 @@ namespace AddressableLayout.Resource
             }
         }
 
-        public async Task<IList<T>> LoadResourcesByLabelAsync<T>(string label) where T : UnityEngine.Object
+        public Task<IList<T>> LoadResourcesByLabelAsync<T>(string label) where T : UnityEngine.Object
         {
-            if (string.IsNullOrEmpty(label))
-            {
-                return Array.Empty<T>();
-            }
-
-            try
-            {
-                AsyncOperationHandle<IList<IResourceLocation>> locationsHandle =
-                    Addressables.LoadResourceLocationsAsync(label, typeof(T));
-
-                try
-                {
-                    IList<IResourceLocation> locations = await locationsHandle.Task;
-                    if (locations == null || locations.Count == 0)
-                    {
-                        Debug.LogWarning(
-                            $"[AddressableLayout] 라벨 '{label}'에 대한 {typeof(T).Name} location 없음.");
-                        return Array.Empty<T>();
-                    }
-
-                    LabelTypeKey labelKey = new(label, typeof(T));
-                    if (!_labelHandles.TryGetValue(labelKey, out AsyncOperationHandle handle) || !handle.IsValid())
-                    {
-                        AsyncOperationHandle<IList<T>> loadHandle =
-                            Addressables.LoadAssetsAsync<T>(locations, null);
-                        handle = loadHandle;
-                        _labelHandles[labelKey] = handle;
-                    }
-
-                    IList<T> assets = await handle.Convert<IList<T>>().Task;
-                    if (assets == null || assets.Count == 0)
-                    {
-                        Debug.LogWarning(
-                            $"[AddressableLayout] 라벨 '{label}' 로드 결과 {typeof(T).Name} 목록이 비었습니다.");
-                        return Array.Empty<T>();
-                    }
-
-                    CacheLabelAssets(label, assets, locations);
-                    return assets;
-                }
-                finally
-                {
-                    Addressables.Release(locationsHandle);
-                }
-            }
-            catch (InvalidKeyException ex)
-            {
-                Debug.LogError(
-                    $"[AddressableLayout] 라벨 '{label}'을(를) 찾을 수 없습니다 ({typeof(T).Name}). {ex.Message}\n" +
-                    "Unity: Tools → Addressable Layout → Demo → 부트 샘플 등록, " +
-                    "Addressables Play Mode Script → Use Asset Database (Fast Mode).");
-                return Array.Empty<T>();
-            }
-            catch (Exception ex)
-            {
-                LogLoadError(label, ex.Message);
-                return Array.Empty<T>();
-            }
+            return LoadResourcesByLabelWithAcquireAsync<T>(label, failOnEmptyInDev: false);
         }
 
         public void Release(string key)
@@ -188,6 +128,106 @@ namespace AddressableLayout.Resource
                 return;
             }
 
+            if (TryDecrementLabelReference(label, out bool evict) && evict)
+            {
+                EvictLabelHandlesAndOwner(label);
+            }
+        }
+
+        [Obsolete("Use ReleaseLabel instead. ReleaseLabelRef will be removed in a future release.")]
+        public bool ReleaseLabelRef(string label)
+        {
+            if (string.IsNullOrEmpty(label))
+            {
+                return false;
+            }
+
+            if (!TryDecrementLabelReference(label, out bool evict))
+            {
+                return false;
+            }
+
+            if (evict)
+            {
+                EvictLabelHandlesAndOwner(label);
+            }
+
+            return evict;
+        }
+
+        public void ReleaseAll()
+        {
+            foreach (KeyValuePair<string, AsyncOperationHandle> pair in _directHandles)
+            {
+                if (pair.Value.IsValid())
+                {
+                    Addressables.Release(pair.Value);
+                }
+            }
+
+            foreach (KeyValuePair<LabelTypeKey, AsyncOperationHandle> pair in _labelHandles)
+            {
+                if (pair.Value.IsValid())
+                {
+                    Addressables.Release(pair.Value);
+                }
+            }
+
+            _directHandles.Clear();
+            _labelHandles.Clear();
+            _labelRefCounts.Clear();
+            _labelAssetCounts.Clear();
+            _labelInflightLoads.Clear();
+            _loadingTasks.Clear();
+            _cache.Clear();
+            _generation++;
+        }
+
+        private void AcquireLabelReference(string label, int assetCount)
+        {
+            if (string.IsNullOrEmpty(label))
+            {
+                return;
+            }
+
+            if (_labelRefCounts.TryGetValue(label, out int count))
+            {
+                _labelRefCounts[label] = count + 1;
+            }
+            else
+            {
+                _labelRefCounts[label] = 1;
+            }
+
+            if (assetCount > 0)
+            {
+                _labelAssetCounts[label] = assetCount;
+            }
+        }
+
+        private bool TryDecrementLabelReference(string label, out bool evict)
+        {
+            evict = false;
+            if (!_labelRefCounts.TryGetValue(label, out int count) || count <= 0)
+            {
+                return false;
+            }
+
+            count--;
+            if (count > 0)
+            {
+                _labelRefCounts[label] = count;
+                return true;
+            }
+
+            _labelRefCounts.Remove(label);
+            _labelAssetCounts.Remove(label);
+            evict = true;
+            return true;
+        }
+
+        private void EvictLabelHandlesAndOwner(string label)
+        {
             var keysToRemove = new List<LabelTypeKey>();
             foreach (KeyValuePair<LabelTypeKey, AsyncOperationHandle> pair in _labelHandles)
             {
@@ -212,29 +252,34 @@ namespace AddressableLayout.Resource
             _cache.ReleaseOwner(label);
         }
 
-        public void ReleaseAll()
+        private bool TryReturnCachedLabelLoad<T>(string label, out IList<T> assets) where T : UnityEngine.Object
         {
-            foreach (KeyValuePair<string, AsyncOperationHandle> pair in _directHandles)
+            assets = null;
+            if (string.IsNullOrEmpty(label))
             {
-                if (pair.Value.IsValid())
-                {
-                    Addressables.Release(pair.Value);
-                }
+                return false;
             }
 
-            foreach (KeyValuePair<LabelTypeKey, AsyncOperationHandle> pair in _labelHandles)
+            LabelTypeKey labelKey = new(label, typeof(T));
+            if (!_labelHandles.TryGetValue(labelKey, out AsyncOperationHandle handle) || !handle.IsValid())
             {
-                if (pair.Value.IsValid())
-                {
-                    Addressables.Release(pair.Value);
-                }
+                return false;
             }
 
-            _directHandles.Clear();
-            _labelHandles.Clear();
-            _loadingTasks.Clear();
-            _cache.Clear();
-            _generation++;
+            if (!handle.IsDone)
+            {
+                return false;
+            }
+
+            IList<T> loaded = handle.Convert<IList<T>>().Result;
+            if (loaded == null || loaded.Count == 0)
+            {
+                return false;
+            }
+
+            assets = loaded;
+            AcquireLabelReference(label, loaded.Count);
+            return true;
         }
 
         private void CacheLabelAssets<T>(
