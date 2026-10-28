@@ -2,7 +2,8 @@
     "name": "AddressableLayout.EditorTests",
     "rootNamespace": "AddressableLayout.Tests",
     "references": [
-        "AddressableLayout.Runtime"
+        "AddressableLayout.Runtime",
+        "AddressableLayout.Demo"
     ],
     "includePlatforms": [
         "Editor"

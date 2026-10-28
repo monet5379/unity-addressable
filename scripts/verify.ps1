@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  로컬 검증: Edit Mode tests → PrepareDemo → Play Mode tests (단계별 Unity batchmode, 실패 시 중단).
+  로컬 검증: PrepareDemo → Edit Mode tests → Play Mode tests (단계별 Unity batchmode, 실패 시 중단).
 
 .DESCRIPTION
   CI·Addressables 콘텐츠 빌드는 포함하지 않습니다. UNITY_EXE가 없으면 Hub Editor 경로(ProjectVersion.txt 버전)를 사용합니다.
@@ -105,6 +105,11 @@ $UnityExe = Resolve-UnityExe
 Write-Host "Unity: $UnityExe"
 Write-Host "Project: $ProjectPath"
 
+Invoke-UnityStep -StepName 'prepare-demo' -StepArgs @(
+    '-executeMethod', 'AddressableLayoutVerify.PrepareDemo',
+    '-quit'
+)
+
 $editResults = Join-Path $LogsDir 'editmode.xml'
 Invoke-UnityStep -StepName 'editmode' -StepArgs @(
     '-runTests',
@@ -113,11 +118,6 @@ Invoke-UnityStep -StepName 'editmode' -StepArgs @(
     '-testResults', $editResults
 )
 Assert-TestResults -StepName 'editmode' -ResultsFile $editResults
-
-Invoke-UnityStep -StepName 'prepare-demo' -StepArgs @(
-    '-executeMethod', 'AddressableLayoutVerify.PrepareDemo',
-    '-quit'
-)
 
 $playResults = Join-Path $LogsDir 'playmode.xml'
 Invoke-UnityStep -StepName 'playmode' -StepArgs @(

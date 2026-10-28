@@ -31,7 +31,7 @@ _Avoid_: place preload, sync Addressables fetch on gameplay miss
 ### Load groups (0.3.0)
 
 **Load group**:
-`AddressableLabelLoader`가 `LoadRequest.Id`와 라벨 목록으로 한 번에 적재·해제하는 **논리 그룹**. sync(`LabelLoadMode.Sync`) 또는 async runner로 실행한다. `KeepResident`면 일반 `Release`는 무시하고, `force` release만 세션 resident를 깬다.
+`AddressableLabelLoader`가 `LoadRequest.Id`와 라벨 목록으로 한 번에 적재·해제하는 **논리 그룹**. sync(`LabelLoadMode.Sync`) 또는 async runner로 실행한다. `LoadRequest.AssetType`은 라벨 handle `(label, typeof(T))`와 맞출 타입(단일 `PreloadLabelSync<T>`·`LoadResourcesByLabelAsync<T>`와 **같은 T** 권장). `KeepResident`면 일반 `Release`는 무시하고, `force` release만 세션 resident를 깬다.
 _Avoid_: Addressables **Group** 설정 이름과 혼동, 단일 `LoadResourcesByLabelAsync` 호출만 load group이라 부르기
 
 **Label ref-count**:
