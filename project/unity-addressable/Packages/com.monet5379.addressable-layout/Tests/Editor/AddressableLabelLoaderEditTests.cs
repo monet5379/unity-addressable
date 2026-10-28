@@ -19,7 +19,7 @@ namespace AddressableLayout.Tests
             }
 
             ResourcesManager.ReleaseAll();
-            var loader = new AddressableLabelLoader(ResourcesManager.AssetManager);
+            var loader = new AddressableLabelGroupManager(ResourcesManager.AssetManager);
 
             Assert.That(ResourcesManager.LoadResource<DemoBootSample>(BootAddress), Is.Null);
 
@@ -42,7 +42,7 @@ namespace AddressableLayout.Tests
             }
 
             ResourcesManager.ReleaseAll();
-            var loader = new AddressableLabelLoader(ResourcesManager.AssetManager);
+            var loader = new AddressableLabelGroupManager(ResourcesManager.AssetManager);
 
             LoadRequest request = BootGroupRequest("resident", LabelLoadMode.Sync);
             request.KeepResident = true;
@@ -67,7 +67,7 @@ namespace AddressableLayout.Tests
             }
 
             ResourcesManager.ReleaseAll();
-            var loader = new AddressableLabelLoader(ResourcesManager.AssetManager);
+            var loader = new AddressableLabelGroupManager(ResourcesManager.AssetManager);
             var labels = new List<string> { AddressableLabels.Boot };
 
             loader.LoadGroup(BootGroupRequest("group-a", LabelLoadMode.Sync, labels));
@@ -92,13 +92,13 @@ namespace AddressableLayout.Tests
 
             ResourcesManager.ReleaseAll();
 
-            LoadOperation operation = AddressableLabelLoader.Shared.LoadGroup(
+            LoadOperation operation = AddressableLabelGroupManager.Shared.LoadGroup(
                 BootGroupRequest("shared-boot", LabelLoadMode.Sync));
 
             Assert.That(operation.IsDone, Is.True);
             Assert.That(ResourcesManager.AssetManager.IsLabelLoaded(AddressableLabels.Boot), Is.True);
 
-            AddressableLabelLoader.Shared.Release("shared-boot", force: true);
+            AddressableLabelGroupManager.Shared.Release("shared-boot", force: true);
             ResourcesManager.ReleaseAll();
         }
 
@@ -111,7 +111,7 @@ namespace AddressableLayout.Tests
             }
 
             ResourcesManager.ReleaseAll();
-            var loader = new AddressableLabelLoader(ResourcesManager.AssetManager);
+            var loader = new AddressableLabelGroupManager(ResourcesManager.AssetManager);
 
             loader.LoadGroup(BootGroupRequest("typed-boot", LabelLoadMode.Sync));
             IList<DemoBootSample> secondAcquire =

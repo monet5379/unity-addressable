@@ -31,7 +31,7 @@ Demo Sample의 `DemoPlayModeVerification`(Test Runner **Play Mode** `DemoPlayMod
 | `ResourcesManager` | 라벨 preload · sync load · Spawn · place enter/leave |
 | `AddressableAssetManager` | preload 시 캐시·alias · `LoadResourceAsync` PrimaryKey in-flight 공유 · sync hit-only 근거 |
 | `AddressableLabels` | `boot`, `JSON`, … 및 Demo place 상수 |
-| `AddressableLabelLoader` / `LoadRequest` | group id·라벨 목록 preload · `KeepResident` / `force` Release |
+| `AddressableLabelGroupManager` / `LoadRequest` | group id·라벨 목록 preload · `KeepResident` / `force` Release |
 
 ## 흐름 (Flow)
 
@@ -49,7 +49,7 @@ Demo Sample의 `DemoPlayModeVerification`(Test Runner **Play Mode** `DemoPlayMod
 
 **1. PathMeta** — `PathManager.Load()`가 `Resources.Load<TextAsset>("Data/PathMetaData")`로 JSON을 읽는다. JSON은 Editor **레이아웃 도구** → 갱신으로 생성·갱신한다. `Lookup`이 lazy `Load()`를 부를 수 있으나, 부트에서 **명시적으로 한 번** 호출하는 편이 안전하다.
 
-**2. 종류 라벨 preload** — `LoadResourcesByLabelAsync<T>(AddressableLabels.Boot)` · `PreloadLabelSync<T>` · `ResourcesManager.PreloadTypeLabels` · `AddressableLabelLoader.LoadGroup(LoadRequest)` 등. `LoadRequest.AssetType`은 `_labelHandles` 키 `(label, typeof(T))`와 맞출 **Addressables asset type**이다. 같은 라벨을 그룹과 `PreloadLabelSync<T>`로 같이 쓰면 `T`와 `AssetType`을 동일하게 둔다(기본 `UnityEngine.Object`는 단독 preload와 handle이 갈라질 수 있음). 로더는 PrimaryKey와 PathMeta 주소 **alias**를 캐시에 넣어 sync hit-only가 동작하게 한다. 부트와 겹치는 단일 에셋을 `LoadResourceAsync`로 동시에 당겨도 PrimaryKey 기준 in-flight Task가 합쳐진다.
+**2. 종류 라벨 preload** — `LoadResourcesByLabelAsync<T>(AddressableLabels.Boot)` · `PreloadLabelSync<T>` · `ResourcesManager.PreloadTypeLabels` · `AddressableLabelGroupManager.LoadGroup(LoadRequest)` 등. `LoadRequest.AssetType`은 `_labelHandles` 키 `(label, typeof(T))`와 맞출 **Addressables asset type**이다. 같은 라벨을 그룹과 `PreloadLabelSync<T>`로 같이 쓰면 `T`와 `AssetType`을 동일하게 둔다(기본 `UnityEngine.Object`는 단독 preload와 handle이 갈라질 수 있음). 로더는 PrimaryKey와 PathMeta 주소 **alias**를 캐시에 넣어 sync hit-only가 동작하게 한다. 부트와 겹치는 단일 에셋을 `LoadResourceAsync`로 동시에 당겨도 PrimaryKey 기준 in-flight Task가 합쳐진다.
 
 **Demo vs 호스트 boot (0.3.0)** — `DemoPlayModeVerification` / `DemoPlayModeTests`는 **async** `LoadResourcesByLabelAsync` 순서를 회귀 검증한다. 타이틀 sync boot는 `PreloadTypeLabels` · `PreloadLabelSync` · `LoadGroup` + `LabelLoadMode.Sync`(Play에서 coroutine 동기 실행)를 선택한다. 두 경로 모두 같은 label ref-count·캐시 의미를 공유한다.
 

@@ -210,19 +210,19 @@ namespace AddressableLayout.Resource
         }
     }
 
-    public sealed class AddressableLabelLoader
+    public sealed class AddressableLabelGroupManager
     {
-        private static AddressableLabelLoader _shared;
+        private static AddressableLabelGroupManager _shared;
 
         private readonly AddressableAssetManager _assets;
         private readonly Dictionary<string, LoadOperation> _groups = new();
 
-        public AddressableLabelLoader(AddressableAssetManager assets)
+        public AddressableLabelGroupManager(AddressableAssetManager assets)
         {
             _assets = assets ?? throw new ArgumentNullException(nameof(assets));
         }
 
-        public static AddressableLabelLoader Shared => _shared ??= new AddressableLabelLoader(ResourcesManager.AssetManager);
+        public static AddressableLabelGroupManager Shared => _shared ??= new AddressableLabelGroupManager(ResourcesManager.AssetManager);
 
         public bool IsLoaded(string groupId)
         {
@@ -285,7 +285,7 @@ namespace AddressableLayout.Resource
             }
             else
             {
-                AddressableLabelLoaderRunner.Run(routine);
+                AddressableLabelGroupRunner.Run(routine);
             }
 
             return operation;
@@ -376,9 +376,7 @@ namespace AddressableLayout.Resource
             IReadOnlyList<string> acquired = operation.AcquiredLabels;
             for (int i = 0; i < acquired.Count; i++)
             {
-#pragma warning disable 618
-                _assets.ReleaseLabelRef(acquired[i]);
-#pragma warning restore 618
+                _assets.ReleaseLabel(acquired[i]);
             }
 
             operation.MarkReleased();

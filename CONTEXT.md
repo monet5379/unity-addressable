@@ -31,7 +31,7 @@ _Avoid_: place preload, sync Addressables fetch on gameplay miss
 ### Load groups (0.3.0)
 
 **Load group**:
-`AddressableLabelLoader`가 `LoadRequest.Id`와 라벨 목록으로 한 번에 적재·해제하는 **논리 그룹**. sync(`LabelLoadMode.Sync`) 또는 async runner로 실행한다. `LoadRequest.AssetType`은 라벨 handle `(label, typeof(T))`와 맞출 타입(단일 `PreloadLabelSync<T>`·`LoadResourcesByLabelAsync<T>`와 **같은 T** 권장). `KeepResident`면 일반 `Release`는 무시하고, `force` release만 세션 resident를 깬다.
+`AddressableLabelGroupManager`가 `LoadRequest.Id`와 라벨 목록으로 한 번에 적재·해제하는 **논리 그룹**. sync(`LabelLoadMode.Sync`) 또는 async runner로 실행한다. `LoadRequest.AssetType`은 라벨 handle `(label, typeof(T))`와 맞출 타입(단일 `PreloadLabelSync<T>`·`LoadResourcesByLabelAsync<T>`와 **같은 T** 권장). `KeepResident`면 일반 `Release`는 무시하고, `force` release만 세션 resident를 깬다.
 _Avoid_: Addressables **Group** 설정 이름과 혼동, 단일 `LoadResourcesByLabelAsync` 호출만 load group이라 부르기
 
 **Label ref-count**:
@@ -49,7 +49,7 @@ Addressables location의 canonical 캐시 키(대개 GUID). alias(요청 주소�
 _Avoid_: 파일명 키를 PrimaryKey와 동일시
 
 **CacheOwnership**:
-PrimaryKey당 객체 하나와 **owner-set**을 관리하는 내부 캐시. Addressables handle은 `AddressableAssetManager`가 `_directHandles` / `_labelHandles`로 따로 들고 있다.
+PrimaryKey당 객체 하나와 **owner-set**을 관리하는 내부 캐시. Addressables handle은 `DirectAssetLoader` / `LabelAssetLoader`가 소유하고, `AddressableAssetManager`는 두 로더와 `LabelReferenceTracker`를 조합한다.
 _Avoid_: `_resourcesCache` 단일 맵, Dragon fork의 `_labelToCacheKeys` 병행 모델(0.3.0에서 통합 — [ADR 0001](docs/adr/0001-label-load-group-cache-ownership.md))
 
 **Direct owner**:

@@ -4,6 +4,28 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Runtime (internal):** `DirectAssetLoader` · `LabelAssetLoader` — PrimaryKey Direct handle·in-flight `Task`와 라벨 `(label, typeof(T))` bulk handle·in-flight `Task`를 `AddressableAssetManager`에서 분리
+- **Runtime (internal):** `LabelReferenceTracker` — 라벨 ref-count·asset count (`CopyLoadedLabels` · acquire rollback)
+- **Runtime (internal):** `AddressableLogging` — preload empty · settings.json / Invalid path 로드 오류 메시지
+
+### Changed
+
+- **Runtime:** `AddressableAssetManager` — partial 네 파일을 단일 `AddressableAssetManager.cs`로 병합; Direct/라벨 경로는 internal 로더·ref-tracker에 위임. **공개 메서드·캐시·ref-count 의미는 0.3.0과 동일**
+- **Runtime:** load group 공개 타입 **`AddressableLabelLoader` → `AddressableLabelGroupManager`**, async runner **`AddressableLabelLoaderRunner` → `AddressableLabelGroupRunner`** (Unity Addressables **Group** 설정과 이름 혼동 방지)
+- **Runtime:** `CacheOwnership` — 요청 키·location alias (`AddRequestAlias`, `AddLocationAliasForCache`)로 Lookup path·InternalId 해석
+- **Tests:** `AddressableLabelLoaderEditTests` · `LabelLoaderPlayModeTests` — `AddressableLabelGroupManager` 사용 (테스트 클래스명은 유지)
+- **Docs:** 패키지 README · repo Architecture — 로더 분리·rename 반영
+
+### Removed
+
+- **Runtime:** public API **`AddressableLabelLoader`** · **`AddressableLabelLoader.Shared`** — `#v0.3.0` pin 호스트는 **`AddressableLabelGroupManager` / `.Shared`** 로 타입명만 교체하면 된다 (메서드·`LoadRequest` 계약 동일)
+
+### Notes
+
+- **Breaking (C# 타입명만):** load group manager rename. Git URL pin을 올릴 때 호스트 `using`/타입 참조를 갱신한다. semver는 다음 패치·minor 릴리스 때 `package.json`과 함께 확정한다.
+
 ## [0.3.0] - 2026-10-28
 
 ### Added
@@ -29,6 +51,7 @@
 
 - **Git URL pin:** `#v0.3.0`. Demo `DemoPlayModeTests`는 **async** boot 회귀만 검증; 호스트 sync boot는 `PreloadTypeLabels` / `LoadGroup(LabelLoadMode.Sync)`를 선택한다.
 - **Ship gate:** `scripts/verify.ps1` — PrepareDemo · Edit 15/15 · Play 6/6 (2026-10-28).
+- **타입명:** 이 태그의 load group 공개 API는 **`AddressableLabelLoader`**. 이후 [Unreleased]에서 **`AddressableLabelGroupManager`** 로 rename한다.
 
 ## [0.2.0] - 2026-10-18
 

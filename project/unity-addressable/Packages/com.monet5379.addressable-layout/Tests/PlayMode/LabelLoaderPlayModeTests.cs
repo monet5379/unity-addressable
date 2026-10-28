@@ -23,7 +23,7 @@ namespace AddressableLayout.Tests.PlayMode
                 yield break;
             }
 
-            var loader = new AddressableLabelLoader(ResourcesManager.AssetManager);
+            var loader = new AddressableLabelGroupManager(ResourcesManager.AssetManager);
             LoadOperation operation = loader.LoadGroup(
                 new LoadRequest("play-async-boot", new List<string> { AddressableLabels.Boot }, LabelLoadMode.Async)
                 {
@@ -55,7 +55,7 @@ namespace AddressableLayout.Tests.PlayMode
                 yield break;
             }
 
-            var loader = new AddressableLabelLoader(ResourcesManager.AssetManager);
+            var loader = new AddressableLabelGroupManager(ResourcesManager.AssetManager);
             var labels = new List<string> { AddressableLabels.Boot, AddressableLabels.DemoAreaA };
             LoadOperation operation = loader.LoadGroup(
                 new LoadRequest("play-cancel", labels, LabelLoadMode.Async)

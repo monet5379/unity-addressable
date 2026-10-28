@@ -3,18 +3,17 @@ using UnityEngine;
 
 namespace AddressableLayout.Resource
 {
-    [AddComponentMenu("")]
-    internal sealed class AddressableLabelLoaderRunner : MonoBehaviour
+    internal sealed class AddressableLabelGroupRunner : MonoBehaviour
     {
-        private static AddressableLabelLoaderRunner _instance;
+        private static AddressableLabelGroupRunner _instance;
 
         internal static Coroutine Run(IEnumerator routine)
         {
             if (_instance == null)
             {
-                GameObject host = new GameObject("[AddressableLabelLoader]");
+                GameObject host = new GameObject("[AddressableLabelGroupRunner]");
                 DontDestroyOnLoad(host);
-                _instance = host.AddComponent<AddressableLabelLoaderRunner>();
+                _instance = host.AddComponent<AddressableLabelGroupRunner>();
             }
 
             return _instance.StartCoroutine(routine);

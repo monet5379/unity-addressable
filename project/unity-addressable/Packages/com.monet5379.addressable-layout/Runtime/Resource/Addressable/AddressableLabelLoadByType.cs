@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using UnityEngine;
 
@@ -8,13 +9,21 @@ namespace AddressableLayout.Resource
 {
     internal static class AddressableLabelLoadByType
     {
-        private static readonly MethodInfo CountLabelLocationsMethod = typeof(AddressableAssetManager).GetMethod(
-            nameof(AddressableAssetManager.CountLabelLocations),
-            BindingFlags.Instance | BindingFlags.Public);
+        // Bound at compile time through an expression tree: renaming or changing the signature of
+        // AddressableAssetManager.CountLabelLocations breaks the build here instead of failing at runtime.
+        private static readonly MethodInfo CountLabelLocationsMethod = ResolveGenericMethodDefinition(
+            (AddressableAssetManager manager) =>
+                manager.CountLabelLocations<UnityEngine.Object>(null, null, default(LabelLoadMode)));
 
         private static readonly MethodInfo LoadLabelThunkMethod = typeof(AddressableLabelLoadByType).GetMethod(
             nameof(LoadLabelThunk),
             BindingFlags.Static | BindingFlags.NonPublic);
+
+        private static MethodInfo ResolveGenericMethodDefinition(
+            Expression<Func<AddressableAssetManager, IEnumerator>> call)
+        {
+            return ((MethodCallExpression)call.Body).Method.GetGenericMethodDefinition();
+        }
 
         internal static Type Normalize(Type assetType)
         {

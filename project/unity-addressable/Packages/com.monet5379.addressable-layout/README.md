@@ -68,14 +68,14 @@ Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F �
 | `LoadResourcesByLabelAsync<T>` · `EnterPlaceAsync<T>` | async preload (Demo `DemoPlayModeTests` 기본) |
 | `ResourcesManager.PreloadTypeLabels` | type 라벨 **동기** boot — 내부 `PreloadLabelSync<Object>` |
 | `AddressableAssetManager.PreloadLabelSync<T>` / `PreloadLabelAsync<T>` | 단일 라벨 sync 또는 coroutine/async 파이프라인 |
-| `AddressableLabelLoader.LoadGroup(LoadRequest)` | group id + 라벨 목록. `LabelLoadMode.Sync`면 Play에서 첫 gameplay frame 전 완료 가능; `Async`는 runner coroutine |
+| `AddressableLabelGroupManager.LoadGroup(LoadRequest)` | group id + 라벨 목록. `LabelLoadMode.Sync`면 Play에서 첫 gameplay frame 전 완료 가능; `Async`는 runner coroutine |
 
 로딩 UI: `LoadOperation`은 `CustomYieldInstruction` (`Progress`, `Completed`, `LabelAssetCounts`, `TotalAssetCount`). 사전 카운트: `CountLabelLocationsAsync` / `CountLabelLocations`.
 
 ## Load group (요약)
 
 - **`LoadRequest`:** `Id`, `Labels`, `Mode` (`Sync` / `Async`), `KeepResident`, `FailOnEmptyInDev`, `AssetType`
-- **`AddressableLabelLoader.Shared`:** `ResourcesManager.AssetManager`와 **동일** 캐시
+- **`AddressableLabelGroupManager.Shared`:** `ResourcesManager.AssetManager`와 **동일** 캐시
 - **`Release(groupId, force: false)`:** `KeepResident`면 무시; `force: true`면 resident 포함 해제
 - 그룹 release는 acquire한 라벨마다 ref-count 1 감소 — 다른 groupId가 같은 라벨을 잡고 있으면 캐시 유지
 
@@ -86,7 +86,7 @@ Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F �
 | `PathManager` | 파일명 → 경로 · PathMeta 갱신 |
 | `AddressableAssetManager` | Addressables 로드 · owner-set 캐시 · Direct/라벨 handle · label preload/ref-count |
 | `AddressableLabels` | 종류 / Demo place 라벨 상수 (ship place·enemy enum 없음) |
-| `AddressableLabelLoader` | load group 적재·release |
+| `AddressableLabelGroupManager` | load group 적재·release |
 | `LoadRequest` / `LoadOperation` / `LabelLoadMode` | 그룹 요청·진행·sync/async |
 | `IPrefabInstanceProvider` | `SpawnPrefab` / `Despawn` 인스턴스 (호스트 구현) |
 | `ResourcesManager` | Play 파사드 · `PreloadTypeLabels` · place · Spawn |
@@ -100,7 +100,7 @@ Project Dragon 임베드 Layout 소비 시 맞추는 **공개 API** prose 목록
 
 **`AddressableAssetManager`:** `TryGetCached`, `LoadResourceAsync`, `LoadResourcesByLabelAsync`, **`PreloadLabelSync<T>`** / **`PreloadLabelAsync<T>`**, **`CountLabelLocationsAsync`** / **`CountLabelLocations`**, **`IsLabelLoaded`**, **`CopyLoadedLabels`**, `Release` / **`ReleaseLabel`** / **`ReleaseLabelRef`**, `ReleaseAll`.
 
-**Load group:** **`AddressableLabelLoader.Shared`**, `LoadGroup`, `Release`, `IsLoaded`, `TryGetOperation` — **`LoadRequest`**, **`LoadOperation`**, **`LabelLoadMode`**.
+**Load group:** **`AddressableLabelGroupManager.Shared`**, `LoadGroup`, `Release`, `IsLoaded`, `TryGetOperation` — **`LoadRequest`**, **`LoadOperation`**, **`LabelLoadMode`**.
 
 **변경 없음 (0.3.0):** Play sync hit-only, `IPrefabInstanceProvider`, `EnterPlaceAsync` / `LeavePlace` 시맨틱, `AddressableLabels` = Demo·제네릭 type 상수만.
 

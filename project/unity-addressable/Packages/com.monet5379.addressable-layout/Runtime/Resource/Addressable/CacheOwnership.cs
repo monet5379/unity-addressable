@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ResourceManagement.ResourceLocations;
 
 namespace AddressableLayout.Resource
 {
@@ -50,6 +51,34 @@ namespace AddressableLayout.Resource
 
             _keyToPrimary[alias] = primaryKey;
             entry.Aliases.Add(alias);
+        }
+
+        public void AddRequestAlias(string requestKey, string primaryKey)
+        {
+            if (string.IsNullOrEmpty(requestKey)
+                || string.Equals(requestKey, primaryKey, System.StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            AddAlias(primaryKey, requestKey);
+        }
+
+        public void AddLocationAliasForCache(IResourceLocation location, string primaryKey)
+        {
+            if (location == null)
+            {
+                return;
+            }
+
+            string internalId = location.InternalId;
+            if (string.IsNullOrEmpty(internalId)
+                || string.Equals(internalId, primaryKey, System.StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            AddAlias(primaryKey, internalId);
         }
 
         public bool TryGet<T>(string key, out T asset) where T : Object
