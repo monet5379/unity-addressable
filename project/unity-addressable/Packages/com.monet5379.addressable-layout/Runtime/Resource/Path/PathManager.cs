@@ -12,6 +12,8 @@ namespace AddressableLayout.Resource
         public const string ResourcesFolderName = "Resources";
         public const string TargetPath = "Resources/Data/PathMetaData.json";
 
+        private const string RuntimeLoadKey = "Data/PathMetaData";
+
         public static readonly HashSet<string> IgnoreExtensionSet = new()
         {
             ".meta",
@@ -23,8 +25,16 @@ namespace AddressableLayout.Resource
         public static readonly HashSet<string> IgnoreDirectorySet = new();
 
         private static Dictionary<string, string> _database = new();
+        private static bool _isLoaded;
 
         public static int LoadedEntryCount => _database.Count;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            _database = new Dictionary<string, string>();
+            _isLoaded = false;
+        }
 
         public static string ToUnixPath(string path)
         {
@@ -38,12 +48,7 @@ namespace AddressableLayout.Resource
                 return null;
             }
 
-            if (_database.Count == 0)
-            {
-                Load();
-            }
-
-            if (_database.TryGetValue(fileNameWithExtension, out string path))
+            if (TryLookup(fileNameWithExtension, out string path))
             {
                 return path;
             }
@@ -54,9 +59,28 @@ namespace AddressableLayout.Resource
             return null;
         }
 
+        public static bool TryLookup(string fileNameWithExtension, out string path)
+        {
+            path = null;
+            if (string.IsNullOrEmpty(fileNameWithExtension))
+            {
+                return false;
+            }
+
+            EnsureLoaded();
+            return _database.TryGetValue(fileNameWithExtension, out path);
+        }
+
         public static void Load()
         {
-            TextAsset textAsset = UnityEngine.Resources.Load<TextAsset>("Data/PathMetaData");
+            if (_isLoaded)
+            {
+                return;
+            }
+
+            _isLoaded = true;
+
+            TextAsset textAsset = UnityEngine.Resources.Load<TextAsset>(RuntimeLoadKey);
             if (textAsset == null)
             {
                 Debug.LogError(
@@ -66,25 +90,49 @@ namespace AddressableLayout.Resource
                 return;
             }
 
+            _database = ParseDatabase(textAsset.text);
+            UnityEngine.Resources.UnloadAsset(textAsset);
+
+            if (_database.Count == 0)
+            {
+                Debug.LogWarning(
+                    "[AddressableLayout] PathMeta 항목이 0개이거나 파싱에 실패했습니다. " +
+                    "Tools → Addressable Layout → 레이아웃 도구에서 갱신 실행.");
+                return;
+            }
+
+            Debug.Log($"[AddressableLayout] PathMeta 로드 완료. entries={_database.Count}");
+        }
+
+        internal static Dictionary<string, string> ParseDatabase(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return new Dictionary<string, string>();
+            }
+
             try
             {
-                _database = JsonUtility.FromJson<StringKeyedMap>(textAsset.text).ToDictionary()
-                            ?? new Dictionary<string, string>();
-                if (_database.Count > 0)
-                {
-                    Debug.Log($"[AddressableLayout] PathMeta 로드 완료. entries={_database.Count}");
-                }
+                StringKeyedMap map = JsonUtility.FromJson<StringKeyedMap>(json);
+                return map?.ToDictionary() ?? new Dictionary<string, string>();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Debug.LogError($"[AddressableLayout] PathMeta 파싱 실패: {e}");
-                _database = new Dictionary<string, string>();
+                return new Dictionary<string, string>();
+            }
+        }
+
+        private static void EnsureLoaded()
+        {
+            if (!_isLoaded)
+            {
+                Load();
             }
         }
 
         public static bool CheckLoaded()
         {
-            return _database != null && _database.Count > 0 && HasPathMetaDataFile();
+            return _isLoaded && _database != null && _database.Count > 0;
         }
 
         public static bool IsAddressablePath(string path)
@@ -126,6 +174,7 @@ namespace AddressableLayout.Resource
 
             string text = JsonUtility.ToJson(new StringKeyedMap(_database));
             WritePathMetaDataFile(text);
+            _isLoaded = true;
             Debug.Log($"[AddressableLayout] PathMeta 갱신 완료. entries={_database.Count}");
             return _database.Count;
         }
@@ -154,7 +203,9 @@ namespace AddressableLayout.Resource
                 ? name[..^normalizedExtension.Length]
                 : name;
 
-            return Lookup($"{cleanName}{normalizedExtension}") ?? string.Empty;
+            return TryLookup($"{cleanName}{normalizedExtension}", out string path)
+                ? path
+                : string.Empty;
         }
 
         private static void AddResourcesPath(string filePath, string resourcesRoot)
@@ -247,11 +298,6 @@ namespace AddressableLayout.Resource
             }
 
             return false;
-        }
-
-        private static bool HasPathMetaDataFile()
-        {
-            return File.Exists(Path.Combine(Application.dataPath, TargetPath));
         }
 
         private static void WritePathMetaDataFile(string text)
