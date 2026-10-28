@@ -81,7 +81,7 @@
 
 - **Git URL pin:** `#v0.3.0`. Demo `DemoPlayModeTests`는 **async** boot 회귀만 검증; 호스트 sync boot는 `PreloadTypeLabels` / `LoadGroup(LabelLoadMode.Sync)`를 선택한다.
 - **Ship gate:** `scripts/verify.ps1` — PrepareDemo · Edit 15/15 · Play 6/6 (2026-10-28).
-- **타입명:** 이 태그의 load group 공개 API는 **`AddressableLabelLoader`**. 이후 [Unreleased]에서 **`AddressableLabelGroupManager`** 로 rename한다.
+- **타입명:** 이 태그의 load group 공개 API는 **`AddressableLabelLoader`**. **[0.4.0]** 에 **`AddressableLabelGroupManager`** 로 rename한다.
 
 ## [0.2.0] - 2026-10-18
 

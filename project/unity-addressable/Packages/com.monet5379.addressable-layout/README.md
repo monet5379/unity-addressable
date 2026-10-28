@@ -15,7 +15,7 @@
 2. 아래 URL 입력 (태그는 릴리스 버전에 맞게 변경):
 
 ```text
-https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.3.0
+https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.5.0
 ```
 
 ### 로컬 임베디드
@@ -103,7 +103,7 @@ Project Dragon 임베드 Layout 소비 시 맞추는 **공개 API** prose 목록
 
 **Load group:** **`AddressableLabelGroupManager.Shared`**, `LoadGroup`, `Release`, `IsLoaded`, `TryGetOperation` — **`LoadRequest`**, **`LoadOperation`**, **`LabelLoadMode`**.
 
-**변경 없음 (0.3.0):** Play sync hit-only, `IPrefabInstanceProvider`, `EnterPlaceAsync` / `LeavePlace` 시맨틱, `AddressableLabels` = Demo·제네릭 type 상수만.
+**API 의미 (0.3.0 이후 동일):** Play sync hit-only, `IPrefabInstanceProvider`, `EnterPlaceAsync` / `LeavePlace`, `AddressableLabels` = Demo·제네릭 type 상수만. **0.4.0:** load group 공개 타입명만 `AddressableLabelLoader` → `AddressableLabelGroupManager` (CHANGELOG [0.4.0]).
 
 상세 캐시·owner 규칙: 레포 `docs/architecture/Architecture_AddressableLayout.md` · `Architecture_BootFlow.md`.
 

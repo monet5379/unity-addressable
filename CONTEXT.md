@@ -1,6 +1,6 @@
 # Addressable Layout (com.monet5379.addressable-layout)
 
-Unity Addressables용 **Resource 층** UPM 패키지 도메인 어휘다. Play·캐시 **실행 계약** 정본은 [루트 README](README.md)와 [docs/architecture/](docs/architecture/README.md) Architecture다. 이 파일과 `docs/adr/`는 에이전트·0.3.0 구현 티켓이 같은 말을 쓰기 위한 용어·결정 레이어다.
+Unity Addressables용 **Resource 층** UPM 패키지 도메인 어휘다. Play·캐시 **실행 계약** 정본은 [루트 README](README.md)와 [docs/architecture/](docs/architecture/README.md) Architecture다. 이 파일과 `docs/adr/`는 에이전트·호스트 integrator가 같은 말을 쓰기 위한 용어·결정 레이어다. 0.3.0 cut planning은 [GitHub #1](https://github.com/monet5379/unity-addressable/issues/1)–[#6](https://github.com/monet5379/unity-addressable/issues/6).
 
 ## Language
 
@@ -25,7 +25,7 @@ _Avoid_: ship place 라벨, Area/Enemy enum을 UPM에 넣기
 _Avoid_: type label, boot label
 
 **Boot preload**:
-`PathManager.Load()` 이후 gameplay sync 전에 type label(예: `boot`)을 캐시에 올리는 단계. Demo는 async preload; 0.3.0부터 호스트는 sync boot API도 선택할 수 있다([spec](docs/plan/tickets/addressable-layout-0.3.0/spec.md)).
+`PathManager.Load()` 이후 gameplay sync 전에 type label(예: `boot`)을 캐시에 올리는 단계. Demo는 async preload; 0.3.0부터 호스트는 sync boot API도 선택할 수 있다(0.3.0 cut [#1](https://github.com/monet5379/unity-addressable/issues/1)).
 _Avoid_: place preload, sync Addressables fetch on gameplay miss
 
 ### Load groups (0.3.0)

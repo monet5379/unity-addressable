@@ -9,7 +9,7 @@ Unity Addressables용 **Resource 층** UPM 패키지(`com.monet5379.addressable-
 **Package Manager → Install package from git URL:**
 
 ```text
-https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.3.0
+https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.5.0
 ```
 
 1. **`Assets/Addressables/`** 폴더를 만든다. (단수 `Addressable/` 금지)
@@ -25,7 +25,7 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 Git·CI·Addressables **콘텐츠 빌드** 없이, 위 Test Runner 절차와 같은 순서를 batchmode로 한 번에 돌린다.
 
-1. Edit Mode — `AddressableLayout.EditorTests` (`CacheOwnershipTests` · `PrefabInstanceProviderTests` · `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests`) — 기대 **15** tests
+1. Edit Mode — `AddressableLayout.EditorTests` (`PathManagerEditTests` · `CacheOwnershipTests` · `PrefabInstanceProviderTests` · `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests`) — 기대 **25** tests
 2. Demo 준비 — `AddressableLayoutVerify.PrepareDemo` (`RegisterBootSample`, Fast Mode)
 3. Play Mode — `AddressableLayout.PlayModeTests` (`DemoPlayModeTests` · `LabelLoaderPlayModeTests` · `LabelRefCountPlayModeTests`) — 기대 **6** tests
 

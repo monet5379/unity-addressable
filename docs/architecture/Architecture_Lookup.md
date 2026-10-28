@@ -26,8 +26,8 @@
 | 항목 | 값 |
 | --- | --- |
 | 디스크 | `Assets/Resources/Data/PathMetaData.json` |
-| Runtime 로드 | `Resources.Load("Data/PathMetaData")` — leaf |
-| 상수 | `PathMetaWriter.TargetPath` |
+| Runtime 로드 | `Resources.Load(PathManager.PathMetaResourcesLoadKey)` — 기본 `"Data/PathMetaData"` |
+| 상수 | `PathManager.PathMetaResourcesLoadKey` · `PathMetaWriter.TargetPath` (동일 leaf·제외 규칙의 **단일 정본**) |
 | 직렬화 | `StringKeyedMap` → `Dictionary<string,string>` |
 
 | API | 용도 |
@@ -36,6 +36,7 @@
 | `FindPrefabPath("Foo")` | `.prefab` 붙여 Lookup |
 | `FindImagePath` / `FindMaterialPath` / … | 확장자별 헬퍼 |
 | `Load()` | JSON → `_database` |
+| `ApplyBuiltDatabase(StringKeyedMap)` | Editor 갱신 직후 메모리 Lookup 동기화 (`PathMetaWriter.Write()` 후) |
 | `CheckLoaded()` | 메모리 로드됨 (`_isLoaded` && 항목 수 > 0) |
 
 ## 흐름 (Flow)
@@ -58,8 +59,11 @@ LoadResourceByName / SpawnPrefab
 Tools → 레이아웃 도구 → 갱신
   → PathMetaRefresh.Refresh()
   → PathMetaWriter.Write()
+  → PathManager.ApplyBuiltDatabase (메모리 Lookup)
   → AssetDatabase.Refresh()
 ```
+
+PathMeta 디스크 갱신은 **Editor `PathMetaWriter.Write()`만** 호출한다. Runtime `PathManager.UpdatePathMetadata()`는 0.5.0에서 제거되었다.
 
 스캔 순서 (**이중 스캔**):
 

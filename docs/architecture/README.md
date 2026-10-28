@@ -25,4 +25,4 @@ Addressable Layout **현재 구조** Architecture 허브이다. 계약(불변조
 
 Play·Edit 확인 절차: [루트 README — 설치](../../README.md#설치) · [패키지 README — Tests](../../project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md#tests).
 
-Plan cut: [addressable-layout-0.3.0](../plan/tickets/addressable-layout-0.3.0/spec.md).
+Planning (GitHub): [0.3.0 #1](https://github.com/monet5379/unity-addressable/issues/1) ([#2](https://github.com/monet5379/unity-addressable/issues/2)–[#6](https://github.com/monet5379/unity-addressable/issues/6)) · [0.4.0 #7](https://github.com/monet5379/unity-addressable/issues/7) · [0.5.0 #8](https://github.com/monet5379/unity-addressable/issues/8) ([#9](https://github.com/monet5379/unity-addressable/issues/9)–[#10](https://github.com/monet5379/unity-addressable/issues/10)).

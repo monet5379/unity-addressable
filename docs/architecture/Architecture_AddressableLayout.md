@@ -41,7 +41,7 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 | `Packages/.../Runtime/` | `AddressableLayout.Runtime` | Play: Lookup · Addressables 캐시 · `ResourcesManager` |
 | `Packages/.../Editor/` | `AddressableLayout.Editor` | PathMeta 갱신 · 레이아웃 도구 창 · `*ForEditor` |
 | `Samples~/Demo/` | Demo asmdef | Demo 검증 — **출시 복사 대상 아님** |
-| `Tests/Editor/` · `Tests/PlayMode/` | EditorTests · PlayModeTests | `CacheOwnershipTests` · `DemoPlayModeTests` |
+| `Tests/Editor/` · `Tests/PlayMode/` | EditorTests · PlayModeTests | `PathManagerEditTests` · `CacheOwnershipTests` · `DemoPlayModeTests` |
 
 | 타입 | 레이어 | 책임 |
 | --- | --- | --- |
@@ -142,7 +142,7 @@ flowchart TB
 
 `EnterPlaceAsync` / `LeavePlace`는 place 라벨 preload / `ReleaseLabel` 래퍼이다.
 
-**Host parity (0.3.0 ship)** — Dragon `TSResourcesManager`가 기대하는 공개 표면 prose 정리는 [패키지 README — Host parity](../../project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md#host-parity-dragon-tsresourcesmanager-기대-표면)가 정본이다. Architecture는 캐시·owner 의미만 다룬다.
+**Host parity** — Dragon `TSResourcesManager` 공개 표면 prose: [패키지 README — Host parity](../../project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md#host-parity-dragon-tsresourcesmanager-기대-표면). Architecture는 캐시·owner 의미만 다룬다.
 
 ## 흐름 (Flow)
 
@@ -184,7 +184,7 @@ flowchart TB
 - [x] README 불변조건과 동기화 (0.3.0 Host parity · label ref-count)
 - [x] Addressable 모듈 로더 분리(`DirectAssetLoader` · `LabelAssetLoader` · `LabelReferenceTracker`) 반영 (2026-10-28)
 - [x] Addressable 모듈 하위 폴더(`Contracts` · `Cache` · `Loading` · `LabelGroups`) (2026-10-28)
-- [x] `verify.ps1` Edit 15 / Play 6 · `CacheOwnershipTests` 확장 (2026-10-28)
+- [x] `verify.ps1` Edit 25 / Play 6 · `PathManagerEditTests` · `CacheOwnershipTests` (2026-10-28)
 
 ## 관련 문서 (See also)
 
