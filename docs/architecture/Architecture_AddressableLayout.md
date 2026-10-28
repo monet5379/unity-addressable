@@ -62,6 +62,19 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 | `ResourcesManagerForEditor` | Edit 파사드 | AssetDatabase / settings 라벨 — **Play 캐시 미사용** |
 | `StringKeyedMap` | 직렬화 | JsonUtility용 filename→path 맵 |
 
+**Addressable 모듈 디렉터리** (`Packages/.../Runtime/Resource/Addressable/`) — 네임스페이스는 전부 `AddressableLayout.Resource` (폴더는 탐색용).
+
+```text
+Addressable/
+├── AddressableAssetManager.cs     # 공개 파사드 (루트)
+├── Contracts/                     # AddressableLabels · LabelLoadMode
+├── Cache/                         # CacheOwnership
+├── Loading/                       # DirectAssetLoader · LabelAssetLoader · LabelReferenceTracker · AddressableLogging
+└── LabelGroups/                   # AddressableLabelGroupManager · Runner · AddressableLabelLoadByType
+```
+
+형제 폴더 `Resource/Path/`와 같이 **기능별 한 단계**만 둔다. asmdef 분리·`Public/` 폴더명은 사용하지 않는다.
+
 게임 부트는 보통 **`ResourcesManager`만** 바깥에 노출하고, `AddressableAssetManager`는 `ResourcesManager.AssetManager`로 필요할 때만 접근한다.
 
 ```mermaid
@@ -95,7 +108,7 @@ flowchart TB
 ```
 
 - **PathManager**는 Play에서 JSON만 읽는다. 디스크 스캔(`UpdatePathMetadata`)은 Editor 메뉴·윈도우가 호출한다.
-- **AddressableAssetManager**는 `ResourcesManager`의 private static 인스턴스 하나로 묶인다. 구현은 `Runtime/Resource/Addressable/` 단일 asmdef 트리 안에서 **로더 분리**(`DirectAssetLoader` · `LabelAssetLoader` · `LabelReferenceTracker`) + `CacheOwnership` 공유다.
+- **AddressableAssetManager**는 `ResourcesManager`의 private static 인스턴스 하나로 묶인다. 구현은 `Runtime/Resource/Addressable/` 아래 **Contracts / Cache / Loading / LabelGroups**와 루트 파사드로 나뉘며, `Loading/`의 Direct·Label 로더와 `LabelReferenceTracker`가 handle·ref-count를, `Cache/`의 `CacheOwnership`이 owner-set 객체를 담당한다.
 
 **Play 캐시·핸들 (Addressable 모듈)**
 
@@ -160,13 +173,14 @@ flowchart TB
 
 | 변경 | 확인 |
 | --- | --- |
-| Play 로드·캐시 규칙 | `ResourcesManager`, `AddressableAssetManager`, `DirectAssetLoader`, `LabelAssetLoader`, `LabelReferenceTracker` |
+| Play 로드·캐시 규칙 | `ResourcesManager`, `Addressable/AddressableAssetManager`, `Addressable/Loading/*`, `Addressable/Cache/CacheOwnership`, `Addressable/LabelGroups/*` |
 | Lookup·스캔 | `PathManager`, `PathMetaRefresh` |
 | Edit 레이아웃 도구 | `AddressableLayoutToolWindow` |
 | 계약 문구 | [루트 README](../../README.md) 불변조건 먼저 |
 
 - [x] README 불변조건과 동기화 (0.3.0 Host parity · label ref-count)
 - [x] Addressable 모듈 로더 분리(`DirectAssetLoader` · `LabelAssetLoader` · `LabelReferenceTracker`) 반영 (2026-10-28)
+- [x] Addressable 모듈 하위 폴더(`Contracts` · `Cache` · `Loading` · `LabelGroups`) (2026-10-28)
 - [x] `verify.ps1` Edit 15 / Play 6 · `CacheOwnershipTests` 확장 (2026-10-28)
 
 ## 관련 문서 (See also)

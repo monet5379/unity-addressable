@@ -17,6 +17,7 @@
 - **Runtime:** `CacheOwnership` — 요청 키·location alias (`AddRequestAlias`, `AddLocationAliasForCache`)로 Lookup path·InternalId 해석
 - **Tests:** `AddressableLabelLoaderEditTests` · `LabelLoaderPlayModeTests` — `AddressableLabelGroupManager` 사용 (테스트 클래스명은 유지)
 - **Docs:** 패키지 README · repo Architecture — 로더 분리·rename 반영
+- **Runtime:** `Runtime/Resource/Addressable/` — `Contracts` · `Cache` · `Loading` · `LabelGroups` 하위 폴더 (공개 API·네임스페이스 변경 없음)
 
 ### Removed
 
