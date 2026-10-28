@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-28
+
 ### Added
 
 - **Runtime (internal):** `DirectAssetLoader` · `LabelAssetLoader` — PrimaryKey Direct handle·in-flight `Task`와 라벨 `(label, typeof(T))` bulk handle·in-flight `Task`를 `AddressableAssetManager`에서 분리
@@ -19,13 +21,17 @@
 - **Docs:** 패키지 README · repo Architecture — 로더 분리·rename 반영
 - **Runtime:** `Runtime/Resource/Addressable/` — `Contracts` · `Cache` · `Loading` · `LabelGroups` 하위 폴더 (공개 API·네임스페이스 변경 없음)
 
+### Fixed
+
+- **Runtime:** 비동기 라벨 로드(`LabelAssetLoader`)에 generation 검사 추가 — `ReleaseAll` 도중 끝난 로드는 캐시에 넣지 않고 빈 결과를 돌려준다 (`DirectAssetLoader.LoadAndCacheAsync`와 동일)
+
 ### Removed
 
 - **Runtime:** public API **`AddressableLabelLoader`** · **`AddressableLabelLoader.Shared`** — `#v0.3.0` pin 호스트는 **`AddressableLabelGroupManager` / `.Shared`** 로 타입명만 교체하면 된다 (메서드·`LoadRequest` 계약 동일)
 
 ### Notes
 
-- **Breaking (C# 타입명만):** load group manager rename. Git URL pin을 올릴 때 호스트 `using`/타입 참조를 갱신한다. semver는 다음 패치·minor 릴리스 때 `package.json`과 함께 확정한다.
+- **Breaking (C# 타입명만):** load group manager rename. 0.3.0 pin 호스트는 `#v0.4.0`으로 올릴 때 `using`/타입 참조를 `AddressableLabelGroupManager`로 갱신한다. 0.x 구간이라 breaking 변경을 minor로 올린다.
 
 ## [0.3.0] - 2026-10-28
 

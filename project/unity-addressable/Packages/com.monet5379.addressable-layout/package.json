@@ -1,6 +1,6 @@
 {
   "name": "com.monet5379.addressable-layout",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "displayName": "Addressable Layout",
   "description": "파일명 기반 Addressables/Resources 경로 조회 및 로드",
   "unity": "6000.3",
