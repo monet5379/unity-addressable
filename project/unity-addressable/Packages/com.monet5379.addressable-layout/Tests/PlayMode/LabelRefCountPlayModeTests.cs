@@ -8,6 +8,7 @@ using UnityEngine.TestTools;
 
 namespace AddressableLayout.Tests.PlayMode
 {
+    [Parallelizable(ParallelScope.None)]
     public class LabelRefCountPlayModeTests
     {
         private const string BootAddress = "Assets/Addressables/Scriptable/Demo/DemoBootSample.asset";

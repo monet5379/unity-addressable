@@ -12,6 +12,49 @@ namespace AddressableLayout.Resource
     {
         private readonly Dictionary<LabelTypeKey, object> _labelInflightLoads = new();
 
+        internal IList<T> LoadResourcesByLabelWithAcquireSync<T>(string label, bool failOnEmptyInDev)
+            where T : UnityEngine.Object
+        {
+            if (string.IsNullOrEmpty(label))
+            {
+                return Array.Empty<T>();
+            }
+
+            if (TryReturnCachedLabelLoad(label, out IList<T> cached))
+            {
+                return cached;
+            }
+
+            AcquireLabelReference(label, 0);
+            try
+            {
+                IList<T> assets = LoadLabelAssetsOnceSync<T>(label, failOnEmptyInDev);
+                if (assets == null || assets.Count == 0)
+                {
+                    RollbackOneLabelReference(label);
+                    return Array.Empty<T>();
+                }
+
+                RecordLabelAssetCount(label, assets.Count);
+                return assets;
+            }
+            catch (InvalidKeyException ex)
+            {
+                RollbackOneLabelReference(label);
+                Debug.LogError(
+                    $"[AddressableLayout] 라벨 '{label}'을(를) 찾을 수 없습니다 ({typeof(T).Name}). {ex.Message}\n" +
+                    "Unity: Tools → Addressable Layout → Demo → 부트 샘플 등록, " +
+                    "Addressables Play Mode Script → Use Asset Database (Fast Mode).");
+                return Array.Empty<T>();
+            }
+            catch (Exception ex)
+            {
+                RollbackOneLabelReference(label);
+                LogLoadError(label, ex.Message);
+                return Array.Empty<T>();
+            }
+        }
+
         internal async Task<IList<T>> LoadResourcesByLabelWithAcquireAsync<T>(
             string label,
             bool failOnEmptyInDev) where T : UnityEngine.Object
@@ -30,7 +73,7 @@ namespace AddressableLayout.Resource
             try
             {
                 Task<IList<T>> loadTask = GetOrCreateLabelLoadTask<T>(label, failOnEmptyInDev);
-                IList<T> assets = await loadTask.ConfigureAwait(true);
+                IList<T> assets = await loadTask;
                 if (assets == null || assets.Count == 0)
                 {
                     RollbackOneLabelReference(label);
@@ -94,8 +137,78 @@ namespace AddressableLayout.Resource
                         _labelInflightLoads.Remove(labelKey);
                     }
                 },
-                TaskScheduler.Default);
+                TaskScheduler.FromCurrentSynchronizationContext());
             return task;
+        }
+
+        private IList<T> LoadLabelAssetsOnceSync<T>(string label, bool failOnEmptyInDev) where T : UnityEngine.Object
+        {
+            LabelTypeKey labelKey = new(label, typeof(T));
+            if (_labelHandles.TryGetValue(labelKey, out AsyncOperationHandle existingHandle)
+                && existingHandle.IsValid())
+            {
+                if (!existingHandle.IsDone)
+                {
+                    existingHandle.WaitForCompletion();
+                }
+
+                IList<T> doneAssets = existingHandle.Convert<IList<T>>().Result;
+                if (doneAssets != null && doneAssets.Count > 0)
+                {
+                    return doneAssets;
+                }
+            }
+
+            AsyncOperationHandle<IList<IResourceLocation>> locationsHandle =
+                Addressables.LoadResourceLocationsAsync(label, typeof(T));
+
+            try
+            {
+                locationsHandle.WaitForCompletion();
+                IList<IResourceLocation> locations = locationsHandle.Status == AsyncOperationStatus.Succeeded
+                    ? locationsHandle.Result
+                    : null;
+
+                if (locations == null || locations.Count == 0)
+                {
+                    LogPreloadEmptyResult(
+                        label,
+                        typeof(T).Name,
+                        $"라벨 '{label}'에 대한 {typeof(T).Name} location 없음.",
+                        failOnEmptyInDev);
+                    return Array.Empty<T>();
+                }
+
+                if (!_labelHandles.TryGetValue(labelKey, out AsyncOperationHandle handle) || !handle.IsValid())
+                {
+                    AsyncOperationHandle<IList<T>> loadHandle =
+                        Addressables.LoadAssetsAsync<T>(locations, null);
+                    handle = loadHandle;
+                    _labelHandles[labelKey] = handle;
+                }
+
+                handle.WaitForCompletion();
+                IList<T> assets = handle.Convert<IList<T>>().Result;
+                if (assets == null || assets.Count == 0)
+                {
+                    LogPreloadEmptyResult(
+                        label,
+                        typeof(T).Name,
+                        $"라벨 '{label}' 로드 결과 {typeof(T).Name} 목록이 비었습니다.",
+                        failOnEmptyInDev);
+                    return Array.Empty<T>();
+                }
+
+                CacheLabelAssets(label, assets, locations);
+                return assets;
+            }
+            finally
+            {
+                if (locationsHandle.IsValid())
+                {
+                    Addressables.Release(locationsHandle);
+                }
+            }
         }
 
         private async Task<IList<T>> LoadLabelAssetsOnceAsync<T>(string label, bool failOnEmptyInDev)
@@ -106,7 +219,7 @@ namespace AddressableLayout.Resource
 
             try
             {
-                IList<IResourceLocation> locations = await locationsHandle.Task.ConfigureAwait(true);
+                IList<IResourceLocation> locations = await locationsHandle.Task;
                 if (locations == null || locations.Count == 0)
                 {
                     LogPreloadEmptyResult(
@@ -126,7 +239,7 @@ namespace AddressableLayout.Resource
                     _labelHandles[labelKey] = handle;
                 }
 
-                IList<T> assets = await handle.Convert<IList<T>>().Task.ConfigureAwait(true);
+                IList<T> assets = await handle.Convert<IList<T>>().Task;
                 if (assets == null || assets.Count == 0)
                 {
                     LogPreloadEmptyResult(

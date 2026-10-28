@@ -22,26 +22,7 @@ namespace AddressableLayout.Resource
                 return cached;
             }
 
-            try
-            {
-                return LoadResourcesByLabelWithAcquireAsync<T>(label, failOnEmptyInDev)
-                    .GetAwaiter()
-                    .GetResult();
-            }
-            catch (InvalidKeyException ex)
-            {
-                LogPreloadEmptyResult(
-                    label,
-                    typeof(T).Name,
-                    $"라벨 '{label}'을(를) 찾을 수 없습니다. {ex.Message}",
-                    failOnEmptyInDev);
-                return Array.Empty<T>();
-            }
-            catch (Exception ex)
-            {
-                LogLoadError(label, ex.Message);
-                return Array.Empty<T>();
-            }
+            return LoadResourcesByLabelWithAcquireSync<T>(label, failOnEmptyInDev);
         }
 
         public IEnumerator CountLabelLocationsAsync<T>(IReadOnlyList<string> labels, IDictionary<string, int> results)

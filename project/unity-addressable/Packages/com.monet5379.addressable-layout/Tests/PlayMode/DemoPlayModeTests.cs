@@ -30,6 +30,7 @@ namespace AddressableLayout.Tests.PlayMode
     /// </summary>
     [PrebuildSetup(typeof(DemoPlayModeTestsPrebuild))]
     [PostBuildCleanup(typeof(DemoPlayModeTestsPostbuild))]
+    [Parallelizable(ParallelScope.None)]
     public class DemoPlayModeTests
     {
         [UnityTest]

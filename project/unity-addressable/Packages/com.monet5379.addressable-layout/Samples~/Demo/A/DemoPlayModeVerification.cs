@@ -53,7 +53,8 @@ namespace AddressableLayout.Demo
             }
 
             IList<DemoBootSample> bootLoaded =
-                await ResourcesManager.LoadResourcesByLabelAsync<DemoBootSample>(AddressableLabels.Boot);
+                await ResourcesManager.LoadResourcesByLabelAsync<DemoBootSample>(AddressableLabels.Boot)
+;
 
             if (bootLoaded == null || bootLoaded.Count == 0)
             {
@@ -64,7 +65,8 @@ namespace AddressableLayout.Demo
 
             DemoBootSample sample = bootLoaded[0];
 
-            DemoBootSample again = await ResourcesManager.LoadResourceAsync<DemoBootSample>(BootAddress);
+            DemoBootSample again = await ResourcesManager.LoadResourceAsync<DemoBootSample>(BootAddress)
+;
             if (again == null)
             {
                 throw new InvalidOperationException(
@@ -94,7 +96,8 @@ namespace AddressableLayout.Demo
         private static async Task RunMilestoneDAsync()
         {
             IList<GameObject> bootPrefabs =
-                await ResourcesManager.LoadResourcesByLabelAsync<GameObject>(AddressableLabels.Boot);
+                await ResourcesManager.LoadResourcesByLabelAsync<GameObject>(AddressableLabels.Boot)
+;
             if (bootPrefabs == null || bootPrefabs.Count == 0)
             {
                 throw new InvalidOperationException(
@@ -122,7 +125,8 @@ namespace AddressableLayout.Demo
             }
 
             IList<DemoBootSample> areaA =
-                await ResourcesManager.EnterPlaceAsync<DemoBootSample>(AddressableLabels.DemoAreaA);
+                await ResourcesManager.EnterPlaceAsync<DemoBootSample>(AddressableLabels.DemoAreaA)
+;
             if (areaA == null || areaA.Count == 0)
             {
                 throw new InvalidOperationException("Place A enter failed.");
@@ -144,7 +148,8 @@ namespace AddressableLayout.Demo
             }
 
             IList<DemoBootSample> areaB =
-                await ResourcesManager.EnterPlaceAsync<DemoBootSample>(AddressableLabels.DemoAreaB);
+                await ResourcesManager.EnterPlaceAsync<DemoBootSample>(AddressableLabels.DemoAreaB)
+;
             if (areaB == null || areaB.Count == 0)
             {
                 throw new InvalidOperationException("Place B enter failed.");

@@ -32,6 +32,11 @@ namespace AddressableLayout.Demo
 
         private async void Start()
         {
+            if (DemoPlayModeVerification.DisableAutoBootstrap)
+            {
+                return;
+            }
+
             try
             {
                 await DemoPlayModeVerification.RunAllAsync();
