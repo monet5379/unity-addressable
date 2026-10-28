@@ -31,8 +31,15 @@ namespace AddressableLayout.Resource
 
         public void OnBeforeSerialize()
         {
-            keys = new List<string>(_dictionary.Keys);
-            values = new List<string>(_dictionary.Values);
+            // 내용이 같다면 같은 바이트가 되도록 정렬
+            var sortedKeys = new List<string>(_dictionary.Keys);
+            sortedKeys.Sort(System.StringComparer.Ordinal);
+            keys = sortedKeys;
+            values = new List<string>(sortedKeys.Count);
+            foreach (string key in sortedKeys)
+            {
+                values.Add(_dictionary[key]);
+            }
         }
 
         public void OnAfterDeserialize()

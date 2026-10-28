@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using AddressableLayout.Resource;
 using UnityEngine;
+
+[assembly: InternalsVisibleTo("AddressableLayout.EditorTests")]
 
 namespace AddressableLayout.Editor
 {
@@ -12,15 +15,13 @@ namespace AddressableLayout.Editor
         public const string ResourcesFolderName = "Resources";
         public const string TargetPath = "Resources/Data/PathMetaData.json";
 
-        public static readonly HashSet<string> IgnoreExtensionSet = new()
+        private static readonly HashSet<string> IgnoreExtensionSet = new(System.StringComparer.OrdinalIgnoreCase)
         {
             ".meta",
             ".shader",
             ".cginc",
             ".text",
         };
-
-        public static readonly HashSet<string> IgnoreDirectorySet = new();
 
         public static string ToUnixPath(string path)
         {
@@ -36,20 +37,33 @@ namespace AddressableLayout.Editor
                 return 0;
             }
 
+            var database = BuildDatabase(Application.dataPath);
+
+            string text = JsonUtility.ToJson(new StringKeyedMap(database));
+            WritePathMetaDataFile(text);
+            PathManager.ApplyBuiltDatabase(database);
+            Debug.Log($"[AddressableLayout] PathMeta 갱신 완료. entries={database.Count}");
+            return database.Count;
+        }
+
+        internal static Dictionary<string, string> BuildDatabase(string assetsRoot)
+        {
             var database = new Dictionary<string, string>();
 
-            string resourcesRoot = Path.Combine(Application.dataPath, ResourcesFolderName);
+            string resourcesRoot = Path.Combine(assetsRoot, ResourcesFolderName);
             if (Directory.Exists(resourcesRoot))
             {
                 string[] resourcesFilePaths =
                     Directory.GetFiles(resourcesRoot, "*.*", SearchOption.AllDirectories);
+                SortPathsUnix(resourcesFilePaths);
+                string normalizedResourcesRoot = ToUnixPath(resourcesRoot);
                 foreach (string filePath in resourcesFilePaths)
                 {
-                    AddResourcesPath(database, filePath, resourcesRoot);
+                    RegisterResourcesFile(database, filePath, normalizedResourcesRoot);
                 }
             }
 
-            string addressableRoot = Path.Combine(Application.dataPath, AddressableFolderName);
+            string addressableRoot = Path.Combine(assetsRoot, AddressableFolderName);
             if (!Directory.Exists(addressableRoot))
             {
                 Debug.LogWarning(
@@ -59,87 +73,82 @@ namespace AddressableLayout.Editor
             {
                 string[] addressableFilePaths =
                     Directory.GetFiles(addressableRoot, "*.*", SearchOption.AllDirectories);
+                SortPathsUnix(addressableFilePaths);
+                string normalizedAssetsRoot = ToUnixPath(assetsRoot);
                 foreach (string filePath in addressableFilePaths)
                 {
-                    AddAddressablePath(database, filePath);
+                    RegisterAddressableFile(database, filePath, normalizedAssetsRoot);
                 }
             }
 
-            string text = JsonUtility.ToJson(new StringKeyedMap(database));
-            WritePathMetaDataFile(text);
-            PathManager.ApplyBuiltDatabase(database);
-            Debug.Log($"[AddressableLayout] PathMeta 갱신 완료. entries={database.Count}");
-            return database.Count;
+            return database;
         }
 
-        private static void AddResourcesPath(
-            Dictionary<string, string> database,
-            string filePath,
-            string resourcesRoot)
+        private static void SortPathsUnix(string[] paths)
         {
-            if (CheckIgnore(filePath) || IsPathMetaDataFile(filePath))
+            for (int i = 0; i < paths.Length; i++)
+            {
+                paths[i] = ToUnixPath(paths[i]);
+            }
+
+            System.Array.Sort(paths, System.StringComparer.Ordinal);
+        }
+
+        private static void RegisterResourcesFile(
+            Dictionary<string, string> database,
+            string unixFilePath,
+            string normalizedResourcesRoot)
+        {
+            if (ShouldIgnoreFile(unixFilePath) || IsPathMetaDataFile(unixFilePath))
             {
                 return;
             }
 
-            string fileName = Path.GetFileName(filePath);
+            string fileName = Path.GetFileName(unixFilePath);
             if (fileName.StartsWith("."))
             {
                 return;
             }
 
-            if (database.ContainsKey(fileName))
-            {
-                Debug.LogWarning(
-                    $"[AddressableLayout] PathMeta 파일명 중복; 첫 path 유지. name={fileName}");
-                return;
-            }
-
-            string normalizedRoot = ToUnixPath(resourcesRoot);
-            string normalizedFilePath = ToUnixPath(filePath);
-            string relative = normalizedFilePath[normalizedRoot.Length..].TrimStart('/');
+            string relative = unixFilePath[normalizedResourcesRoot.Length..].TrimStart('/');
             string extension = Path.GetExtension(relative);
             string leafPath = string.IsNullOrEmpty(extension)
                 ? relative
                 : relative[..^extension.Length];
 
-            database.Add(fileName, leafPath);
+            TryRegister(database, fileName, leafPath);
         }
 
-        private static void AddAddressablePath(Dictionary<string, string> database, string filePath)
+        private static void RegisterAddressableFile(
+            Dictionary<string, string> database,
+            string unixFilePath,
+            string normalizedAssetsRoot)
         {
-            if (CheckIgnore(filePath))
+            if (ShouldIgnoreFile(unixFilePath))
             {
                 return;
             }
 
-            string fileName = Path.GetFileName(filePath);
+            string fileName = Path.GetFileName(unixFilePath);
             if (fileName.StartsWith("."))
             {
                 return;
             }
 
-            if (database.ContainsKey(fileName))
-            {
-                string existing = database[fileName];
-                if (!PathManager.IsAddressablePath(existing))
-                {
-                    Debug.LogWarning(
-                        $"[AddressableLayout] PathMeta 파일명 중복; Resources 우선. name={fileName}");
-                }
-                else
-                {
-                    Debug.LogWarning(
-                        $"[AddressableLayout] PathMeta 파일명 중복; 첫 path 유지. name={fileName}");
-                }
+            string addressablePath = $"Assets{unixFilePath[normalizedAssetsRoot.Length..]}";
+            TryRegister(database, fileName, addressablePath);
+        }
 
+        private static void TryRegister(Dictionary<string, string> database, string fileName, string path)
+        {
+            if (database.TryGetValue(fileName, out string existing))
+            {
+                Debug.LogWarning(
+                    $"[AddressableLayout] PathMeta 파일명 중복; kept={existing}, skipped={path}");
                 return;
             }
 
-            string assetsRoot = ToUnixPath(Application.dataPath);
-            string normalizedFilePath = ToUnixPath(filePath);
-            string addressablePath = $"Assets{normalizedFilePath[assetsRoot.Length..]}";
-            database.Add(fileName, addressablePath);
+            database.Add(fileName, path);
         }
 
         private static bool IsPathMetaDataFile(string filePath)
@@ -148,23 +157,9 @@ namespace AddressableLayout.Editor
                 .EndsWith("/Resources/Data/PathMetaData.json", System.StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool CheckIgnore(string filePath)
+        private static bool ShouldIgnoreFile(string unixFilePath)
         {
-            string extension = Path.GetExtension(filePath);
-            if (IgnoreExtensionSet.Contains(extension))
-            {
-                return true;
-            }
-
-            foreach (string ignoreDirectory in IgnoreDirectorySet)
-            {
-                if (filePath.Contains(ignoreDirectory))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return IgnoreExtensionSet.Contains(Path.GetExtension(unixFilePath));
         }
 
         private static void WritePathMetaDataFile(string text)

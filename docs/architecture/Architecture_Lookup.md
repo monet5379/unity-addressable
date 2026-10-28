@@ -36,7 +36,7 @@
 | `FindPrefabPath("Foo")` | `.prefab` 붙여 Lookup |
 | `FindImagePath` / `FindMaterialPath` / … | 확장자별 헬퍼 |
 | `Load()` | JSON → `_database` |
-| `CheckLoaded()` | 메모리 + 디스크 존재 |
+| `CheckLoaded()` | 메모리 로드됨 (`_isLoaded` && 항목 수 > 0) |
 
 ## 흐름 (Flow)
 
@@ -70,6 +70,8 @@ Tools → 레이아웃 도구 → 갱신
 
 각 파일은 **파일명(확장자 포함)** 을 dictionary 키로 등록한다.
 
+트리마다 경로를 `/`로 맞춘 뒤 **Ordinal** 정렬하고, 등록은 `TryRegister` 한곳에서 처리한다. JSON 저장 시 `StringKeyedMap`이 키를 같은 규칙으로 정렬해, 동일 에셋 집합이면 **갱신을 반복해도 diff가 없도록** 한다.
+
 ## 불변조건과 주의점 (Invariants & Gotchas)
 
 *PathMeta와 Addressables 라벨은 별 계층이다.*
@@ -82,14 +84,14 @@ Tools → 레이아웃 도구 → 갱신
 | PathMeta 예 | `Assets/Addressables/.../Bar.prefab` | `Demo/Foo` |
 | Play sync | 캐시 hit-only | `Resources.Load` |
 
-**중복**
+**중복** — 키가 이미 있으면 덮어쓰지 않고 `PathMeta 파일명 중복; kept={existing}, skipped={path}` 를 남긴다.
 
 | 상황 | 동작 |
 | --- | --- |
-| 같은 트리 안 동일 파일명 | 첫 path 유지 · `PathMeta 파일명 중복; 첫 path 유지` |
-| Resources vs Addressables 동일 파일명 | **Resources wins** · `PathMeta 파일명 중복; Resources 우선` |
+| 같은 트리 안 동일 파일명 | Ordinal로 **앞선 전체 경로**가 먼저 등록 · 이후 path는 `skipped` |
+| Resources vs Addressables 동일 파일명 | **Resources wins** (Resources 스캔이 먼저) · Addressables path는 `skipped` |
 
-**제외** — `.meta`, `.shader`, `.cginc`, `.text`; `PathMetaData.json`은 Resources 스캔 제외.
+**제외** — `.meta`, `.shader`, `.cginc`, `.text` (확장자 대소문자 무시); 점(`.`)으로 시작하는 파일명; `PathMetaData.json`은 Resources 스캔 제외. 디렉터리 이름 기반 ignore는 없다.
 
 **PathMeta vs 라벨**
 

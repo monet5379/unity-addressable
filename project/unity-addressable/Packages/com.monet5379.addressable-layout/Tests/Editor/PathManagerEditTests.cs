@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using AddressableLayout.Editor;
 using AddressableLayout.Resource;
 using NUnit.Framework;
 using UnityEngine;
@@ -115,6 +118,137 @@ namespace AddressableLayout.Tests
             string path = PathManager.FindPrefabPath("NoSuchPrefab");
 
             Assert.That(path, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+        public void StringKeyedMap_DifferentInsertionOrder_SerializesToSameJson()
+        {
+            var first = new Dictionary<string, string>
+            {
+                { "Z.asset", "z" },
+                { "A.asset", "a" },
+                { "M.asset", "m" },
+            };
+            var second = new Dictionary<string, string>
+            {
+                { "M.asset", "m" },
+                { "Z.asset", "z" },
+                { "A.asset", "a" },
+            };
+
+            string jsonFirst = JsonUtility.ToJson(new StringKeyedMap(first));
+            string jsonSecond = JsonUtility.ToJson(new StringKeyedMap(second));
+
+            Assert.That(jsonSecond, Is.EqualTo(jsonFirst));
+        }
+
+        [Test]
+        public void BuildDatabase_ResourcesDuplicate_KeepsOrdinalFirstFullPath()
+        {
+            string assetsRoot = CreateTempAssetsRoot();
+            try
+            {
+                WriteEmptyFile(Path.Combine(assetsRoot, "Resources", "b", "Dup.prefab"));
+                WriteEmptyFile(Path.Combine(assetsRoot, "Resources", "a", "Dup.prefab"));
+
+                Dictionary<string, string> database = PathMetaWriter.BuildDatabase(assetsRoot);
+
+                Assert.That(database.Count, Is.EqualTo(1));
+                Assert.That(database["Dup.prefab"], Is.EqualTo("a/Dup"));
+            }
+            finally
+            {
+                DeleteTempAssetsRoot(assetsRoot);
+            }
+        }
+
+        [Test]
+        public void BuildDatabase_ResourcesWinsOverAddressablesForSameFileName()
+        {
+            string assetsRoot = CreateTempAssetsRoot();
+            try
+            {
+                WriteEmptyFile(Path.Combine(assetsRoot, "Resources", "Shared.prefab"));
+                WriteEmptyFile(Path.Combine(assetsRoot, "Addressables", "Shared.prefab"));
+
+                Dictionary<string, string> database = PathMetaWriter.BuildDatabase(assetsRoot);
+
+                Assert.That(database["Shared.prefab"], Is.EqualTo("Shared"));
+            }
+            finally
+            {
+                DeleteTempAssetsRoot(assetsRoot);
+            }
+        }
+
+        [Test]
+        public void BuildDatabase_IgnoresMetaShaderPathMetaDataAndDotFiles()
+        {
+            string assetsRoot = CreateTempAssetsRoot();
+            try
+            {
+                WriteEmptyFile(Path.Combine(assetsRoot, "Resources", "skip.meta"));
+                WriteEmptyFile(Path.Combine(assetsRoot, "Resources", "shader.SHADER"));
+                WriteEmptyFile(Path.Combine(assetsRoot, "Resources", "Data", "PathMetaData.json"));
+                WriteEmptyFile(Path.Combine(assetsRoot, "Resources", ".hidden.txt"));
+                WriteEmptyFile(Path.Combine(assetsRoot, "Resources", "Keep.prefab"));
+
+                Dictionary<string, string> database = PathMetaWriter.BuildDatabase(assetsRoot);
+
+                Assert.That(database.ContainsKey("skip.meta"), Is.False);
+                Assert.That(database.ContainsKey("shader.SHADER"), Is.False);
+                Assert.That(database.ContainsKey("PathMetaData.json"), Is.False);
+                Assert.That(database.ContainsKey(".hidden.txt"), Is.False);
+                Assert.That(database["Keep.prefab"], Is.EqualTo("Keep"));
+            }
+            finally
+            {
+                DeleteTempAssetsRoot(assetsRoot);
+            }
+        }
+
+        [Test]
+        public void BuildDatabase_AddressableEntriesUseAssetsPrefix()
+        {
+            string assetsRoot = CreateTempAssetsRoot();
+            try
+            {
+                WriteEmptyFile(Path.Combine(assetsRoot, "Addressables", "X.prefab"));
+
+                Dictionary<string, string> database = PathMetaWriter.BuildDatabase(assetsRoot);
+
+                Assert.That(database["X.prefab"], Does.StartWith("Assets/"));
+            }
+            finally
+            {
+                DeleteTempAssetsRoot(assetsRoot);
+            }
+        }
+
+        private static string CreateTempAssetsRoot()
+        {
+            string path = Path.Combine(Path.GetTempPath(), "PathMetaWriterTests", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(path);
+            return path;
+        }
+
+        private static void WriteEmptyFile(string filePath)
+        {
+            string directory = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllText(filePath, string.Empty);
+        }
+
+        private static void DeleteTempAssetsRoot(string assetsRoot)
+        {
+            if (Directory.Exists(assetsRoot))
+            {
+                Directory.Delete(assetsRoot, recursive: true);
+            }
         }
 
         private static void InvokeResetStatics()
