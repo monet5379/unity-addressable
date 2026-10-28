@@ -2,6 +2,8 @@
 
 Addressable Layout **현재 구조** Architecture 허브이다. 계약(불변조건) 정본은 [루트 README](../../README.md)이고, 코드와 어긋나면 **코드가 이긴다**.
 
+용어·아키텍처 결정: [CONTEXT.md](../../CONTEXT.md) · [ADR 0001 — label load group · ref-count](../adr/0001-label-load-group-cache-ownership.md).
+
 글쓰기·골격: [unity-studio-kit — Documentation (Architecture)](https://github.com/monet5379/unity-studio-kit/blob/main/docs/game/Documentation.md#architecture-작성-규약).
 
 ## 문서
@@ -22,3 +24,5 @@ Addressable Layout **현재 구조** Architecture 허브이다. 계약(불변조
 | Tests | `Tests/Editor/` · `Tests/PlayMode/` (`CacheOwnershipTests`, `DemoPlayModeTests`) |
 
 Play·Edit 확인 절차: [루트 README — 설치](../../README.md#설치) · [패키지 README — Tests](../../project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md#tests).
+
+Plan cut: [addressable-layout-0.3.0](../plan/tickets/addressable-layout-0.3.0/spec.md).

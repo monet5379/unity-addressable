@@ -6,7 +6,7 @@
 
 Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.monet5379.addressable-layout`)로 분리한다. 게임 코드는 파일명·라벨·PathMeta Lookup으로 에셋에 닿고, `SpawnStage`·Json Facade 같은 typed API는 타이틀에 둔다.
 
-**계약(불변조건) 정본**은 [루트 README](../../README.md)이다. 이 문서는 구조·호출 관계만 다룬다.
+**계약(불변조건) 정본**은 [루트 README](../../README.md)이다. 이 문서는 구조·호출 관계만 다룬다. Resource 층 용어·0.3.0 label load group 결정: [CONTEXT.md](../../CONTEXT.md) · [ADR 0001](../adr/0001-label-load-group-cache-ownership.md).
 
 형제 Architecture:
 
