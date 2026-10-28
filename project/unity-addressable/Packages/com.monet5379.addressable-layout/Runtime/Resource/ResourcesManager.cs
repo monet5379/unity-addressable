@@ -5,9 +5,6 @@ using UnityEngine;
 
 namespace AddressableLayout.Resource
 {
-    /// <summary>
-    /// PathManager + AddressableAssetManager Play facade.
-    /// </summary>
     public static class ResourcesManager
     {
         private static readonly AddressableAssetManager Addressables = new();

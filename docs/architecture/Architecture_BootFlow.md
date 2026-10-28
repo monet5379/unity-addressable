@@ -49,7 +49,9 @@ Demo Sample의 `DemoPlayModeVerification`(Test Runner **Play Mode** `DemoPlayMod
 
 **1. PathMeta** — `PathManager.Load()`가 `Resources.Load<TextAsset>("Data/PathMetaData")`로 JSON을 읽는다. JSON은 Editor **레이아웃 도구** → 갱신으로 생성·갱신한다. `Lookup`이 lazy `Load()`를 부를 수 있으나, 부트에서 **명시적으로 한 번** 호출하는 편이 안전하다.
 
-**2. 종류 라벨 preload** — `LoadResourcesByLabelAsync<T>(AddressableLabels.Boot)` · `PreloadLabelSync<T>` · `AddressableLabelLoader.LoadGroup(LoadRequest)` 등. `LoadRequest.AssetType`은 `_labelHandles` 키 `(label, typeof(T))`와 맞출 **Addressables asset type**이다. 같은 라벨을 그룹과 `PreloadLabelSync<T>`로 같이 쓰면 `T`와 `AssetType`을 동일하게 둔다(기본 `UnityEngine.Object`는 단독 preload와 handle이 갈라질 수 있음). 로더는 PrimaryKey와 PathMeta 주소 **alias**를 캐시에 넣어 sync hit-only가 동작하게 한다. 부트와 겹치는 단일 에셋을 `LoadResourceAsync`로 동시에 당겨도 PrimaryKey 기준 in-flight Task가 합쳐진다.
+**2. 종류 라벨 preload** — `LoadResourcesByLabelAsync<T>(AddressableLabels.Boot)` · `PreloadLabelSync<T>` · `ResourcesManager.PreloadTypeLabels` · `AddressableLabelLoader.LoadGroup(LoadRequest)` 등. `LoadRequest.AssetType`은 `_labelHandles` 키 `(label, typeof(T))`와 맞출 **Addressables asset type**이다. 같은 라벨을 그룹과 `PreloadLabelSync<T>`로 같이 쓰면 `T`와 `AssetType`을 동일하게 둔다(기본 `UnityEngine.Object`는 단독 preload와 handle이 갈라질 수 있음). 로더는 PrimaryKey와 PathMeta 주소 **alias**를 캐시에 넣어 sync hit-only가 동작하게 한다. 부트와 겹치는 단일 에셋을 `LoadResourceAsync`로 동시에 당겨도 PrimaryKey 기준 in-flight Task가 합쳐진다.
+
+**Demo vs 호스트 boot (0.3.0)** — `DemoPlayModeVerification` / `DemoPlayModeTests`는 **async** `LoadResourcesByLabelAsync` 순서를 회귀 검증한다. 타이틀 sync boot는 `PreloadTypeLabels` · `PreloadLabelSync` · `LoadGroup` + `LabelLoadMode.Sync`(Play에서 coroutine 동기 실행)를 선택한다. 두 경로 모두 같은 label ref-count·캐시 의미를 공유한다.
 
 **3. place 라벨** — `EnterPlaceAsync` (= 라벨 preload), gameplay, `LeavePlace` (= `ReleaseLabel`). 입장 전 Addressables sync는 miss(null), 입장 후 hit, 퇴장 후 다시 miss.
 
@@ -89,7 +91,7 @@ sequenceDiagram
 - `EnterPlaceAsync` 완료 전 place 에셋 sync load → null
 - 라벨 preload 실패 시: Addressable Groups 라벨 · Play Mode Script(Fast Mode) · Demo **부트 샘플 등록**
 
-Play 확인: Demo import → **Demo → 부트 샘플 등록** → Test Runner **Play Mode** `DemoPlayModeTests`. Edit: `CacheOwnershipTests` ([Architecture_RuntimeEditor](Architecture_RuntimeEditor.md)).
+Play 확인: Demo import → **Demo → 부트 샘플 등록** → Test Runner **Play Mode** (`DemoPlayModeTests` 등) 또는 repo 루트 `scripts/verify.ps1` (PrepareDemo · Edit 15 · Play 6). Edit: `AddressableLayout.EditorTests` ([Architecture_RuntimeEditor](Architecture_RuntimeEditor.md)).
 
 ## 변경 가이드 (Change Guidelines)
 
@@ -99,8 +101,8 @@ Play 확인: Demo import → **Demo → 부트 샘플 등록** → Test Runner *
 | 라벨 preload·place API | `ResourcesManager.cs` |
 | 캐시·alias | `AddressableAssetManager.cs` |
 
-- [ ] README 불변조건과 일치
-- [ ] DemoPlayModeTests
+- [x] README 불변조건과 일치 (0.3.0 · sync boot vs async Demo)
+- [x] `DemoPlayModeTests` · `verify.ps1` Play gate (2026-10-28)
 
 ## 관련 문서 (See also)
 

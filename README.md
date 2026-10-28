@@ -9,7 +9,7 @@ Unity Addressables용 **Resource 층** UPM 패키지(`com.monet5379.addressable-
 **Package Manager → Install package from git URL:**
 
 ```text
-https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.2.0
+https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.3.0
 ```
 
 1. **`Assets/Addressables/`** 폴더를 만든다. (단수 `Addressable/` 금지)
@@ -25,9 +25,9 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 Git·CI·Addressables **콘텐츠 빌드** 없이, 위 Test Runner 절차와 같은 순서를 batchmode로 한 번에 돌린다.
 
-1. Edit Mode — `AddressableLayout.EditorTests` (`CacheOwnershipTests` · `PrefabInstanceProviderTests`)
+1. Edit Mode — `AddressableLayout.EditorTests` (`CacheOwnershipTests` · `PrefabInstanceProviderTests` · `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests`) — 기대 **15** tests
 2. Demo 준비 — `AddressableLayoutVerify.PrepareDemo` (`RegisterBootSample`, Fast Mode)
-3. Play Mode — `AddressableLayout.PlayModeTests` (`DemoPlayModeTests`)
+3. Play Mode — `AddressableLayout.PlayModeTests` (`DemoPlayModeTests` · `LabelLoaderPlayModeTests` · `LabelRefCountPlayModeTests`) — 기대 **6** tests
 
 저장소 **루트**에서:
 
@@ -46,7 +46,8 @@ Demo Sample이 `Assets/Samples/...`에 없으면 2단계가 실패한다 (소비
 - **`Assets/Addressables/`만** — 단수 `Addressable/` 콘텐츠 루트 금지.
 - **종류 라벨 ≠ 지역 라벨** — 부트/UI/공유는 type; 지역 전용은 place (타이틀 Area id. `area1`/`area2` 금지). 공유 적/VFX는 place만 달지 말고 type(`boot`, `enemy_shared` 등)을 기본으로 한다.
 - **동기 `LoadResource` (Play) — Addressables path = 캐시 hit만** — miss는 null. preload 또는 `LoadResourceAsync`. **Resources leaf**는 이관 중 `Resources.Load`.
-- **Play 캐시 소유권** — `LoadResourceAsync` = Direct owner, 라벨 preload = 해당 라벨 owner, 동기 `LoadResource` = 빌림(소유 없음). PrimaryKey·alias는 **마지막 owner 해제 시에만** 캐시에서 제거; `Release` / `ReleaseLabel`은 멱등.
+- **Play 캐시 소유권** — `LoadResourceAsync` = Direct owner, 라벨 preload = 해당 라벨 owner, 동기 `LoadResource` = 빌림(소유 없음). PrimaryKey·alias는 **마지막 owner 해제 시에만** 캐시에서 제거. **라벨 ref-count (0.3.0):** acquire마다 ref++; `ReleaseLabel`은 ref 1 감소·0일 때 eviction; ref 밖 라벨 release는 no-op. `Release` / `ReleaseLabel`은 예외 없이 멱등.
+- **Boot 모드** — Demo `DemoPlayModeTests`는 **async** preload 회귀. 호스트 sync boot는 `PreloadTypeLabels` · `PreloadLabelSync` · `AddressableLabelLoader.LoadGroup(Sync)` (패키지 README Host parity).
 - **Edit `*ForEditor` ≠ Play sync** — Edit API는 Play `AddressableAssetManager` 캐시를 채우지 않는다.
 - **Lookup 전 `PathManager.Load()`** — PathMeta → (선택) 라벨 preload → gameplay.
 - **폴더 OK / 라벨 없음** — path `*ForEditor`는 될 수 있으나 라벨 미할당이면 라벨 로드는 실패 또는 빈 목록.

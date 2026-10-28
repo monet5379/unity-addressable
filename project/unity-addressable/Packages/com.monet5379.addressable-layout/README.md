@@ -15,7 +15,7 @@
 2. 아래 URL 입력 (태그는 릴리스 버전에 맞게 변경):
 
 ```text
-https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.2.0
+https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.3.0
 ```
 
 ### 로컬 임베디드
@@ -48,33 +48,76 @@ Package Manager에서 **Addressable Layout → Samples → Demo → Import** 후
 2. 필요 시 **갱신**만 다시 실행
 3. **Window → General → Test Runner → Play Mode** — `DemoPlayModeTests` 실행 (또는 Play로 `DemoAddressableHost` 수동 확인)
 
-Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F 로직은 `DemoPlayModeVerification`에 있다.
+Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F 로직은 `DemoPlayModeVerification`에 있다. **Demo Play 검증은 async 라벨 preload 부트**를 유지한다. 타이틀 sync boot는 아래 API를 쓰며 Demo 회귀와 별개이다.
+
+## 불변조건 (요약)
+
+레포 [루트 README](https://github.com/monet5379/unity-addressable)가 계약 정본이다. 패키지 소비 시 특히 다음을 지킨다.
+
+- **파일명 전역 키** · **`Assets/Addressables/`** 단일 콘텐츠 루트 · **종류(type) 라벨 ≠ place 라벨**
+- Play Addressables path: **`LoadResource` / `LoadResourceByName` = 캐시 hit만** (miss → `null`). Preload 또는 `LoadResourceAsync`
+- **`PathManager.Load()`** 후 (선택) 라벨 preload → gameplay
+- **라벨 ref-count:** `LoadResourcesByLabelAsync` · `PreloadLabel*` · load group acquire마다 ref++. `ReleaseLabel`은 ref 1 감소; **0일 때만** label handle·label owner eviction. ref에 없는 라벨 release는 no-op
+- **`LoadRequest.AssetType`** 은 `(label, typeof(T))` handle 키와 맞출 Addressables asset type (단일 preload·그룹·`LoadResourcesByLabelAsync<T>`는 **같은 T** 권장)
+- **`SpawnPrefab` / `Despawn`:** prefab asset은 패키지, **인스턴스**는 `IPrefabInstanceProvider`. `Release` / `ReleaseLabel` / `ReleaseAll` 전 호스트가 인스턴스(풀 비활성 포함) 정리
+
+## Boot: async Demo vs sync 호스트
+
+| 경로 | 용도 |
+| --- | --- |
+| `LoadResourcesByLabelAsync<T>` · `EnterPlaceAsync<T>` | async preload (Demo `DemoPlayModeTests` 기본) |
+| `ResourcesManager.PreloadTypeLabels` | type 라벨 **동기** boot — 내부 `PreloadLabelSync<Object>` |
+| `AddressableAssetManager.PreloadLabelSync<T>` / `PreloadLabelAsync<T>` | 단일 라벨 sync 또는 coroutine/async 파이프라인 |
+| `AddressableLabelLoader.LoadGroup(LoadRequest)` | group id + 라벨 목록. `LabelLoadMode.Sync`면 Play에서 첫 gameplay frame 전 완료 가능; `Async`는 runner coroutine |
+
+로딩 UI: `LoadOperation`은 `CustomYieldInstruction` (`Progress`, `Completed`, `LabelAssetCounts`, `TotalAssetCount`). 사전 카운트: `CountLabelLocationsAsync` / `CountLabelLocations`.
+
+## Load group (요약)
+
+- **`LoadRequest`:** `Id`, `Labels`, `Mode` (`Sync` / `Async`), `KeepResident`, `FailOnEmptyInDev`, `AssetType`
+- **`AddressableLabelLoader.Shared`:** `ResourcesManager.AssetManager`와 **동일** 캐시
+- **`Release(groupId, force: false)`:** `KeepResident`면 무시; `force: true`면 resident 포함 해제
+- 그룹 release는 acquire한 라벨마다 ref-count 1 감소 — 다른 groupId가 같은 라벨을 잡고 있으면 캐시 유지
 
 ## Runtime API (요약)
 
 | 타입 | 역할 |
 | --- | --- |
 | `PathManager` | 파일명 → 경로 · PathMeta 갱신 |
-| `AddressableAssetManager` | Addressables 로드 · owner-set 캐시 · Direct/라벨 handle |
-| `AddressableLabels` | 종류 / 지역 라벨 상수 |
-| `IPrefabInstanceProvider` | `SpawnPrefab` / `Despawn` 인스턴스 생성·반환 (풀링 등 — 호스트 구현) |
-| `ResourcesManager` | `LoadResource` / async / 라벨 preload · `SpawnPrefab` / `Despawn` · `SetInstanceProvider` |
+| `AddressableAssetManager` | Addressables 로드 · owner-set 캐시 · Direct/라벨 handle · label preload/ref-count |
+| `AddressableLabels` | 종류 / Demo place 라벨 상수 (ship place·enemy enum 없음) |
+| `AddressableLabelLoader` | load group 적재·release |
+| `LoadRequest` / `LoadOperation` / `LabelLoadMode` | 그룹 요청·진행·sync/async |
+| `IPrefabInstanceProvider` | `SpawnPrefab` / `Despawn` 인스턴스 (호스트 구현) |
+| `ResourcesManager` | Play 파사드 · `PreloadTypeLabels` · place · Spawn |
 | `ResourcesManagerForEditor` (Editor) | Edit Mode 전용 로드 |
 
-**Play 동기 `LoadResource`:** Addressables 경로는 **캐시 hit만** (miss → null). Preload 또는 `LoadResourceAsync`를 사용한다.
+## Host parity (Dragon `TSResourcesManager` 기대 표면)
 
-**`SpawnPrefab` / `Despawn`:** prefab asset 로드까지는 패키지, **인스턴스**는 `IPrefabInstanceProvider` (미등록 시 Instantiate/Destroy). provider는 **첫 `SpawnPrefab` 전** 등록. Play마다 `RuntimeInitializeOnLoadMethod` 등록 권장. `Release` / `ReleaseLabel` / `ReleaseAll` 전에 해당 prefab으로 만든 인스턴스(풀 비활성 포함)는 호스트가 정리 — 패키지는 풀을 모른다.
+Project Dragon 임베드 Layout 소비 시 맞추는 **공개 API** prose 목록이다. typed spawn·GameApp·씬 orchestration은 타이틀에 둔다.
+
+**`ResourcesManager`:** `AssetManager`, `LoadResource` / `LoadResourceByName` / `LoadResourceAsync`, `LoadResourcesByLabelAsync`, `PreloadTypeLabels` (및 `failOnEmptyInDev` overload), `EnterPlaceAsync` / `LeavePlace`, `Release` / **`ReleaseLabel`** / **`ReleaseLabelRef`** (obsolete bool), `ReleaseAll`, `SpawnPrefab` / `Despawn`, `SetInstanceProvider`, `IsResourceLoaded`.
+
+**`AddressableAssetManager`:** `TryGetCached`, `LoadResourceAsync`, `LoadResourcesByLabelAsync`, **`PreloadLabelSync<T>`** / **`PreloadLabelAsync<T>`**, **`CountLabelLocationsAsync`** / **`CountLabelLocations`**, **`IsLabelLoaded`**, **`CopyLoadedLabels`**, `Release` / **`ReleaseLabel`** / **`ReleaseLabelRef`**, `ReleaseAll`.
+
+**Load group:** **`AddressableLabelLoader.Shared`**, `LoadGroup`, `Release`, `IsLoaded`, `TryGetOperation` — **`LoadRequest`**, **`LoadOperation`**, **`LabelLoadMode`**.
+
+**변경 없음 (0.3.0):** Play sync hit-only, `IPrefabInstanceProvider`, `EnterPlaceAsync` / `LeavePlace` 시맨틱, `AddressableLabels` = Demo·제네릭 type 상수만.
+
+상세 캐시·owner 규칙: 레포 `docs/architecture/Architecture_AddressableLayout.md` · `Architecture_BootFlow.md`.
 
 ## Tests
 
 | Test Runner 탭 | asmdef | 테스트 | 전제 |
 | --- | --- | --- | --- |
-| **Edit Mode** | `AddressableLayout.EditorTests` | `CacheOwnershipTests` · `PrefabInstanceProviderTests` | 없음 |
-| **Play Mode** | `AddressableLayout.PlayModeTests` | `DemoPlayModeTests` | Demo import · **부트 샘플 등록** |
+| **Edit Mode** | `AddressableLayout.EditorTests` | `CacheOwnershipTests` · `PrefabInstanceProviderTests` · `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests` | 없음 |
+| **Play Mode** | `AddressableLayout.PlayModeTests` | `DemoPlayModeTests` · `LabelLoaderPlayModeTests` · `LabelRefCountPlayModeTests` | Demo import · **부트 샘플 등록** |
+
+레포 루트 `scripts/verify.ps1` — PrepareDemo → Edit (**15**) → Play (**6**) 일괄 (2026-10-28 gate green).
 
 ## 레포 문서
 
-상세 불변조건·Architecture는 [GitHub 레포 README](https://github.com/monet5379/unity-addressable) 및 `docs/` 를 참고한다.
+상세 Architecture·ADR: [GitHub 레포 README](https://github.com/monet5379/unity-addressable) 및 `docs/` .
 
 ## License
 

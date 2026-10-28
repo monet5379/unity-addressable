@@ -4,13 +4,31 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-28
+
+### Added
+
+- **Runtime:** `AddressableLabelLoader` · `LoadRequest` · `LoadOperation` · `LabelLoadMode` — group id와 라벨 목록 sync/async 적재 · `CustomYieldInstruction` 진행률·완료 · `KeepResident` / `force` Release
+- **Runtime:** `ResourcesManager.PreloadTypeLabels` — type 라벨 동기 boot preload (`PreloadLabelSync` 위임)
+- **Runtime:** `AddressableAssetManager.PreloadLabelSync` / `PreloadLabelAsync` · `CountLabelLocationsAsync` / `CountLabelLocations` · `IsLabelLoaded` · `CopyLoadedLabels`
+- **Runtime:** 라벨 **ref-count** — load group·단일 preload acquire 겹침 시 공유 라벨 eviction 방지
+- **Tests:** `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests` · Play `LabelLoaderPlayModeTests` · `LabelRefCountPlayModeTests` · `CacheOwnershipTests` 확장
+
 ### Changed
 
+- **Runtime:** `ReleaseLabel` — canonical void API; `ReleaseLabelRef`는 한 릴리스 호환용 **obsolete** bool alias
+- **Runtime:** `AddressableLabelLoader.Shared` — `ResourcesManager.AssetManager`와 동일 캐시
 - **Editor:** 레이아웃 도구 — **경로** / **스모크** 탭. Demo **부트 샘플 등록**은 `Tools → Addressable Layout → Demo` 메뉴로 이동
+- **Docs:** README·Architecture — sync boot vs async Demo · load group · Dragon host parity 공개 표면
 
 ### Removed
 
 - **Editor:** 레이아웃 도구 **스모크** 탭 · `ForEditorSmoke` (Edit 검증은 `CacheOwnershipTests` 등 테스트로 대체)
+
+### Notes
+
+- **Git URL pin:** `#v0.3.0`. Demo `DemoPlayModeTests`는 **async** boot 회귀만 검증; 호스트 sync boot는 `PreloadTypeLabels` / `LoadGroup(LabelLoadMode.Sync)`를 선택한다.
+- **Ship gate:** `scripts/verify.ps1` — PrepareDemo · Edit 15/15 · Play 6/6 (2026-10-28).
 
 ## [0.2.0] - 2026-10-18
 

@@ -49,8 +49,10 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 | `AddressableAssetManager` | Addressables | 비동기 로드 · owner-set 캐시 · Direct/라벨 handle 분리 · PrimaryKey in-flight Task 공유 |
 | `CacheOwnership` | Addressables (internal) | PrimaryKey·alias 조회 · owner별 수명 — handle은 `AddressableAssetManager`가 소유 |
 | `AddressableLabels` | 계약 | 종류(`boot`, `JSON`, …) · Demo place 상수 |
+| `AddressableLabelLoader` | Play (load group) | `LoadRequest.Id` + 라벨 목록 sync/async · `KeepResident` / `force` Release |
+| `LoadRequest` / `LoadOperation` / `LabelLoadMode` | Play (load group) | 그룹 요청 · `CustomYieldInstruction` 진행률 · sync/async |
 | `IPrefabInstanceProvider` | Play (호스트) | `SpawnPrefab` / `Despawn` 인스턴스 생성·반환 — 기본 Instantiate/Destroy |
-| `ResourcesManager` | Play 파사드 | Path 분기 · sync hit-only · Spawn/Despawn (provider 경유) · place enter/leave |
+| `ResourcesManager` | Play 파사드 | Path 분기 · sync hit-only · `PreloadTypeLabels` · Spawn/Despawn (provider 경유) · place enter/leave |
 | `ResourcesManagerForEditor` | Edit 파사드 | AssetDatabase / settings 라벨 — **Play 캐시 미사용** |
 | `StringKeyedMap` | 직렬화 | JsonUtility용 filename→path 맵 |
 
@@ -108,6 +110,8 @@ flowchart TB
 
 `EnterPlaceAsync` / `LeavePlace`는 place 라벨 preload / `ReleaseLabel` 래퍼이다.
 
+**Host parity (0.3.0 ship)** — Dragon `TSResourcesManager`가 기대하는 공개 표면 prose 정리는 [패키지 README — Host parity](../../project/unity-addressable/Packages/com.monet5379.addressable-layout/README.md#host-parity-dragon-tsresourcesmanager-기대-표면)가 정본이다. Architecture는 캐시·owner 의미만 다룬다.
+
 ## 흐름 (Flow)
 
 *Play·Editor에서 Resource 층을 거치는 대표 경로만 적는다. 부트·Lookup·Editor 상세는 형제 Architecture를 본다.*
@@ -115,7 +119,7 @@ flowchart TB
 ### 런타임 흐름 (Runtime Flow)
 
 1. `PathManager.Load()` — PathMeta → 메모리 Lookup ([Architecture_BootFlow](Architecture_BootFlow.md))
-2. (선택) 종류·place 라벨 preload — `LoadResourcesByLabelAsync` / `EnterPlaceAsync`
+2. (선택) 종류·place 라벨 preload — `LoadResourcesByLabelAsync` / `PreloadTypeLabels` / `AddressableLabelLoader.LoadGroup` / `EnterPlaceAsync`
 3. `LoadResourceByName` / `LoadResource` / `SpawnPrefab` — path 종류에 따라 Resources vs 캐시 hit-only ([Architecture_Lookup](Architecture_Lookup.md))
 
 ### 에디터 흐름 (Editor Flow)
@@ -145,8 +149,8 @@ flowchart TB
 | Edit 레이아웃 도구 | `AddressableLayoutToolWindow` |
 | 계약 문구 | [루트 README](../../README.md) 불변조건 먼저 |
 
-- [ ] README 불변조건과 동기화
-- [ ] DemoPlayModeTests / CacheOwnershipTests
+- [x] README 불변조건과 동기화 (0.3.0 Host parity · label ref-count)
+- [x] `verify.ps1` Edit 15 / Play 6 · `CacheOwnershipTests` 확장 (2026-10-28)
 
 ## 관련 문서 (See also)
 

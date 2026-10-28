@@ -1,6 +1,6 @@
 # Spec: Addressable Layout 0.3.0 (Dragon host parity)
 
-Status: ready-for-agent
+Status: done (git tag `v0.3.0` · push는 커밋 후)
 
 GitHub: [#1](https://github.com/monet5379/unity-addressable/issues/1)
 
@@ -14,7 +14,7 @@ GitHub: [#1](https://github.com/monet5379/unity-addressable/issues/1)
 | 04 | [issues/04-verify-demo-regression.md](issues/04-verify-demo-regression.md) | [#5](https://github.com/monet5379/unity-addressable/issues/5) | #3, #4 |
 | 05 | [issues/05-release-0-3-0-docs-tag.md](issues/05-release-0-3-0-docs-tag.md) | [#6](https://github.com/monet5379/unity-addressable/issues/6) | #5 |
 
-Frontier: **#2** (unblocked).
+Frontier: **없음** — tickets 01–05 완료. 남은 작업: 릴리스 커밋 · annotated tag `v0.3.0` · (선택) push.
 
 ## Problem Statement
 

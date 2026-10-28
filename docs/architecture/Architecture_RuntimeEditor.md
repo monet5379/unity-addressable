@@ -81,7 +81,7 @@ pathOrAddress
 | Lookup JSON 갱신 | Editor Refresh (Play에서 하지 않음) |
 | Play sync hit 검증 | Play Mode + preload 후 `LoadResource` |
 
-**Verify** — Play: Test Runner **Play Mode** `DemoPlayModeTests` (`DemoPlayModeVerification`). Edit: `CacheOwnershipTests`.
+**Verify** — batchmode: repo `scripts/verify.ps1` (PrepareDemo → Edit **15** → Play **6**). Test Runner: Edit `AddressableLayout.EditorTests` · Play `AddressableLayout.PlayModeTests` (Demo import · **부트 샘플 등록** 전제). Demo async boot 회귀는 `DemoPlayModeTests` / `DemoPlayModeVerification`.
 
 ## 변경 가이드 (Change Guidelines)
 
@@ -92,8 +92,8 @@ pathOrAddress
 | Edit 파사드 | `ResourcesManagerForEditor.cs`, `AddressableLayoutToolWindow.cs` |
 | 레이아웃 도구 UI | `AddressableLayoutToolWindow.cs` |
 
-- [ ] README “Edit ≠ Play sync” 유지
-- [ ] `DemoPlayModeTests` · `CacheOwnershipTests`
+- [x] README “Edit ≠ Play sync” 유지 (0.3.0)
+- [x] `verify.ps1` · `DemoPlayModeTests` · `CacheOwnershipTests` (2026-10-28)
 
 ## 관련 문서 (See also)
 

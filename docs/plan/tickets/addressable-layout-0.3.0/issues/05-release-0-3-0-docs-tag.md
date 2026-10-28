@@ -4,13 +4,15 @@
 
 **Blocked by:** [04-verify-demo-regression](04-verify-demo-regression.md)
 
-**Status:** ready-for-agent
+**Status:** done (tag·push는 커밋 후)
 
 **GitHub:** [#6](https://github.com/monet5379/unity-addressable/issues/6) · **Parent:** [#1](https://github.com/monet5379/unity-addressable/issues/1) · [spec](../spec.md)
 
-- [ ] `package.json` version 0.3.0 · CHANGELOG [0.3.0] 항목
-- [ ] README 불변조건 + sync boot·load group API 요약
-- [ ] Architecture(BootFlow·AddressableLayout) 0.3.0 동기화
-- [ ] Host parity: LabelLoader·PreloadTypeLabels·ReleaseLabelRef alias 등 공개 API 목록(경로 덤프 없음)
-- [ ] git tag `v0.3.0` (사용자 요청 시 push는 별도)
-- [ ] Parent [#1](https://github.com/monet5379/unity-addressable/issues/1)에 완료 요약 댓글 (이슈 close는 선택)
+- [x] `package.json` version 0.3.0 · CHANGELOG [0.3.0] 항목
+- [x] README 불변조건 + sync boot·load group API 요약
+- [x] Architecture(BootFlow·AddressableLayout) 0.3.0 동기화
+- [x] Host parity: LabelLoader·PreloadTypeLabels·ReleaseLabelRef alias 등 공개 API 목록(경로 덤프 없음)
+- [ ] git tag `v0.3.0` (릴리스 커밋 후 · push는 별도)
+- [x] Parent [#1](https://github.com/monet5379/unity-addressable/issues/1)에 완료 요약 댓글 (2026-10-28)
+
+**Verify (docs ship gate):** `scripts/verify.ps1` — PrepareDemo · Edit **15/15** · Play **6/6** (2026-10-28 batchmode · Editor QA 동일)
