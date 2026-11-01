@@ -4,13 +4,15 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-02
+
 ### Removed
 
 - **Runtime:** `AddressableLabels` — type·place 라벨 문자열은 호스트 프로젝트 상수 (`string` API는 동일)
 
 ### Notes
 
-- **Breaking (0.x):** `#v0.7.0` pin에서 `AddressableLabels.*` 참조를 호스트 라벨 상수로 교체한다.
+- **Breaking (0.x):** `#v0.7.0` pin에서 `AddressableLabels.*` 참조를 호스트 라벨 상수로 교체한다. Git URL은 `#v0.8.0`.
 
 ## [0.7.0] - 2026-11-01
 
