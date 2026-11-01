@@ -14,7 +14,7 @@
 
 - `ResourcesManager` (Play) vs `ResourcesManagerForEditor` (Edit)
 - `AddressableAssetManager` · `CacheOwnership` — owner-set 캐시·alias · Direct/라벨 handle · 릴리즈 API
-- Editor: **레이아웃 도구** 창 (PathMeta 갱신) · Demo **부트 샘플 등록** 메뉴
+- Editor: **레이아웃 도구** 창 (PathMeta **갱신**)
 
 ### 제외 범위 (Out of Scope)
 
@@ -63,8 +63,7 @@ pathOrAddress
 
 | 진입점 | 동작 |
 | --- | --- |
-| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신 |
-| **Tools → Addressable Layout → Demo → 부트 샘플 등록** | Demo Sample 등록 |
+| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta **갱신** (`PathMetaWriter.Write()`) |
 
 `PathMetaWriter.Write()`는 Edit Mode 전용 디스크 스캔·`PathMetaData.json` 쓰기이다. 갱신 직후 **`PathManager.ApplyBuiltDatabase`** 로 Editor/Play Lookup 메모리를 동기화한다. **`Application.isPlaying`이면 파일·메모리를 건드리지 않는다.** Player 빌드는 packaged JSON만 `PathManager.Load()`한다. (0.5.0: `PathManager.UpdatePathMetadata()` 제거 — 호스트·툴은 Editor `PathMetaWriter.Write()`만 호출.)
 
@@ -81,7 +80,7 @@ pathOrAddress
 | Lookup JSON 갱신 | Editor Refresh (Play에서 하지 않음) |
 | Play sync hit 검증 | Play Mode + preload 후 `LoadResource` |
 
-**Verify** — batchmode: repo `scripts/verify.ps1` (PrepareDemo → Edit **34** → Play **6**). Test Runner: Edit `AddressableLayout.EditorTests` · Play `AddressableLayout.PlayModeTests` (Demo import · **부트 샘플 등록** 전제). Demo async boot 회귀는 `DemoPlayModeTests` / `DemoPlayModeVerification`.
+**Verify** — batchmode: repo `scripts/verify.ps1` (`prepare-test-catalog` → Edit **34** → Play **6**). Test Runner: Edit `AddressableLayout.EditorTests` · Play `AddressableLayout.PlayModeTests` (**레포 dev** — `AddressableLayoutDev` fixture · `PrepareTestCatalog` 전제). async boot 회귀는 `DemoPlayModeTests` / `DemoPlayModeVerification`.
 
 ## 변경 가이드 (Change Guidelines)
 

@@ -17,7 +17,7 @@ _Avoid_: Addressables-only scan
 ### Labels and boot
 
 **Type label**:
-Asset **종류** 단위 Addressables 라벨(`boot`, `JSON`, `Scriptable`, `ui` 등). 부트·Json/SO preload·Call-site preload에 쓰인다. 패키지 `AddressableLabels`는 Demo·제네릭 상수만 노출한다.
+Asset **종류** 단위 Addressables 라벨(`boot`, `JSON`, `Scriptable`, `ui` 등). 부트·Json/SO preload·Call-site preload에 쓰인다. 패키지 `AddressableLabels`는 **제네릭 type 상수**만 노출한다 (ship place·enemy enum 없음).
 _Avoid_: ship place 라벨, Area/Enemy enum을 UPM에 넣기
 
 **Place label**:
@@ -25,7 +25,7 @@ _Avoid_: ship place 라벨, Area/Enemy enum을 UPM에 넣기
 _Avoid_: type label, boot label
 
 **Boot preload**:
-`PathManager.Load()` 이후 gameplay sync 전에 type label(예: `boot`)을 캐시에 올리는 단계. Demo는 async preload; 0.3.0부터 호스트는 sync boot API도 선택할 수 있다(0.3.0 cut [#1](https://github.com/monet5379/unity-addressable/issues/1)).
+`PathManager.Load()` 이후 gameplay sync 전에 type label(예: `boot`)을 캐시에 올리는 단계. 이 레포 dev Play 테스트는 async preload; 0.3.0부터 호스트는 sync boot API도 선택할 수 있다(0.3.0 cut [#1](https://github.com/monet5379/unity-addressable/issues/1)).
 _Avoid_: place preload, sync Addressables fetch on gameplay miss
 
 ### Load groups (0.3.0)

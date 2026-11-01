@@ -1,9 +1,10 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  로컬 검증: PrepareDemo → Edit Mode tests → Play Mode tests (단계별 Unity batchmode, 실패 시 중단).
+  로컬 검증: prepare-test-catalog → Edit Mode tests → Play Mode tests (단계별 Unity batchmode, 실패 시 중단).
 
 .DESCRIPTION
+  이 레포 dev 프로젝트 전용입니다. UPM 소비자 프로젝트에는 포함되지 않습니다.
   CI·Addressables 콘텐츠 빌드는 포함하지 않습니다. UNITY_EXE가 없으면 Hub Editor 경로(ProjectVersion.txt 버전)를 사용합니다.
 #>
 Set-StrictMode -Version Latest
@@ -105,8 +106,8 @@ $UnityExe = Resolve-UnityExe
 Write-Host "Unity: $UnityExe"
 Write-Host "Project: $ProjectPath"
 
-Invoke-UnityStep -StepName 'prepare-demo' -StepArgs @(
-    '-executeMethod', 'AddressableLayoutVerify.PrepareDemo',
+Invoke-UnityStep -StepName 'prepare-test-catalog' -StepArgs @(
+    '-executeMethod', 'AddressableLayoutDevVerify.PrepareTestCatalog',
     '-quit'
 )
 

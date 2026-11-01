@@ -4,9 +4,27 @@
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-01
+
 ### Removed
 
-- **Docs:** `docs/adr/` · `docs/reference/` · `docs/plan/` · `docs/research/` — 실행·구조 정본은 루트 [README](https://github.com/monet5379/unity-addressable/blob/main/README.md) · [CONTEXT.md](https://github.com/monet5379/unity-addressable/blob/main/CONTEXT.md) · [docs/architecture/](https://github.com/monet5379/unity-addressable/tree/main/docs/architecture)만 유지
+- **Samples~ / PM Demo Sample** — Package Manager Samples 항목·`Samples~/Demo` export 제거
+- **Runtime:** `AddressableLabels.DemoAreaA` · `AddressableLabels.DemoAreaB` — place 라벨은 호스트 프로젝트 문자열 사용
+- **Editor:** `AddressableLayoutVerify` · `DemoBootSampleRegistration` · 레이아웃 도구 **부트 샘플** UI
+- **Tests:** 패키지 `Tests/` — 레포 dev `Assets/AddressableLayoutDev/`로 이동 (UPM 소비자에게 테스트 asmdef 미포함)
+
+### Changed
+
+- **Editor:** **레이아웃 도구** — PathMeta **갱신**만 (단일 UI)
+- **Dev verify:** `scripts/verify.ps1` — `AddressableLayoutDevVerify.PrepareTestCatalog` (`prepare-test-catalog` 단계)
+
+### Notes
+
+- **Breaking (0.x):** `#v0.6.0` 이하 pin에서 `AddressableLabels.DemoArea*` 참조를 호스트 place 상수로 교체한다. Git URL은 `#v0.7.0`.
+
+### Removed (docs)
+
+- **Docs:** `docs/adr/` · `docs/reference/` · `docs/plan/` · `docs/research/` — 실행·구조 정본은 루트 README · CONTEXT · `docs/architecture/`만 유지
 
 ## [0.6.0] - 2026-11-01
 

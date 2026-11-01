@@ -41,7 +41,7 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 | `Packages/.../Runtime/` | `AddressableLayout.Runtime` | Play: Lookup · Addressables 캐시 · `ResourcesManager` |
 | `Packages/.../Editor/` | `AddressableLayout.Editor` | PathMeta 갱신 · 레이아웃 도구 창 · `*ForEditor` |
 | `Samples~/Demo/` | Demo asmdef | Demo 검증 — **출시 복사 대상 아님** |
-| `Tests/Editor/` · `Tests/PlayMode/` | EditorTests · PlayModeTests | `PathManagerEditTests` · `CacheOwnershipTests` · `DemoPlayModeTests` |
+| `Assets/AddressableLayoutDev/Tests/Editor/` · `Assets/AddressableLayoutDev/Tests/PlayMode/` | EditorTests · PlayModeTests | `PathManagerEditTests` · `CacheOwnershipTests` · `DemoPlayModeTests` |
 
 | 타입 | 레이어 | 책임 |
 | --- | --- | --- |

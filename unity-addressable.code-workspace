@@ -6,6 +6,12 @@
 		},
 		{
 			"path": "../unity-studio-kit"
+		},
+		{
+			"path": "../dragon-is-dead"
+		},
+		{
+			"path": "../unity-framework"
 		}
 	],
 	"settings": {}

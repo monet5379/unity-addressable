@@ -4,7 +4,7 @@
 
 *Play Mode에서 PathMeta 로드 → 라벨 preload → gameplay sync hit-only까지의 권장 순서를 정의한다.*
 
-Demo Sample의 `DemoPlayModeVerification`(Test Runner **Play Mode** `DemoPlayModeTests`; 수동 Play는 `DemoAddressableHost`)이 같은 순서를 검증한다. 계약 정본은 [루트 README](../../README.md)이다.
+Demo Sample의 `DemoPlayModeVerification`(Test Runner **Play Mode** `DemoPlayModeTests`; 수동 Play는 `DemoAddressableHost`)이 같은 순서를 검증한다. 코드·에셋은 **레포 dev** `Assets/AddressableLayoutDev`·`Assets/Addressables/Demo`에만 있다. 계약 정본은 [루트 README](../../README.md)이다.
 
 ## 책임과 경계 (Responsibilities & Boundaries)
 
@@ -30,7 +30,7 @@ Demo Sample의 `DemoPlayModeVerification`(Test Runner **Play Mode** `DemoPlayMod
 | `PathManager` | `Load()` — JSON Lookup 준비 |
 | `ResourcesManager` | 라벨 preload · sync load · Spawn · place enter/leave |
 | `AddressableAssetManager` | preload 시 캐시·alias · `LoadResourceAsync` PrimaryKey in-flight 공유 · sync hit-only 근거 |
-| `AddressableLabels` | `boot`, `JSON`, … 및 Demo place 상수 |
+| `AddressableLabels` | `boot`, `JSON`, … 등 **type** 상수 (place는 호스트 문자열) |
 | `AddressableLabelGroupManager` / `LoadRequest` | group id·라벨 목록 preload · `KeepResident` / `force` Release |
 
 ## 흐름 (Flow)
@@ -89,9 +89,9 @@ sequenceDiagram
 - Addressables 경로: gameplay sync는 **preload 범위 안에서만** hit 기대
 - **같은 PrimaryKey `LoadResourceAsync` 병렬** — 한 번의 Addressables load + 공유 Task; preload 완료 전 sync는 여전히 miss(null)
 - `EnterPlaceAsync` 완료 전 place 에셋 sync load → null
-- 라벨 preload 실패 시: Addressable Groups 라벨 · Play Mode Script(Fast Mode) · Demo **부트 샘플 등록**
+- 라벨 preload 실패 시: Addressable Groups 라벨 · Play Mode Script(Fast Mode) · dev **`PrepareTestCatalog`** 또는 `DemoAddressableSetup.RegisterBootSample`
 
-Play 확인: Demo import → **Demo → 부트 샘플 등록** → Test Runner **Play Mode** (`DemoPlayModeTests` 등) 또는 repo 루트 `scripts/verify.ps1` (PrepareDemo · Edit 25 · Play 6). Edit: `AddressableLayout.EditorTests` ([Architecture_RuntimeEditor](Architecture_RuntimeEditor.md)).
+Play 확인: 레포 dev — `DemoAddressableSetup.RegisterBootSample()` (또는 **`scripts/verify.ps1`** 의 `prepare-test-catalog`) → Test Runner **Play Mode** (`DemoPlayModeTests` 등). batchmode 전체: `prepare-test-catalog` · Edit **34** · Play **6**. Edit: `AddressableLayout.EditorTests` ([Architecture_RuntimeEditor](Architecture_RuntimeEditor.md)). 수동 Play `DemoAddressableHost`는 dev optional.
 
 ## 변경 가이드 (Change Guidelines)
 

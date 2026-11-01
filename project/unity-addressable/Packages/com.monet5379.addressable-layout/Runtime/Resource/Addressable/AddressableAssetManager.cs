@@ -338,7 +338,7 @@ namespace AddressableLayout.Resource
                 _labelRefs.Rollback(label);
                 Debug.LogError(
                     $"[AddressableLayout] 라벨 '{label}'을(를) 찾을 수 없습니다 ({typeof(T).Name}). {ex.Message}\n" +
-                    "Unity: Tools → Addressable Layout → Demo → 부트 샘플 등록, " +
+                    "Unity: Tools → Addressable Layout (레이아웃 도구) → 부트 샘플 등록, " +
                     "Addressables Play Mode Script → Use Asset Database (Fast Mode).");
                 return Array.Empty<T>();
             }
@@ -383,7 +383,7 @@ namespace AddressableLayout.Resource
                 _labelRefs.Rollback(label);
                 Debug.LogError(
                     $"[AddressableLayout] 라벨 '{label}'을(를) 찾을 수 없습니다 ({typeof(T).Name}). {ex.Message}\n" +
-                    "Unity: Tools → Addressable Layout → Demo → 부트 샘플 등록, " +
+                    "Unity: Tools → Addressable Layout (레이아웃 도구) → 부트 샘플 등록, " +
                     "Addressables Play Mode Script → Use Asset Database (Fast Mode).");
                 return Array.Empty<T>();
             }

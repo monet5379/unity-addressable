@@ -15,7 +15,7 @@
 2. 아래 URL 입력 (태그는 릴리스 버전에 맞게 변경):
 
 ```text
-https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.5.0
+https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.7.0
 ```
 
 ### 로컬 임베디드
@@ -37,18 +37,7 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 | 메뉴 | 설명 |
 | --- | --- |
-| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta 갱신 |
-| **Tools → Addressable Layout → Demo → 부트 샘플 등록** | Demo Sample Addressables·PathMeta 등록 |
-
-## Demo 샘플 (선택)
-
-Package Manager에서 **Addressable Layout → Samples → Demo → Import** 후:
-
-1. **Tools → Addressable Layout → Demo → 부트 샘플 등록** (PathMeta 갱신 포함)
-2. 필요 시 **갱신**만 다시 실행
-3. **Window → General → Test Runner → Play Mode** — `DemoPlayModeTests` 실행 (또는 Play로 `DemoAddressableHost` 수동 확인)
-
-Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F 로직은 `DemoPlayModeVerification`에 있다. **Demo Play 검증은 async 라벨 preload 부트**를 유지한다. 타이틀 sync boot는 아래 API를 쓰며 Demo 회귀와 별개이다.
+| **Tools → Addressable Layout → 레이아웃 도구** | PathMeta **갱신** (Resources·Addressables 디스크 스캔) |
 
 ## 불변조건 (요약)
 
@@ -61,11 +50,11 @@ Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F �
 - **`LoadRequest.AssetType`** 은 `(label, typeof(T))` handle 키와 맞출 Addressables asset type (단일 preload·그룹·`LoadResourcesByLabelAsync<T>`는 **같은 T** 권장)
 - **`SpawnPrefab` / `Despawn`:** prefab asset은 패키지, **인스턴스**는 `IPrefabInstanceProvider`. `Release` / `ReleaseLabel` / `ReleaseAll` 전 호스트가 인스턴스(풀 비활성 포함) 정리
 
-## Boot: async Demo vs sync 호스트
+## Boot: async vs sync 호스트
 
 | 경로 | 용도 |
 | --- | --- |
-| `LoadResourcesByLabelAsync<T>` · `EnterPlaceAsync<T>` | async preload (Demo `DemoPlayModeTests` 기본) |
+| `LoadResourcesByLabelAsync<T>` · `EnterPlaceAsync<T>` | async preload (레포 dev Play 테스트 기본) |
 | `ResourcesManager.PreloadTypeLabels` | type 라벨 **동기** boot — 내부 `PreloadLabelSync<Object>` |
 | `AddressableAssetManager.PreloadLabelSync<T>` / `PreloadLabelAsync<T>` | 단일 라벨 sync 또는 coroutine/async 파이프라인 |
 | `AddressableLabelGroupManager.LoadGroup(LoadRequest)` | group id + 라벨 목록. `LabelLoadMode.Sync`면 Play에서 첫 gameplay frame 전 완료 가능; `Async`는 runner coroutine |
@@ -86,7 +75,7 @@ Demo는 출시 카탈로그가 아닌 **놀이터**이다. 마일스톤 A–F �
 | `PathManager` | 파일명 → 경로 Lookup · PathMeta `Load()` |
 | `PathMetaWriter` (Editor) | PathMeta 디스크 스캔 · `PathMetaData.json` 갱신 (Play 중 금지) |
 | `AddressableAssetManager` | Addressables 로드 · owner-set 캐시 · Direct/라벨 handle · label preload/ref-count |
-| `AddressableLabels` | 종류 / Demo place 라벨 상수 (ship place·enemy enum 없음) |
+| `AddressableLabels` | **type** 라벨 상수 (`boot`, `JSON`, … — ship place·enemy enum 없음) |
 | `AddressableLabelGroupManager` | load group 적재·release |
 | `LoadRequest` / `LoadOperation` / `LabelLoadMode` | 그룹 요청·진행·sync/async |
 | `IPrefabInstanceProvider` | `SpawnPrefab` / `Despawn` 인스턴스 (호스트 구현) |
@@ -106,18 +95,20 @@ Project Dragon 임베드 Layout 소비 시 맞추는 **공개 API** prose 목록
 
 **Load group:** **`AddressableLabelGroupManager.Shared`**, `LoadGroup`, `Release`, `IsLoaded`, `TryGetOperation` — **`LoadRequest`**, **`LoadOperation`**, **`LabelLoadMode`**.
 
-**API 의미 (0.3.0 이후 동일):** Play sync hit-only, `IPrefabInstanceProvider`, `EnterPlaceAsync` / `LeavePlace`, `AddressableLabels` = Demo·제네릭 type 상수만. **0.4.0:** load group 공개 타입명만 `AddressableLabelLoader` → `AddressableLabelGroupManager` (CHANGELOG [0.4.0]).
+**API 의미 (0.3.0 이후 동일):** Play sync hit-only, `IPrefabInstanceProvider`, `EnterPlaceAsync` / `LeavePlace`, `AddressableLabels` = type 상수만. **0.4.0:** load group 공개 타입명만 `AddressableLabelLoader` → `AddressableLabelGroupManager` (CHANGELOG [0.4.0]). **0.7.0:** `AddressableLabels.DemoArea*` 제거 — place 라벨은 호스트 문자열.
 
 상세 캐시·owner 규칙: 레포 `docs/architecture/Architecture_AddressableLayout.md` · `Architecture_BootFlow.md`.
 
-## Tests
+## Tests (레포 dev 전용)
+
+통합 테스트 asmdef·fixture는 UPM에 포함되지 않는다. **`project/unity-addressable/Assets/AddressableLayoutDev/`** 에 `AddressableLayout.EditorTests` · `AddressableLayout.PlayModeTests` · Demo fixture가 있다.
 
 | Test Runner 탭 | asmdef | 테스트 | 전제 |
 | --- | --- | --- | --- |
-| **Edit Mode** | `AddressableLayout.EditorTests` | `PathManagerEditTests` · `CacheOwnershipTests` · `PrefabInstanceProviderTests` · `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests` · **`SyncCacheSeedTests`** | Demo import 시 `Load_CalledTwice` 등 일부 PathMeta 테스트 활성 |
-| **Play Mode** | `AddressableLayout.PlayModeTests` | `DemoPlayModeTests` · `LabelLoaderPlayModeTests` · `LabelRefCountPlayModeTests` | Demo import · **부트 샘플 등록** |
+| **Edit Mode** | `AddressableLayout.EditorTests` | `PathManagerEditTests` · `CacheOwnershipTests` · … · `SyncCacheSeedTests` | `PrepareTestCatalog` 후 PathMeta 일부 케이스 활성 |
+| **Play Mode** | `AddressableLayout.PlayModeTests` | `DemoPlayModeTests` · `LabelLoaderPlayModeTests` · `LabelRefCountPlayModeTests` | dev catalog (`RegisterBootSample` / verify `prepare-test-catalog`) |
 
-레포 루트 `scripts/verify.ps1` — PrepareDemo → Edit (**34**) → Play (**6**) 일괄 (`PathManagerEditTests` 포함).
+레포 루트 `scripts/verify.ps1` — `prepare-test-catalog` → Edit (**34**) → Play (**6**).
 
 ## 레포 문서
 
