@@ -64,6 +64,10 @@ _Avoid_: load group id를 CacheOwnership owner로 쓰기(owner는 **라벨**; gr
 `(label, typeof(T))` 키로 `AddressableAssetManager`가 보관하는 `LoadAssetsAsync` handle. ref-count 0일 때 해제 대상이다.
 _Avoid_: Direct handle과 혼동
 
+**Sync cache seed**:
+Edit Mode 전용 `RegisterSyncCacheHit` / `ClearSyncCacheSeeds` / `EditModeSyncCacheSeed.Seed`가 `CacheOwnership.Seed` owner로 Play 캐시에 넣는 **테스트 fixture** preload. AssetDatabase 라벨 순회로 Addressables path를 hit-only sync에 올린다.
+_Avoid_: Play gameplay miss 대체, `PreloadTypeLabels`·boot preload와 동일 취급
+
 ### Facade
 
 **ResourcesManager**:

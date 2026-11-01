@@ -104,6 +104,13 @@ namespace AddressableLayout.Resource
 
         public static void ReleaseAll() => Addressables.ReleaseAll();
 
+#if UNITY_EDITOR
+        public static void RegisterSyncCacheHit(string pathOrAddress, UnityEngine.Object asset) =>
+            Addressables.RegisterSyncCacheHit(pathOrAddress, asset);
+
+        public static void ClearSyncCacheSeeds() => Addressables.ClearSyncCacheSeeds();
+#endif
+
         public static void PreloadTypeLabels(params string[] labels)
         {
             PreloadTypeLabels(labels, failOnEmptyInDev: false);
@@ -172,18 +179,6 @@ namespace AddressableLayout.Resource
             }
 
             _instanceProvider.Despawn(instance);
-        }
-
-        private sealed class InstantiateProvider : IPrefabInstanceProvider
-        {
-            internal static readonly InstantiateProvider Instance = new();
-
-            public GameObject Spawn(GameObject prefab, Transform parent) =>
-                parent != null
-                    ? UnityEngine.Object.Instantiate(prefab, parent)
-                    : UnityEngine.Object.Instantiate(prefab);
-
-            public void Despawn(GameObject instance) => UnityEngine.Object.Destroy(instance);
         }
     }
 }

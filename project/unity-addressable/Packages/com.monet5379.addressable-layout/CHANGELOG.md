@@ -8,6 +8,14 @@
 
 - **Docs:** `docs/adr/` · `docs/reference/` · `docs/plan/` · `docs/research/` — 실행·구조 정본은 루트 [README](https://github.com/monet5379/unity-addressable/blob/main/README.md) · [CONTEXT.md](https://github.com/monet5379/unity-addressable/blob/main/CONTEXT.md) · [docs/architecture/](https://github.com/monet5379/unity-addressable/tree/main/docs/architecture)만 유지
 
+## [0.6.0] - 2026-11-01
+
+### Added
+
+- **Runtime (Editor):** `CacheOwnership.Seed` · `AddressableAssetManager.RegisterSyncCacheHit` / `ClearSyncCacheSeeds` · `ResourcesManager` 위임 — EditMode fixture용 sync cache seed (Play miss 대체 아님)
+- **Editor:** `ResourcesManagerForEditor.ForEachLabeledAsset` · `EditModeSyncCacheSeed.Seed` · `PathMetaValidation.FindDiskViolations` / `FindLabelsWithoutEntries` (호스트 EditMode 테스트용)
+- **Tests:** `SyncCacheSeedTests` (Edit Mode)
+
 ## [0.5.0] - 2026-10-28
 
 ### Added

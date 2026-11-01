@@ -229,6 +229,23 @@ namespace AddressableLayout.Resource
             _labelRefs.CopyTo(destination);
         }
 
+#if UNITY_EDITOR
+        public void RegisterSyncCacheHit(string pathOrAddress, UnityEngine.Object asset)
+        {
+            if (string.IsNullOrEmpty(pathOrAddress) || asset == null)
+            {
+                return;
+            }
+
+            _cache.Add(pathOrAddress, asset, CacheOwnership.Seed);
+        }
+
+        public void ClearSyncCacheSeeds()
+        {
+            _cache.ReleaseOwner(CacheOwnership.Seed);
+        }
+#endif
+
         #region Release
 
         public void Release(string key)

@@ -28,8 +28,8 @@
 | 실행 | Player / Play Mode | Edit Mode |
 | Addressables 단일 | 캐시 hit-only sync · async는 Addressables API | `AssetDatabase.LoadAssetAtPath` |
 | Resources leaf | `Resources.Load` | `Resources.Load` |
-| 라벨 로드 | `LoadResourcesByLabelAsync` → **Play 캐시 채움** | `LoadResourcesByLabelForEditor` → settings 엔트리 + AssetDatabase |
-| Play 캐시 | static `AddressableAssetManager` | **채우지 않음** |
+| 라벨 로드 | `LoadResourcesByLabelAsync` → **Play 캐시 채움** | `LoadResourcesByLabelForEditor` · `ForEachLabeledAsset` → settings 엔트리 + AssetDatabase |
+| Play 캐시 | static `AddressableAssetManager` | **기본적으로 채우지 않음** · EditMode 테스트는 `RegisterSyncCacheHit` / `EditModeSyncCacheSeed`로 **Seed owner**만 주입 |
 
 **Play 캐시** — 객체·소유자는 `CacheOwnership`(PrimaryKey + alias + owner-set). Addressables handle은 `AddressableAssetManager`가 `_directHandles`(Direct owner)와 `_labelHandles`(`(label, typeof(T))`)로 분리한다. `LoadResourceAsync`는 PrimaryKey별 `_loadingTasks`로 in-flight load를 합치고, Direct handle은 PrimaryKey당 하나만 유지한다. `LoadResourcesByLabelAsync`는 동일 `(label, Type)` handle을 재사용한다. `Release`는 Direct owner와 `_directHandles`만, `ReleaseLabel`은 해당 라벨의 `_labelHandles`와 owner만 제거한다(공유 PrimaryKey는 다른 owner가 남으면 sync hit 유지). `ReleaseAll`은 handle 전부 해제·캐시 비우기·`_generation` 증가로 stale async 완료가 캐시에 재진입하지 않게 한다. 상세 맵 표는 [Architecture_AddressableLayout](Architecture_AddressableLayout.md)를 본다.
 
@@ -81,7 +81,7 @@ pathOrAddress
 | Lookup JSON 갱신 | Editor Refresh (Play에서 하지 않음) |
 | Play sync hit 검증 | Play Mode + preload 후 `LoadResource` |
 
-**Verify** — batchmode: repo `scripts/verify.ps1` (PrepareDemo → Edit **25** → Play **6**). Test Runner: Edit `AddressableLayout.EditorTests` · Play `AddressableLayout.PlayModeTests` (Demo import · **부트 샘플 등록** 전제). Demo async boot 회귀는 `DemoPlayModeTests` / `DemoPlayModeVerification`.
+**Verify** — batchmode: repo `scripts/verify.ps1` (PrepareDemo → Edit **34** → Play **6**). Test Runner: Edit `AddressableLayout.EditorTests` · Play `AddressableLayout.PlayModeTests` (Demo import · **부트 샘플 등록** 전제). Demo async boot 회귀는 `DemoPlayModeTests` / `DemoPlayModeVerification`.
 
 ## 변경 가이드 (Change Guidelines)
 

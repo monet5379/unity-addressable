@@ -7,6 +7,7 @@ namespace AddressableLayout.Resource
     internal sealed class CacheOwnership
     {
         public const string Direct = "\0direct";
+        public const string Seed = "\0seed";
 
         private readonly Dictionary<string, Entry> _entries = new();
         private readonly Dictionary<string, string> _keyToPrimary = new();

@@ -16,7 +16,7 @@ namespace AddressableLayout.Editor
         public const string TargetPath =
             ResourcesFolderName + "/" + PathManager.PathMetaResourcesLoadKey + ".json";
 
-        private static readonly HashSet<string> IgnoreExtensionSet = new(System.StringComparer.OrdinalIgnoreCase)
+        internal static readonly HashSet<string> IgnoreExtensionSet = new(System.StringComparer.OrdinalIgnoreCase)
         {
             ".meta",
             ".shader",
@@ -158,7 +158,7 @@ namespace AddressableLayout.Editor
                 .EndsWith("/" + TargetPath, System.StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool ShouldIgnoreFile(string unixFilePath)
+        internal static bool ShouldIgnoreFile(string unixFilePath)
         {
             return IgnoreExtensionSet.Contains(Path.GetExtension(unixFilePath));
         }

@@ -9,7 +9,7 @@ Unity Addressables용 **Resource 층** UPM 패키지(`com.monet5379.addressable-
 **Package Manager → Install package from git URL:**
 
 ```text
-https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.5.0
+https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressable/Packages/com.monet5379.addressable-layout#v0.6.0
 ```
 
 1. **`Assets/Addressables/`** 폴더를 만든다. (단수 `Addressable/` 금지)
@@ -25,7 +25,7 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 
 Git·CI·Addressables **콘텐츠 빌드** 없이, 위 Test Runner 절차와 같은 순서를 batchmode로 한 번에 돌린다.
 
-1. Edit Mode — `AddressableLayout.EditorTests` (`PathManagerEditTests` · `CacheOwnershipTests` · `PrefabInstanceProviderTests` · `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests`) — 기대 **25** tests
+1. Edit Mode — `AddressableLayout.EditorTests` (`PathManagerEditTests` · `CacheOwnershipTests` · `PrefabInstanceProviderTests` · `AddressableLabelLoaderEditTests` · `AddressableAssetManagerRefCountTests` · `SyncCacheSeedTests`) — 기대 **34** tests
 2. Demo 준비 — `AddressableLayoutVerify.PrepareDemo` (`RegisterBootSample`, Fast Mode)
 3. Play Mode — `AddressableLayout.PlayModeTests` (`DemoPlayModeTests` · `LabelLoaderPlayModeTests` · `LabelRefCountPlayModeTests`) — 기대 **6** tests
 
@@ -48,7 +48,7 @@ Demo Sample이 `Assets/Samples/...`에 없으면 2단계가 실패한다 (소비
 - **동기 `LoadResource` (Play) — Addressables path = 캐시 hit만** — miss는 null. preload 또는 `LoadResourceAsync`. **Resources leaf**는 이관 중 `Resources.Load`.
 - **Play 캐시 소유권** — `LoadResourceAsync` = Direct owner, 라벨 preload = 해당 라벨 owner, 동기 `LoadResource` = 빌림(소유 없음). PrimaryKey·alias는 **마지막 owner 해제 시에만** 캐시에서 제거. **라벨 ref-count (0.3.0):** acquire마다 ref++; `ReleaseLabel`은 ref 1 감소·0일 때 eviction; ref 밖 라벨 release는 no-op. `Release` / `ReleaseLabel`은 예외 없이 멱등.
 - **Boot 모드** — Demo `DemoPlayModeTests`는 **async** preload 회귀. 호스트 sync boot는 `PreloadTypeLabels` · `PreloadLabelSync` · `AddressableLabelGroupManager.LoadGroup(Sync)` (패키지 README Host parity).
-- **Edit `*ForEditor` ≠ Play sync** — Edit API는 Play `AddressableAssetManager` 캐시를 채우지 않는다.
+- **Edit `*ForEditor` ≠ Play sync** — Edit API는 Play `AddressableAssetManager` 캐시를 채우지 않는다. **`RegisterSyncCacheHit` / `EditModeSyncCacheSeed`** 는 EditMode 테스트 fixture 전용이며 Play preload miss 대체가 아니다.
 - **Lookup 전 `PathManager.Load()`** — PathMeta → (선택) 라벨 preload → gameplay.
 - **폴더 OK / 라벨 없음** — path `*ForEditor`는 될 수 있으나 라벨 미할당이면 라벨 로드는 실패 또는 빈 목록.
 - **이중 스캔 시 Resources·Addressables 동일 파일명 금지** — 이관 후 Resources 쪽 삭제 + Refresh.

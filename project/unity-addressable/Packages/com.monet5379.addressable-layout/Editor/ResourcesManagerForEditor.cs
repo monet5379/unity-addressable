@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AddressableLayout.Editor;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -25,11 +26,11 @@ namespace AddressableLayout.Resource
             return AssetDatabase.LoadAssetAtPath<T>(pathOrAddress);
         }
 
-        public static IList<T> LoadResourcesByLabelForEditor<T>(string label) where T : UnityEngine.Object
+        public static void ForEachLabeledAsset(string label, Action<string, UnityEngine.Object> onAsset)
         {
-            if (string.IsNullOrEmpty(label))
+            if (string.IsNullOrEmpty(label) || onAsset == null)
             {
-                return Array.Empty<T>();
+                return;
             }
 
             AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -37,10 +38,9 @@ namespace AddressableLayout.Resource
             {
                 Debug.LogWarning(
                     "[AddressableLayout] AddressableAssetSettings 없음 (ForEditor 라벨 로드).");
-                return Array.Empty<T>();
+                return;
             }
 
-            List<T> results = new();
             foreach (AddressableAssetGroup group in settings.groups)
             {
                 if (group == null)
@@ -55,13 +55,38 @@ namespace AddressableLayout.Resource
                         continue;
                     }
 
-                    T asset = AssetDatabase.LoadAssetAtPath<T>(entry.AssetPath);
-                    if (asset != null)
+                    string assetPath = entry.AssetPath;
+                    if (string.IsNullOrEmpty(assetPath))
                     {
-                        results.Add(asset);
+                        continue;
                     }
+
+                    UnityEngine.Object asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetPath);
+                    if (asset == null)
+                    {
+                        continue;
+                    }
+
+                    onAsset(PathMetaWriter.ToUnixPath(assetPath), asset);
                 }
             }
+        }
+
+        public static IList<T> LoadResourcesByLabelForEditor<T>(string label) where T : UnityEngine.Object
+        {
+            if (string.IsNullOrEmpty(label))
+            {
+                return Array.Empty<T>();
+            }
+
+            List<T> results = new();
+            ForEachLabeledAsset(label, (_, asset) =>
+            {
+                if (asset is T typed)
+                {
+                    results.Add(typed);
+                }
+            });
 
             return results;
         }
