@@ -17,7 +17,7 @@ _Avoid_: Addressables-only scan
 ### Labels and boot
 
 **Type label**:
-Asset **종류** 단위 Addressables 라벨(`boot`, `JSON`, `Scriptable`, `ui` 등). 부트·Json/SO preload·Call-site preload에 쓰인다. 패키지 `AddressableLabels`는 **제네릭 type 상수**만 노출한다 (ship place·enemy enum 없음).
+Asset **종류** 단위 Addressables 라벨(`boot`, `JSON`, `Scriptable`, `ui` 등). 부트·Json/SO preload·Call-site preload에 쓰인다. **문자열은 호스트 프로젝트 상수**로 정의한다 (UPM에 ship place·enemy enum·공용 `AddressableLabels` 없음).
 _Avoid_: ship place 라벨, Area/Enemy enum을 UPM에 넣기
 
 **Place label**:

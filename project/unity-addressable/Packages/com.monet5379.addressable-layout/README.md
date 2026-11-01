@@ -75,7 +75,6 @@ https://github.com/monet5379/unity-addressable.git?path=/project/unity-addressab
 | `PathManager` | 파일명 → 경로 Lookup · PathMeta `Load()` |
 | `PathMetaWriter` (Editor) | PathMeta 디스크 스캔 · `PathMetaData.json` 갱신 (Play 중 금지) |
 | `AddressableAssetManager` | Addressables 로드 · owner-set 캐시 · Direct/라벨 handle · label preload/ref-count |
-| `AddressableLabels` | **type** 라벨 상수 (`boot`, `JSON`, … — ship place·enemy enum 없음) |
 | `AddressableLabelGroupManager` | load group 적재·release |
 | `LoadRequest` / `LoadOperation` / `LabelLoadMode` | 그룹 요청·진행·sync/async |
 | `IPrefabInstanceProvider` | `SpawnPrefab` / `Despawn` 인스턴스 (호스트 구현) |
@@ -95,7 +94,7 @@ Project Dragon 임베드 Layout 소비 시 맞추는 **공개 API** prose 목록
 
 **Load group:** **`AddressableLabelGroupManager.Shared`**, `LoadGroup`, `Release`, `IsLoaded`, `TryGetOperation` — **`LoadRequest`**, **`LoadOperation`**, **`LabelLoadMode`**.
 
-**API 의미 (0.3.0 이후 동일):** Play sync hit-only, `IPrefabInstanceProvider`, `EnterPlaceAsync` / `LeavePlace`, `AddressableLabels` = type 상수만. **0.4.0:** load group 공개 타입명만 `AddressableLabelLoader` → `AddressableLabelGroupManager` (CHANGELOG [0.4.0]). **0.7.0:** `AddressableLabels.DemoArea*` 제거 — place 라벨은 호스트 문자열.
+**API 의미 (0.3.0 이후 동일):** Play sync hit-only, `IPrefabInstanceProvider`, `EnterPlaceAsync` / `LeavePlace`. **type·place 라벨 문자열**은 호스트 Addressables 설정과 동일한 상수를 프로젝트에 둔다 (UPM에 `AddressableLabels` 없음). **0.4.0:** load group 공개 타입명만 `AddressableLabelLoader` → `AddressableLabelGroupManager` (CHANGELOG [0.4.0]). **0.7.0:** dev place 라벨은 레포 `DevTestLabels` 등 fixture 전용.
 
 상세 캐시·owner 규칙: 레포 `docs/architecture/Architecture_AddressableLayout.md` · `Architecture_BootFlow.md`.
 

@@ -68,7 +68,7 @@ namespace AddressableLayout.Tests
 
             ResourcesManager.ReleaseAll();
             var loader = new AddressableLabelGroupManager(ResourcesManager.AssetManager);
-            var labels = new List<string> { AddressableLabels.Boot };
+            var labels = new List<string> { DevTestLabels.Boot };
 
             loader.LoadGroup(BootGroupRequest("group-a", LabelLoadMode.Sync, labels));
             loader.LoadGroup(BootGroupRequest("group-b", LabelLoadMode.Sync, labels));
@@ -96,7 +96,7 @@ namespace AddressableLayout.Tests
                 BootGroupRequest("shared-boot", LabelLoadMode.Sync));
 
             Assert.That(operation.IsDone, Is.True);
-            Assert.That(ResourcesManager.AssetManager.IsLabelLoaded(AddressableLabels.Boot), Is.True);
+            Assert.That(ResourcesManager.AssetManager.IsLabelLoaded(DevTestLabels.Boot), Is.True);
 
             AddressableLabelGroupManager.Shared.Release("shared-boot", force: true);
             ResourcesManager.ReleaseAll();
@@ -115,14 +115,14 @@ namespace AddressableLayout.Tests
 
             loader.LoadGroup(BootGroupRequest("typed-boot", LabelLoadMode.Sync));
             IList<DemoBootSample> secondAcquire =
-                ResourcesManager.AssetManager.PreloadLabelSync<DemoBootSample>(AddressableLabels.Boot);
+                ResourcesManager.AssetManager.PreloadLabelSync<DemoBootSample>(DevTestLabels.Boot);
             Assert.That(secondAcquire, Is.Not.Null);
             Assert.That(secondAcquire.Count, Is.GreaterThan(0));
 
             loader.Release("typed-boot");
             Assert.That(ResourcesManager.LoadResource<DemoBootSample>(BootAddress), Is.Not.Null);
 
-            ResourcesManager.ReleaseLabel(AddressableLabels.Boot);
+            ResourcesManager.ReleaseLabel(DevTestLabels.Boot);
             Assert.That(ResourcesManager.LoadResource<DemoBootSample>(BootAddress), Is.Null);
 
             ResourcesManager.ReleaseAll();
@@ -133,7 +133,7 @@ namespace AddressableLayout.Tests
             LabelLoadMode mode,
             IReadOnlyList<string> labels = null)
         {
-            return new LoadRequest(id, labels ?? new List<string> { AddressableLabels.Boot }, mode)
+            return new LoadRequest(id, labels ?? new List<string> { DevTestLabels.Boot }, mode)
             {
                 AssetType = typeof(DemoBootSample),
             };
@@ -150,7 +150,7 @@ namespace AddressableLayout.Tests
             }
 
             IList<DemoBootSample> boot =
-                ResourcesManagerForEditor.LoadResourcesByLabelForEditor<DemoBootSample>(AddressableLabels.Boot);
+                ResourcesManagerForEditor.LoadResourcesByLabelForEditor<DemoBootSample>(DevTestLabels.Boot);
             if (boot == null || boot.Count == 0)
             {
                 skipReason =

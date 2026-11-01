@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AddressableLayout.Demo;
 using AddressableLayout.Resource;
 using UnityEngine;
 
@@ -53,7 +54,7 @@ namespace AddressableLayout.Demo
             }
 
             IList<DemoBootSample> bootLoaded =
-                await ResourcesManager.LoadResourcesByLabelAsync<DemoBootSample>(AddressableLabels.Boot)
+                await ResourcesManager.LoadResourcesByLabelAsync<DemoBootSample>(DevTestLabels.Boot)
 ;
 
             if (bootLoaded == null || bootLoaded.Count == 0)
@@ -96,7 +97,7 @@ namespace AddressableLayout.Demo
         private static async Task RunMilestoneDAsync()
         {
             IList<GameObject> bootPrefabs =
-                await ResourcesManager.LoadResourcesByLabelAsync<GameObject>(AddressableLabels.Boot)
+                await ResourcesManager.LoadResourcesByLabelAsync<GameObject>(DevTestLabels.Boot)
 ;
             if (bootPrefabs == null || bootPrefabs.Count == 0)
             {

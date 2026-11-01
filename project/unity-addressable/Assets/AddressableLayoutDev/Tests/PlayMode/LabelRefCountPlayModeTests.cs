@@ -27,7 +27,7 @@ namespace AddressableLayout.Tests.PlayMode
             Assert.That(ResourcesManager.LoadResource<DemoBootSample>(BootAddress), Is.Null);
 
             IList<DemoBootSample> loaded =
-                ResourcesManager.AssetManager.PreloadLabelSync<DemoBootSample>(AddressableLabels.Boot);
+                ResourcesManager.AssetManager.PreloadLabelSync<DemoBootSample>(DevTestLabels.Boot);
             Assert.That(loaded, Is.Not.Null);
             Assert.That(loaded.Count, Is.GreaterThan(0));
 
@@ -49,7 +49,7 @@ namespace AddressableLayout.Tests.PlayMode
             }
 
             Task<IList<DemoBootSample>> first = ResourcesManager.LoadResourcesByLabelAsync<DemoBootSample>(
-                AddressableLabels.Boot);
+                DevTestLabels.Boot);
             while (!first.IsCompleted)
             {
                 yield return null;
@@ -59,16 +59,16 @@ namespace AddressableLayout.Tests.PlayMode
             Assert.That(first.Result.Count, Is.GreaterThan(0));
 
             Task<IList<DemoBootSample>> second = ResourcesManager.LoadResourcesByLabelAsync<DemoBootSample>(
-                AddressableLabels.Boot);
+                DevTestLabels.Boot);
             while (!second.IsCompleted)
             {
                 yield return null;
             }
 
-            ResourcesManager.ReleaseLabel(AddressableLabels.Boot);
+            ResourcesManager.ReleaseLabel(DevTestLabels.Boot);
             Assert.That(ResourcesManager.LoadResource<DemoBootSample>(BootAddress), Is.Not.Null);
 
-            ResourcesManager.ReleaseLabel(AddressableLabels.Boot);
+            ResourcesManager.ReleaseLabel(DevTestLabels.Boot);
             Assert.That(ResourcesManager.LoadResource<DemoBootSample>(BootAddress), Is.Null);
 
             ResourcesManager.ReleaseAll();
@@ -87,10 +87,10 @@ namespace AddressableLayout.Tests.PlayMode
             }
 
             Task<IList<DemoBootSample>> asyncLoad = ResourcesManager.LoadResourcesByLabelAsync<DemoBootSample>(
-                AddressableLabels.Boot);
+                DevTestLabels.Boot);
 
             IList<DemoBootSample> syncLoaded =
-                ResourcesManager.AssetManager.PreloadLabelSync<DemoBootSample>(AddressableLabels.Boot);
+                ResourcesManager.AssetManager.PreloadLabelSync<DemoBootSample>(DevTestLabels.Boot);
             Assert.That(syncLoaded, Is.Not.Null);
             Assert.That(syncLoaded.Count, Is.GreaterThan(0));
 
@@ -102,10 +102,10 @@ namespace AddressableLayout.Tests.PlayMode
             Assert.That(asyncLoad.Result, Is.Not.Null);
             Assert.That(ResourcesManager.LoadResource<DemoBootSample>(BootAddress), Is.Not.Null);
 
-            ResourcesManager.ReleaseLabel(AddressableLabels.Boot);
+            ResourcesManager.ReleaseLabel(DevTestLabels.Boot);
             Assert.That(ResourcesManager.LoadResource<DemoBootSample>(BootAddress), Is.Not.Null);
 
-            ResourcesManager.ReleaseLabel(AddressableLabels.Boot);
+            ResourcesManager.ReleaseLabel(DevTestLabels.Boot);
             Assert.That(ResourcesManager.LoadResource<DemoBootSample>(BootAddress), Is.Null);
 
             ResourcesManager.ReleaseAll();

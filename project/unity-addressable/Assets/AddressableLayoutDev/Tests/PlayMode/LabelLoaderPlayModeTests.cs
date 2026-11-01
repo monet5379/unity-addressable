@@ -25,7 +25,7 @@ namespace AddressableLayout.Tests.PlayMode
 
             var loader = new AddressableLabelGroupManager(ResourcesManager.AssetManager);
             LoadOperation operation = loader.LoadGroup(
-                new LoadRequest("play-async-boot", new List<string> { AddressableLabels.Boot }, LabelLoadMode.Async)
+                new LoadRequest("play-async-boot", new List<string> { DevTestLabels.Boot }, LabelLoadMode.Async)
                 {
                     AssetType = typeof(DemoBootSample),
                 });
@@ -56,7 +56,7 @@ namespace AddressableLayout.Tests.PlayMode
             }
 
             var loader = new AddressableLabelGroupManager(ResourcesManager.AssetManager);
-            var labels = new List<string> { AddressableLabels.Boot, DevTestLabels.PlaceA };
+            var labels = new List<string> { DevTestLabels.Boot, DevTestLabels.PlaceA };
             LoadOperation operation = loader.LoadGroup(
                 new LoadRequest("play-cancel", labels, LabelLoadMode.Async)
                 {

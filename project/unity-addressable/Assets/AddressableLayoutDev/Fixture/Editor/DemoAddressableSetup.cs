@@ -1,5 +1,4 @@
 using AddressableLayout.Editor;
-using AddressableLayout.Resource;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -42,15 +41,15 @@ namespace AddressableLayout.Demo
             // Play Mode: Use Asset Database (BuildScriptFastMode).
             settings.ActivePlayModeDataBuilderIndex = IndexOfFastModeBuilder(settings);
 
-            settings.AddLabel(AddressableLabels.Boot);
-            settings.AddLabel(AddressableLabels.Default);
+            settings.AddLabel(DevTestLabels.Boot);
+            settings.AddLabel(DevTestLabels.Default);
             settings.AddLabel(DevTestLabels.PlaceA);
             settings.AddLabel(DevTestLabels.PlaceB);
 
-            RegisterSample(settings, BootPath, "boot-sample", AddressableLabels.Boot, AddressableLabels.Default);
+            RegisterSample(settings, BootPath, "boot-sample", DevTestLabels.Boot, DevTestLabels.Default);
             RegisterSample(settings, PlaceAPath, "place-a", DevTestLabels.PlaceA);
             RegisterSample(settings, PlaceBPath, "place-b", DevTestLabels.PlaceB);
-            RegisterSpawnPrefab(settings, SpawnPrefabPath, AddressableLabels.Boot);
+            RegisterSpawnPrefab(settings, SpawnPrefabPath, DevTestLabels.Boot);
 
             EnsureSampleAsset(CollisionAddressablesPath, "collision-addressables");
             EnsureSampleAsset(ResourcesOnlyPath, "resources-only");
@@ -64,7 +63,7 @@ namespace AddressableLayout.Demo
 
             Debug.Log(
                 $"[DemoAddressableSetup] Registered boot + place + spawn prefab + F dual-scan samples " +
-                $"({AddressableLabels.Boot}, {DevTestLabels.PlaceA}, {DevTestLabels.PlaceB}). " +
+                $"({DevTestLabels.Boot}, {DevTestLabels.PlaceA}, {DevTestLabels.PlaceB}). " +
                 $"PathMeta entries={pathCount}. Enter Play to run Demo.");
         }
 

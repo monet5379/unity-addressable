@@ -55,7 +55,6 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 | `AddressableLabelLoadByType` | Play (internal) | `LoadRequest.AssetType` → 제네릭 `CountLabelLocations` / `LoadLabel` (expression tree 바인딩) |
 | `AddressableLabelGroupRunner` | Play (internal) | DDOL `MonoBehaviour` — async load group coroutine 호스트 |
 | `AddressableLogging` | Addressables (internal) | preload empty · settings.json / Invalid path 오류 메시지 |
-| `AddressableLabels` | 계약 | **type** 상수(`boot`, `JSON`, …) — place 라벨은 호스트 문자열 |
 | `AddressableLabelGroupManager` | Play (load group) | `LoadRequest.Id` + 라벨 목록 sync/async · `KeepResident` / `force` Release |
 | `LoadRequest` / `LoadOperation` / `LabelLoadMode` | Play (load group) | 그룹 요청 · `CustomYieldInstruction` 진행률 · sync/async |
 | `IPrefabInstanceProvider` | Play (호스트) | `SpawnPrefab` / `Despawn` 인스턴스 생성·반환 — 기본 Instantiate/Destroy |
@@ -68,7 +67,7 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 ```text
 Addressable/
 ├── AddressableAssetManager.cs     # 공개 파사드 (루트)
-├── Contracts/                     # AddressableLabels · LabelLoadMode
+├── Contracts/                     # LabelLoadMode
 ├── Cache/                         # CacheOwnership
 ├── Loading/                       # DirectAssetLoader · LabelAssetLoader · LabelReferenceTracker · AddressableLogging
 └── LabelGroups/                   # AddressableLabelGroupManager · Runner · AddressableLabelLoadByType
@@ -181,7 +180,7 @@ flowchart TB
 | Edit 레이아웃 도구 | `AddressableLayoutToolWindow` |
 | 계약 문구 | [루트 README](../../README.md) 불변조건 먼저 |
 
-- [x] README 불변조건과 동기화 (0.7.0 dev fixture · `AddressableLabels` type-only)
+- [x] README 불변조건과 동기화 (dev fixture `DevTestLabels` · UPM 라벨 상수 없음)
 - [x] Addressable 모듈 로더 분리(`DirectAssetLoader` · `LabelAssetLoader` · `LabelReferenceTracker`) 반영 (2026-10-28)
 - [x] Addressable 모듈 하위 폴더(`Contracts` · `Cache` · `Loading` · `LabelGroups`) (2026-10-28)
 - [x] `verify.ps1` — `prepare-test-catalog` · Edit **34** · Play **6** (2026-11-01)
