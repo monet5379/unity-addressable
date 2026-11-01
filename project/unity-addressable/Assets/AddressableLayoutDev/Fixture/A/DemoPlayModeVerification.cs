@@ -60,7 +60,7 @@ namespace AddressableLayout.Demo
             {
                 throw new InvalidOperationException(
                     "No DemoBootSample under label 'boot'. " +
-                    "레이아웃 도구 → 부트 샘플 등록 및 Addressables Fast Mode를 확인하세요.");
+                    "PrepareTestCatalog(verify.ps1) 또는 RegisterBootSample, Addressables Fast Mode를 확인하세요.");
             }
 
             DemoBootSample sample = bootLoaded[0];
@@ -173,7 +173,7 @@ namespace AddressableLayout.Demo
             if (lookedUp == null)
             {
                 throw new InvalidOperationException(
-                    $"PathMeta Lookup failed for '{fileName}'. 레이아웃 도구 → 갱신 또는 부트 샘플 등록.");
+                    $"PathMeta Lookup failed for '{fileName}'. 레이아웃 도구 → 갱신 또는 RegisterBootSample().");
             }
 
             if (lookedUp != expectedPath)

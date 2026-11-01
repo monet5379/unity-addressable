@@ -18,13 +18,13 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 
 ## 책임과 경계 (Responsibilities & Boundaries)
 
-*패키지 Runtime/Editor asmdef와 Demo Sample 경계를 구분하고, 타이틀 책임을 밖으로 넘긴다.*
+*패키지 Runtime/Editor asmdef와 레포 dev fixture(`AddressableLayoutDev`) 경계를 구분하고, 타이틀 책임을 밖으로 넘긴다.*
 
 ### 포함 범위 (In Scope)
 
 - `PathManager` / PathMeta Lookup · `AddressableAssetManager` 캐시 · `ResourcesManager` Play 파사드
 - Editor: 레이아웃 도구 창 · `ResourcesManagerForEditor`
-- Sample `Demo` — Play/Edit 검증 놀이터 (출시 복사 대상 아님)
+- 레포 dev `Assets/AddressableLayoutDev` — Play/Edit 검증 fixture (UPM 미포함, 출시 복사 대상 아님)
 
 ### 제외 범위 (Out of Scope)
 
@@ -40,7 +40,7 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 | --- | --- | --- |
 | `Packages/.../Runtime/` | `AddressableLayout.Runtime` | Play: Lookup · Addressables 캐시 · `ResourcesManager` |
 | `Packages/.../Editor/` | `AddressableLayout.Editor` | PathMeta 갱신 · 레이아웃 도구 창 · `*ForEditor` |
-| `Samples~/Demo/` | Demo asmdef | Demo 검증 — **출시 복사 대상 아님** |
+| `Assets/AddressableLayoutDev/Fixture/` | `AddressableLayout.Demo` (+ Editor setup) | dev Demo 스크립트·에셋 배선 — **UPM·출시 복사 대상 아님** |
 | `Assets/AddressableLayoutDev/Tests/Editor/` · `Assets/AddressableLayoutDev/Tests/PlayMode/` | EditorTests · PlayModeTests | `PathManagerEditTests` · `CacheOwnershipTests` · `DemoPlayModeTests` |
 
 | 타입 | 레이어 | 책임 |
@@ -55,7 +55,7 @@ Addressable Layout은 Treasure/Core식 **Resource 층**만 UPM 패키지(`com.mo
 | `AddressableLabelLoadByType` | Play (internal) | `LoadRequest.AssetType` → 제네릭 `CountLabelLocations` / `LoadLabel` (expression tree 바인딩) |
 | `AddressableLabelGroupRunner` | Play (internal) | DDOL `MonoBehaviour` — async load group coroutine 호스트 |
 | `AddressableLogging` | Addressables (internal) | preload empty · settings.json / Invalid path 오류 메시지 |
-| `AddressableLabels` | 계약 | 종류(`boot`, `JSON`, …) · Demo place 상수 |
+| `AddressableLabels` | 계약 | **type** 상수(`boot`, `JSON`, …) — place 라벨은 호스트 문자열 |
 | `AddressableLabelGroupManager` | Play (load group) | `LoadRequest.Id` + 라벨 목록 sync/async · `KeepResident` / `force` Release |
 | `LoadRequest` / `LoadOperation` / `LabelLoadMode` | Play (load group) | 그룹 요청 · `CustomYieldInstruction` 진행률 · sync/async |
 | `IPrefabInstanceProvider` | Play (호스트) | `SpawnPrefab` / `Despawn` 인스턴스 생성·반환 — 기본 Instantiate/Destroy |
@@ -110,7 +110,7 @@ flowchart TB
     end
 ```
 
-- **PathManager**는 Play·플레이어에서 packaged JSON만 읽는다. 디스크 스캔·`PathMetaData.json` 쓰기는 Editor **`PathMetaWriter.Write()`** (`PathMetaRefresh` · 레이아웃 도구 · Demo 등록)만 호출하며, **Play 중에는 실행하지 않는다**.
+- **PathManager**는 Play·플레이어에서 packaged JSON만 읽는다. 디스크 스캔·`PathMetaData.json` 쓰기는 Editor **`PathMetaWriter.Write()`** (`PathMetaRefresh` · 레이아웃 도구 **갱신**)만 호출하며, **Play 중에는 실행하지 않는다**.
 - **AddressableAssetManager**는 `ResourcesManager`의 private static 인스턴스 하나로 묶인다. 구현은 `Runtime/Resource/Addressable/` 아래 **Contracts / Cache / Loading / LabelGroups**와 루트 파사드로 나뉘며, `Loading/`의 Direct·Label 로더와 `LabelReferenceTracker`가 handle·ref-count를, `Cache/`의 `CacheOwnership`이 owner-set 객체를 담당한다.
 
 **Play 캐시·핸들 (Addressable 모듈)**
@@ -168,7 +168,7 @@ flowchart TB
 - **동일 PrimaryKey `LoadResourceAsync` 동시 호출** — in-flight Task 공유; Direct handle은 PrimaryKey당 하나
 - **라벨 preload와 Direct가 같은 PrimaryKey 공유** — owner-set; 한쪽만 `Release`/`ReleaseLabel`해도 다른 owner가 남으면 sync hit 유지
 - Edit `*ForEditor`는 Play 캐시를 채우지 않는다
-- Demo Sample ≠ 출시 카탈로그
+- dev fixture·`Assets/Addressables/Demo` ≠ 출시 카탈로그 (UPM Git URL 소비자에게는 없음)
 
 ## 변경 가이드 (Change Guidelines)
 
@@ -181,10 +181,10 @@ flowchart TB
 | Edit 레이아웃 도구 | `AddressableLayoutToolWindow` |
 | 계약 문구 | [루트 README](../../README.md) 불변조건 먼저 |
 
-- [x] README 불변조건과 동기화 (0.3.0 Host parity · label ref-count)
+- [x] README 불변조건과 동기화 (0.7.0 dev fixture · `AddressableLabels` type-only)
 - [x] Addressable 모듈 로더 분리(`DirectAssetLoader` · `LabelAssetLoader` · `LabelReferenceTracker`) 반영 (2026-10-28)
 - [x] Addressable 모듈 하위 폴더(`Contracts` · `Cache` · `Loading` · `LabelGroups`) (2026-10-28)
-- [x] `verify.ps1` Edit 25 / Play 6 · `PathManagerEditTests` · `CacheOwnershipTests` (2026-10-28)
+- [x] `verify.ps1` — `prepare-test-catalog` · Edit **34** · Play **6** (2026-11-01)
 
 ## 관련 문서 (See also)
 

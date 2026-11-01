@@ -12,8 +12,8 @@ namespace AddressableLayout.Resource
             {
                 Debug.LogError(
                     $"[AddressableLayout] Addressable 로드 실패: {key}. " +
-                    "Addressables 빌드 또는 Play Mode Script를 Use Asset Database로 설정하세요. " +
-                    "Tools → Addressable Layout (레이아웃 도구) → 부트 샘플 등록.");
+                    "Addressables 빌드 또는 Play Mode Script를 Use Asset Database로 설정하고, " +
+                    "에셋에 Addressables 라벨이 할당되었는지 확인하세요. PathMeta는 레이아웃 도구 → 갱신.");
                 return;
             }
 

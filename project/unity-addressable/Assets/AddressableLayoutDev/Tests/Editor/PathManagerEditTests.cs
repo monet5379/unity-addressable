@@ -270,7 +270,7 @@ namespace AddressableLayout.Tests
                 return true;
             }
 
-            skipReason = "Demo PathMeta missing. Run PrepareDemo or register boot sample.";
+            skipReason = "Demo PathMeta missing. Run PrepareTestCatalog or DemoAddressableSetup.RegisterBootSample().";
             return false;
         }
     }

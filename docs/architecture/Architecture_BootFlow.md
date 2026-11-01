@@ -4,7 +4,7 @@
 
 *Play Mode에서 PathMeta 로드 → 라벨 preload → gameplay sync hit-only까지의 권장 순서를 정의한다.*
 
-Demo Sample의 `DemoPlayModeVerification`(Test Runner **Play Mode** `DemoPlayModeTests`; 수동 Play는 `DemoAddressableHost`)이 같은 순서를 검증한다. 코드·에셋은 **레포 dev** `Assets/AddressableLayoutDev`·`Assets/Addressables/Demo`에만 있다. 계약 정본은 [루트 README](../../README.md)이다.
+레포 dev fixture의 `DemoPlayModeVerification`(Test Runner **Play Mode** `DemoPlayModeTests`; 수동 Play는 `DemoAddressableHost`)이 같은 순서를 검증한다. 코드·에셋은 **레포 dev** `Assets/AddressableLayoutDev`·`Assets/Addressables/Demo`에만 있다. 계약 정본은 [루트 README](../../README.md)이다.
 
 ## 책임과 경계 (Responsibilities & Boundaries)
 

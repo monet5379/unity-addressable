@@ -29,7 +29,7 @@ unity-addressable/
 ├── docs/architecture/          ← repo 문서 정본 (adr·reference·plan 없음)
 └── project/unity-addressable/
     ├── Packages/com.monet5379.addressable-layout/   ← 패키지 소스 (정본)
-    └── Assets/                                      ← 샘플·Demo·Addressables 콘텐츠
+    └── Assets/                                      ← AddressableLayoutDev·Addressables/Demo (검증용)
 ```
 
 ## 포니테일 (Build)
@@ -42,7 +42,7 @@ unity-addressable/
 
 - Kit **common** + **personal** (README 불변조건 + `CONTEXT.md` + `docs/architecture/`; Optimization·cut planning은 GitHub Issues, 요청 시만).
 - `.meta` 생성·수정·삭제 금지. `ThirdParty/` · `Plugins/` 직접 수정 금지.
-- 패키지 구현은 `Packages/com.monet5379.addressable-layout/`만; Demo·Sample은 출시 필수 경로로 취급하지 않는다.
+- 패키지 구현은 `Packages/com.monet5379.addressable-layout/`만; `AddressableLayoutDev`·Demo 에셋은 출시 필수 경로로 취급하지 않는다.
 - C# 변경 후 관련 **asmdef 컴파일** 확인. 통합 검증은 repo 루트 `.\scripts\verify.ps1` (README §로컬 검증).
 - 커밋은 사용자 **명시 요청** 시에만. Kit CommitMessages (`unity-studio-kit/docs/common/CommitMessages.md`) — `type(scope): 한글 제목` + **본문(why) 필수**
 
